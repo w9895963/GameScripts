@@ -1,0 +1,19 @@
+/Library/
+/Output
+/Packages
+/UserSettings
+/.vscode
+*.prefab
+*.meta
+*.png
+ProjectSettings/
+Assembly-CSharp.csproj
+Golden Bun.sln
+Temp/
+obj/
+# *
+
+
+
+/Assets/*
+!/Assets/Scripts
