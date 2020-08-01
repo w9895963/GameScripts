@@ -31,16 +31,16 @@ public class M_InputFilter : MonoBehaviour {
             bool isInner;
             RaycastHit2D[] hits = Physics2D.RaycastAll (clickPosition, Vector2.zero, 0f, LayerMask.GetMask ("Zone"));
             List<RaycastHit2D> hits_ = new List<RaycastHit2D> (hits);
-            isInner = hits_.Exists (hit => hit.rigidbody.name == "InnerZone");
-            Debug.Log(123);
+
+            isInner = hits_.Exists (hit => hit.collider.name == "InnerZone");
 
             if (isInner) {
                 targetInner = clickPosition;
                 Fn.DrawCross (targetInner);
             }
 
-            events.click.Invoke ();
-           // D_DebugEventAction.CreateSign (targetInner);
+           events.click.Invoke ();
+            // D_DebugEventAction.CreateSign (targetInner);
         }));
         clickZone.triggers.Add (en);
     }
