@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class M_Gravity : MonoBehaviour {
 
-    [Header ("Call")]
     public Vector2 gravity = new Vector2 (0, -60);
 
     public Events events;

@@ -24,7 +24,7 @@ public class M_GroundMove : MonoBehaviour {
     public bool cutUpsideSpeed;
 
 
-    [Header ("Event")]
+    [Header ("Control Port")]
     public float walkDirection;
 
     [Header ("Date")]

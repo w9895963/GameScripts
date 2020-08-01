@@ -10,7 +10,7 @@ public class M_Rotate : MonoBehaviour {
     [Header ("Setting")]
     public float totalTime = 0.7f;
     public AnimationCurve curve;
-    [Header ("Event")]
+    [Header ("Trigger")]
     public bool gravityChanged = false;
 
     [Header ("Data")]
