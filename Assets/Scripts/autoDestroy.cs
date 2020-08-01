@@ -16,4 +16,8 @@ public class autoDestroy : MonoBehaviour {
             Destroy (gameObject);
         }
     }
+
+    private void OnEnable () {
+        timeCreate = Time.time;
+    }
 }

@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 using static Fn;
 
 public class InputManager : MonoBehaviour {
+    public GameObject game_Object;
+    public EventTrigger clickZone;
+    public Collider2D collide;
+
     public bool setMovingPoint;
     public Vector2 movingPoint;
 
-
-    public UnityEvent<Vector2> setDestination;
-    public UnityEvent onSetDestination;
-
-
-    public GameObject currentPlayer () => GameObject.FindGameObjectWithTag ("CurrentPlayer");
+    [Header ("Event Out")]
+    public UnityEvent<Vector2> onClick;
 
 
-    public void SetMovingPoint () {
+    private void Awake () {
+        // clickZone.OnPointerDown(setMovingPoint);
+        EventTrigger.Entry en = new EventTrigger.Entry ();
+        en.eventID = EventTriggerType.PointerDown;
+        en.callback.AddListener ((data => {
 
-
-        if (setMovingPoint) {
-
-            Vector3 ClickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
-            setDestination.Invoke (ClickPosition);
-            onSetDestination.Invoke ();
-
-
-        }
+            //onClick.Invoke();
+        }));
+        clickZone.triggers.Add (en);
 
 
     }

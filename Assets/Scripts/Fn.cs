@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class Fn {
 
-
     public static void DrawCross (Vector2 position, float l = 0.2f) {
 
         Vector2 p = position;
@@ -43,4 +42,7 @@ public static class Fn {
         l.Remove (obj);
         return l.ToArray ();
     }
+
+
+    
 }
