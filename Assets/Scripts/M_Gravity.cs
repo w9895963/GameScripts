@@ -12,7 +12,8 @@ public class M_Gravity : MonoBehaviour {
 
 
     //* Input
-    public void ChangeGravityDirection (Vector2 direction) {
+
+    public void SetGravityDirection (Vector2 direction) {
 
         if (gravity.normalized != direction) {
 
@@ -22,8 +23,41 @@ public class M_Gravity : MonoBehaviour {
         }
 
     }
+    public void SetGravityDirection (GravityDirection dir) {
+        Vector2 direction = default;
+        switch (dir) {
+            case GravityDirection.Up:
+                direction = Vector2.up;
+                break;
+            case GravityDirection.Down:
+                direction = Vector2.down;
+                break;
+            case GravityDirection.Left:
+                direction = Vector2.left;
+                break;
+            case GravityDirection.Right:
+                direction = Vector2.right;
+                break;
+        }
 
+
+        if (gravity.normalized != direction) {
+
+            gravity = direction.normalized * gravity.magnitude;
+            events.gravityChanged.Invoke ();
+
+        }
+
+    }
     public Vector2 GetGravity () => gravity;
+
+
+    public enum GravityDirection {
+        Down,
+        Up,
+        Left,
+        Right
+    }
 
     [System.Serializable]
     public class Events {
@@ -35,15 +69,7 @@ public class M_Gravity : MonoBehaviour {
     //* Test
     [System.Serializable]
     public class Test {
-        public TestGravity setG;
-
-
-        public enum TestGravity {
-            Down,
-            Up,
-            Left,
-            Right
-        }
+        public GravityDirection setG;
 
 
     }
@@ -52,7 +78,7 @@ public class M_Gravity : MonoBehaviour {
     private void OnValidate () {
         Vector2[] g = { Vector2.down, Vector2.up, Vector2.left, Vector2.right };
 
-        ChangeGravityDirection (g[test.setG.GetHashCode ()]);
+        SetGravityDirection (test.setG);
 
     }
 

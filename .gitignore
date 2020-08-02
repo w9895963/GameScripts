@@ -1,14 +1,16 @@
 Library/
-Output
-Packages
-UserSettings
-.vscode
+Output/
+Packages/
+UserSettings/
+.vscode/
 ProjectSettings/
-Assembly-CSharp.csproj
-Golden Bun.sln
 Temp/
 obj/
-
 Assets/*
-!Assets/Scripts
+!Assets/Scripts/
+
 *.meta
+
+Assembly-CSharp.csproj
+Golden Bun.sln
+

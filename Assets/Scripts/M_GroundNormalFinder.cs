@@ -15,7 +15,9 @@ public class M_GroundNormalFinder : MonoBehaviour {
     public GameObject[] grounds;
 
     private void Awake () {
-        // importGravity.GetComponent<M_Gravity> ().events.gravityUpdate.AddListener ((Vector2 v) => gravity = v);
+        importGravity.GetComponent<M_Gravity> ().events.gravityChanged.AddListener (() => {
+            normal = FindNormal ();
+        });
 
         trigerBox.events.onTriggerEnter2D.AddListener ((Collider2D other) => {
             bool groundDetect = other.gameObject.tag == "Ground";
@@ -23,7 +25,7 @@ public class M_GroundNormalFinder : MonoBehaviour {
                 grounds = Fn.ArrayAddUniq (grounds, other.gameObject);
             }
             if (groundDetect) {
-                normal = GetNormal () != default (Vector2) ? GetNormal () : normal;
+                normal = FindNormal () != default (Vector2) ? FindNormal () : normal;
                 // output.setNormal.Invoke (normal);
             }
         });
@@ -35,7 +37,7 @@ public class M_GroundNormalFinder : MonoBehaviour {
             }
 
             if (grounds.Length > 0) {
-                normal = GetNormal () != default (Vector2) ? GetNormal () : normal;
+                normal = FindNormal () != default (Vector2) ? FindNormal () : normal;
                 // output.setNormal.Invoke (normal);
 
 
@@ -46,15 +48,18 @@ public class M_GroundNormalFinder : MonoBehaviour {
 
             }
         });
+
+
     }
 
-    private Vector2 GetNormal () {
+    private Vector2 FindNormal () {
         gravity = importGravity.GetGravity ();
 
         RaycastHit2D[] hitsArray = new RaycastHit2D[32];
         ContactFilter2D filter = new ContactFilter2D ();
-        filter.layerMask = LayerMask.NameToLayer ("ground");
-        int count = mainRigidbody.GetComponent<Rigidbody2D> ().Cast (gravity, filter, hitsArray, 0.7f);
+        filter.layerMask = LayerMask.GetMask ("Ground");
+
+        int count = mainRigidbody.GetComponent<Rigidbody2D> ().Cast (gravity, filter, hitsArray, 0.5f);
         List<RaycastHit2D> hits = new List<RaycastHit2D> (hitsArray).GetRange (0, count);
 
 
@@ -66,6 +71,7 @@ public class M_GroundNormalFinder : MonoBehaviour {
             return length1 > length2 ? 1 : -1;
         });
         if (hits.Count > 0) {
+            Fn.DrawVector (hits[0].point, hits[0].normal);
             return hits[0].normal;
         } else {
             return default (Vector2);
@@ -76,8 +82,9 @@ public class M_GroundNormalFinder : MonoBehaviour {
     public Vector2 GetGroundNormal () {
         return normal;
     }
-    public bool HasGroundNormal () {
-        return normal == default (Vector2) ? false : true;
+    public bool IsOnGround () {
+
+        return grounds.Length > 0 ? true : false;
     }
 
 

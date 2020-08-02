@@ -15,10 +15,11 @@ public class M_Rotate : MonoBehaviour {
 
     [Header ("Data")]
     public float gravityChangedTime;
+    public Vector2 standDirection;
+    public float angleToRotate;
 
     private void Awake () {
         importGravity.events.gravityChanged.AddListener (OnGravityChanged);
-        // importGravity.events.gravityChanged.RemoveListener (OnGravityChanged);
 
     }
 
@@ -27,8 +28,9 @@ public class M_Rotate : MonoBehaviour {
         gravity = importGravity.GetGravity ();
 
         if (gravityChanged) {
-            float z = transform.rotation.z;
-            float angle = Vector2.SignedAngle (Vector2.down, gravity);
+            var z = Vector2.SignedAngle (Vector2.up, standDirection);
+
+
             float delTime = Time.time - gravityChangedTime;
 
 
@@ -36,14 +38,12 @@ public class M_Rotate : MonoBehaviour {
             float rate = delTime / totalTime;
             rate = curve.Evaluate (rate);
 
-
-            z = angle * rate;
-            Quaternion quaternion = Quaternion.Euler (0, 0, z);
+            float delZ = angleToRotate * rate;
+            Quaternion quaternion = Quaternion.Euler (0, 0, z + delZ);
 
             transform.rotation = quaternion;
 
-            // Debug.Log (transform.rotation.z + ";" + angle + ";" + rate + ";" + z);
-            bool changedFinished = transform.rotation.z == angle;
+            bool changedFinished = Time.time - gravityChangedTime > totalTime;
             if (changedFinished) {
                 gravityChanged = false;
             }
@@ -53,7 +53,11 @@ public class M_Rotate : MonoBehaviour {
 
 
     public void OnGravityChanged () {
+        gravity = importGravity.GetGravity ();
         gravityChangedTime = Time.time;
+
+        standDirection = Fn.RotateClock (Vector2.up, -transform.rotation.eulerAngles.z);
+        angleToRotate = Vector2.SignedAngle (standDirection, -gravity);
         gravityChanged = true;
     }
 

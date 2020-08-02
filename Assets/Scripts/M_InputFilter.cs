@@ -24,8 +24,10 @@ public class M_InputFilter : MonoBehaviour {
         en.eventID = EventTriggerType.PointerDown;
         en.callback.AddListener (((a) => {
             gravity = gravityImport.GetGravity ();
+            Rigidbody2D rb = GetComponent<Rigidbody2D> ();
 
-            Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
+            // Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
+            Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
             Vector2 playerPosition = transform.position;
 
             bool isInner;
@@ -36,19 +38,38 @@ public class M_InputFilter : MonoBehaviour {
 
             if (isInner) {
                 targetInner = clickPosition;
-                Fn.DrawCross (targetInner);
+
+                RaycastHit2D hitG = Physics2D.Raycast (targetInner, gravity, 8, LayerMask.GetMask ("Ground"));
+                targetOnGround = hitG?hitG.point : default;
+
+
+                events.click.Invoke ();
+
+
+            } else {
+                targetInner = default;
+                targetOnGround = default;
             }
 
-           events.click.Invoke ();
-            // D_DebugEventAction.CreateSign (targetInner);
+
         }));
+
         clickZone.triggers.Add (en);
+    }
+
+
+    public Vector2 GetGroundPosition () {
+        return targetOnGround;
+    }
+    public Vector2 GetTargetInner () {
+        return targetInner;
     }
 
     [System.Serializable]
     public class Events {
 
         public UnityEvent click;
+
     }
 
 }

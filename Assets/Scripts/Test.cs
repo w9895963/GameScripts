@@ -3,18 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Test : MonoBehaviour {
-    // Start is called before the first frame update
-    void Start () {
-        Debug.Log(123);
+
+
+    public M_Gravity importGravity;
+    public int count;
+    public float time;
+
+
+    private void Update () {
+        if (Time.time - time > 0.2f & count > 0) {
+            Vector2 dir = Fn.RotateClock (importGravity.GetGravity (), count * 90);
+            importGravity.SetGravityDirection (dir);
+            count = 0;
+        }
+
     }
 
-    // Update is called once per frame
-    void Update () {
 
-    }
-
-
-    public void Log (string s) {
-        Debug.Log (s);
+    public void click () {
+        count++;
+        time = Time.time;
     }
 }

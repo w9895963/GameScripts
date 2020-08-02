@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,12 +14,14 @@ public class D_DebugEventAction : MonoBehaviour {
         Debug.Log (sr, sr);
     }
 
-    // public static void CreateSign (Vector2 position) {
-    //     GameObject obj = Resources.Load ("Assets/DebugActionFile/sign.prefab") as GameObject;
-    //     GameObject.Instantiate (obj).transform.position = position;
+    public static void CreateSign (Vector2 position, float z = 0, float exitstTime = 1) {
 
-    // }
-    public void Test () {
+        GameObject obj = Resources.Load ("DebugFile/sign", typeof (GameObject)) as GameObject;
+
+        GameObject oj = GameObject.Instantiate (obj);
+        oj.transform.position = position;
+        oj.transform.rotation = Quaternion.Euler (0, 0, z);
+        oj.GetComponent<autoDestroy> ().time = exitstTime;
 
     }
 
