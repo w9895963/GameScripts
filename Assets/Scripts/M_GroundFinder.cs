@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class M_GroundNormalFinder : MonoBehaviour {
+public class M_GroundFinder : MonoBehaviour {
     [Header ("Import")]
     public Rigidbody2D mainRigidbody;
     public M_Gravity importGravity;
@@ -12,11 +13,13 @@ public class M_GroundNormalFinder : MonoBehaviour {
     public Vector2 gravity;
     [Header ("Output")]
     public Vector2 normal;
+    public GameObject groundOnFeet;
     public GameObject[] grounds;
 
     private void Awake () {
         importGravity.GetComponent<M_Gravity> ().events.gravityChanged.AddListener (() => {
             normal = FindNormal ();
+            FindGround ();
         });
 
         trigerBox.events.onTriggerEnter2D.AddListener ((Collider2D other) => {
@@ -26,8 +29,10 @@ public class M_GroundNormalFinder : MonoBehaviour {
             }
             if (groundDetect) {
                 normal = FindNormal () != default (Vector2) ? FindNormal () : normal;
-                // output.setNormal.Invoke (normal);
+
             }
+
+            FindGround ();
         });
 
         trigerBox.events.onTriggerExit2D.AddListener ((Collider2D other) => {
@@ -38,17 +43,38 @@ public class M_GroundNormalFinder : MonoBehaviour {
 
             if (grounds.Length > 0) {
                 normal = FindNormal () != default (Vector2) ? FindNormal () : normal;
-                // output.setNormal.Invoke (normal);
 
 
             } else {
                 normal = default (Vector2);
-                // output.setNormal.Invoke (normal);
-                // output.onLeaveGround.Invoke ();
 
             }
+
+
+            FindGround ();
         });
 
+
+    }
+
+    private void FindGround () {
+        if (grounds.Length > 0) {
+            RaycastHit2D hit = Physics2D.Raycast (mainRigidbody.position, gravity, 1.5f, LayerMask.GetMask ("Ground"));
+
+            if (hit) {
+                // Debug.Log (hit.collider.name);
+
+                groundOnFeet = hit.collider.gameObject;
+
+            } else {
+                if (normal != default)
+                    groundOnFeet = grounds[0];
+                else
+                    groundOnFeet = default;
+            }
+        } else {
+            groundOnFeet = default;
+        }
 
     }
 
@@ -71,7 +97,7 @@ public class M_GroundNormalFinder : MonoBehaviour {
             return length1 > length2 ? 1 : -1;
         });
         if (hits.Count > 0) {
-            Fn.DrawVector (hits[0].point, hits[0].normal);
+            // Fn.DrawVector (hits[0].point, hits[0].normal);
             return hits[0].normal;
         } else {
             return default (Vector2);
@@ -79,8 +105,13 @@ public class M_GroundNormalFinder : MonoBehaviour {
 
     }
 
+
+    //*Public Method
     public Vector2 GetGroundNormal () {
         return normal;
+    }
+    public GameObject GetGround () {
+        return groundOnFeet;
     }
     public bool IsOnGround () {
 

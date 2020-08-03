@@ -5,11 +5,11 @@ using UnityEngine.Events;
 
 public class M_GroundMove : MonoBehaviour {
     [Header ("Import")]
-    public M_GroundNormalFinder importNormal;
+    public M_GroundFinder importNormal;
     public Vector2 normal;
+    public bool onGround;
     public M_Gravity importGravity;
     public Vector2 gravity;
-    public bool onGround;
 
     [Header ("Setting")]
     public float moveForce = 300f;
@@ -24,10 +24,14 @@ public class M_GroundMove : MonoBehaviour {
     public bool decelerateOn;
     public bool cutUpsideSpeed;
     public bool limitMax;
+    public bool moveWithGround;
 
 
     [Header ("Variables")]
     public WalkAction goDir;
+    public bool lastPositionLoaded = false;
+    public GameObject lastGround;
+    public Vector2 groundPositionLast;
 
     [Header ("Date For Test")]
 
@@ -124,15 +128,52 @@ public class M_GroundMove : MonoBehaviour {
             v = v_Vr + v_Hr;
         }
 
+        if (moveWithGround) {
+            if (importNormal.GetGround ()) {
+                if (!lastPositionLoaded) {
+                    groundPositionLast = importNormal.GetGround ().transform.position;
+                    lastGround = importNormal.GetGround ();
+                    lastPositionLoaded = true;
+                } else if (lastPositionLoaded) {
+                    if (lastGround == importNormal.GetGround ()) {
+                        Vector2 positionNew = importNormal.GetGround ().transform.position;
+                        Vector2 positionDelta = positionNew - groundPositionLast;
+
+                        RaycastHit2D[] hits = new RaycastHit2D[32];
+                        ContactFilter2D contactFilter = new ContactFilter2D ();
+                        contactFilter.layerMask = LayerMask.GetMask ("Ground");
+                        int count = rb.Cast (positionDelta, contactFilter, hits, positionDelta.magnitude);
+                        List<RaycastHit2D> hitsList = new List<RaycastHit2D> (hits);
+                        hitsList.RemoveAll (hit => hit == default);
+                        hitsList.RemoveAll (hit => hit.normal == -gravity.normalized);
+
+                        foreach (var hit in hits) {
+                            Fn.DrawVector (hit.point, hit.normal);
+                        }
+                        if (hitsList.Count == 0) {
+                            rb.MovePosition (rb.position += positionDelta);
+                        }
+                    }
+
+
+                    groundPositionLast = importNormal.GetGround ().transform.position;
+                    lastGround = importNormal.GetGround ();
+                }
+            } else {
+                lastPositionLoaded = false;
+            }
+        }
+
 
         rb.AddForce (force);
         rb.velocity = v;
 
         velosity = v;
+
+
     }
 
 
-   
     public void SetAction (WalkAction direction) {
         goDir = direction;
     }
@@ -144,14 +185,14 @@ public class M_GroundMove : MonoBehaviour {
     //*Test
     [System.Serializable]
     public class Test {
-    
+
         [Range (-1, 1)]
         public int walk;
 
 
     }
     private void OnValidate () {
-       
+
 
         switch (test.walk) {
             case -1:

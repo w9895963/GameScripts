@@ -26,8 +26,8 @@ public class M_InputFilter : MonoBehaviour {
             gravity = gravityImport.GetGravity ();
             Rigidbody2D rb = GetComponent<Rigidbody2D> ();
 
-            // Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
-            Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
+             Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
+            //Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
             Vector2 playerPosition = transform.position;
 
             bool isInner;
