@@ -141,17 +141,17 @@ public class M_GroundMove : MonoBehaviour {
 
                         RaycastHit2D[] hits = new RaycastHit2D[32];
                         ContactFilter2D contactFilter = new ContactFilter2D ();
-                        contactFilter.layerMask = LayerMask.GetMask ("Ground");
+                        contactFilter.layerMask = LayerMask.GetMask ("Ground","InvisibleWall");
                         int count = rb.Cast (positionDelta, contactFilter, hits, positionDelta.magnitude);
                         List<RaycastHit2D> hitsList = new List<RaycastHit2D> (hits);
                         hitsList.RemoveAll (hit => hit == default);
                         hitsList.RemoveAll (hit => hit.normal == -gravity.normalized);
 
-                        foreach (var hit in hits) {
-                            Fn.DrawVector (hit.point, hit.normal);
-                        }
+                        // foreach (var hit in hits) {
+                        //     Fn.DrawVector (hit.point, hit.normal);
+                        // }
                         if (hitsList.Count == 0) {
-                            rb.MovePosition (rb.position += positionDelta);
+                            rb.position = (rb.position + positionDelta);
                         }
                     }
 

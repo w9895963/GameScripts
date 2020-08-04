@@ -11,47 +11,53 @@ public class M_Gravity : MonoBehaviour {
     public Test test;
 
 
-    //* Input
+    private void Start () { }
+
+
+    //* Main Function
 
     public void SetGravityDirection (Vector2 direction) {
+        if (enabled) {
+            if (gravity.normalized != direction) {
 
-        if (gravity.normalized != direction) {
+                gravity = direction.normalized * gravity.magnitude;
+                events.gravityChanged.Invoke ();
 
-            gravity = direction.normalized * gravity.magnitude;
-            events.gravityChanged.Invoke ();
-
+            }
         }
 
     }
     public void SetGravityDirection (GravityDirection dir) {
-        Vector2 direction = default;
-        switch (dir) {
-            case GravityDirection.Up:
-                direction = Vector2.up;
-                break;
-            case GravityDirection.Down:
-                direction = Vector2.down;
-                break;
-            case GravityDirection.Left:
-                direction = Vector2.left;
-                break;
-            case GravityDirection.Right:
-                direction = Vector2.right;
-                break;
-        }
+        if (enabled) {
+            Vector2 direction = default;
+            switch (dir) {
+                case GravityDirection.Up:
+                    direction = Vector2.up;
+                    break;
+                case GravityDirection.Down:
+                    direction = Vector2.down;
+                    break;
+                case GravityDirection.Left:
+                    direction = Vector2.left;
+                    break;
+                case GravityDirection.Right:
+                    direction = Vector2.right;
+                    break;
+            }
 
 
-        if (gravity.normalized != direction) {
+            if (gravity.normalized != direction) {
 
-            gravity = direction.normalized * gravity.magnitude;
-            events.gravityChanged.Invoke ();
+                gravity = direction.normalized * gravity.magnitude;
+                events.gravityChanged.Invoke ();
 
+            }
         }
 
     }
     public Vector2 GetGravity () => gravity;
 
-
+    //*
     public enum GravityDirection {
         Down,
         Up,

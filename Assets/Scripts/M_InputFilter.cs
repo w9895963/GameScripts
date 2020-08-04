@@ -22,39 +22,45 @@ public class M_InputFilter : MonoBehaviour {
     private void Awake () {
         EventTrigger.Entry en = new EventTrigger.Entry ();
         en.eventID = EventTriggerType.PointerDown;
-        en.callback.AddListener (((a) => {
-            gravity = gravityImport.GetGravity ();
-            Rigidbody2D rb = GetComponent<Rigidbody2D> ();
+        en.callback.AddListener ((a => {
+            if (enabled) {
+                gravity = gravityImport.GetGravity ();
+                Rigidbody2D rb = GetComponent<Rigidbody2D> ();
 
-             Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
-            //Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
-            Vector2 playerPosition = transform.position;
+                Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
+                //Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
+                Vector2 playerPosition = transform.position;
 
-            bool isInner;
-            RaycastHit2D[] hits = Physics2D.RaycastAll (clickPosition, Vector2.zero, 0f, LayerMask.GetMask ("Zone"));
-            List<RaycastHit2D> hits_ = new List<RaycastHit2D> (hits);
+                bool isInner;
+                RaycastHit2D[] hits = Physics2D.RaycastAll (clickPosition, Vector2.zero, 0f, LayerMask.GetMask ("Zone"));
+                List<RaycastHit2D> hits_ = new List<RaycastHit2D> (hits);
 
-            isInner = hits_.Exists (hit => hit.collider.name == "InnerZone");
+                isInner = hits_.Exists (hit => hit.collider.name == "InnerZone");
 
-            if (isInner) {
-                targetInner = clickPosition;
+                if (isInner) {
+                    targetInner = clickPosition;
 
-                RaycastHit2D hitG = Physics2D.Raycast (targetInner, gravity, 8, LayerMask.GetMask ("Ground"));
-                targetOnGround = hitG?hitG.point : default;
-
-
-                events.click.Invoke ();
+                    RaycastHit2D hitG = Physics2D.Raycast (targetInner, gravity, 8, LayerMask.GetMask ("Ground"));
+                    targetOnGround = hitG?hitG.point : default;
 
 
-            } else {
-                targetInner = default;
-                targetOnGround = default;
+                    events.click.Invoke ();
+
+
+                } else {
+                    targetInner = default;
+                    targetOnGround = default;
+                }
+
             }
-
 
         }));
 
         clickZone.triggers.Add (en);
+    }
+
+    private void Start () {
+
     }
 
 

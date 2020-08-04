@@ -23,7 +23,8 @@ public class M_GroundFinder : MonoBehaviour {
         });
 
         trigerBox.events.onTriggerEnter2D.AddListener ((Collider2D other) => {
-            bool groundDetect = other.gameObject.tag == "Ground";
+            // bool groundDetect = other.gameObject.tag == "Ground";
+            bool groundDetect = other.gameObject.layer == LayerMask.NameToLayer("Ground");
             if (groundDetect) {
                 grounds = Fn.ArrayAddUniq (grounds, other.gameObject);
             }
@@ -36,7 +37,8 @@ public class M_GroundFinder : MonoBehaviour {
         });
 
         trigerBox.events.onTriggerExit2D.AddListener ((Collider2D other) => {
-            bool isGround = other.gameObject.tag == "Ground";
+            // bool isGround = other.gameObject.tag == "Ground";
+            bool isGround = other.gameObject.layer == LayerMask.NameToLayer("Ground");
             if (isGround) {
                 grounds = Fn.ArrayRemove (grounds, other.gameObject);
             }

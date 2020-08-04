@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 
 public static class Fn {
@@ -44,5 +45,15 @@ public static class Fn {
     }
 
 
-    
+    public static void WaitToCall (float time, UnityAction call) {
+        GameObject obj = new GameObject ();
+        M_Timer timer = obj.AddComponent<M_Timer> ();
+        timer.WaitToCall (time, call);
+        // timer.waitTime = time;
+        // timer.timeStart = Time.time;
+        // obj.GetComponent<M_Timer> ().onTime.AddListener (call);
+
+    }
+
+
 }
