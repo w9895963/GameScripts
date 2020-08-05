@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class M_Timer : MonoBehaviour {
+public class Fn_Timer : MonoBehaviour {
     public float timeStart;
     public float waitTime;
     public UnityEvent onTime = new UnityEvent();

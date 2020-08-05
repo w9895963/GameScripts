@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering.Universal;
 
-public class Test : MonoBehaviour {
+public class UI_ButtonTest : MonoBehaviour {
 
     public M_Gravity importGravity;
     public int count;
