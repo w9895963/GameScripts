@@ -25,25 +25,27 @@ public class MP_GroundMovePlugin : MonoBehaviour {
         importInputControl = importInputControl?importInputControl : GetComponent<M_InputFilter> ();
         importInputControl.events.click.AddListener (() => {
 
-            Vector2 dest = importInputControl.GetGroundPosition ();
-            Vector2 v = Vector3.Project (importInputControl.GetTargetInner () - rb.position, gravity);
-            Vector2 v2 = Vector3.ProjectOnPlane (importInputControl.GetTargetInner () - rb.position, gravity);
+            if (enabled) {
+                Vector2 dest = importInputControl.GetGroundPosition ();
+                Vector2 v = Vector3.Project (importInputControl.GetTargetInner () - rb.position, gravity);
+                Vector2 v2 = Vector3.ProjectOnPlane (importInputControl.GetTargetInner () - rb.position, gravity);
 
 
-            bool succeed = false;
-            if (dest != default) {
-                WalkTo (dest);
-                succeed = true;
+                bool succeed = false;
+                if (dest != default) {
+                    WalkTo (dest);
+                    succeed = true;
 
-            } else if (Mathf.Abs (v.y) < 6) {
-                dest = rb.position + v2 + gravity.normalized * 0.5f;
-                WalkTo (dest);
-                succeed = true;
+                } else if (Mathf.Abs (v.y) < 6) {
+                    dest = rb.position + v2 + gravity.normalized * 0.5f;
+                    WalkTo (dest);
+                    succeed = true;
 
-            }
+                }
 
-            if (succeed) {
-                D_DebugEventAction.CreateSign (dest, Vector2.SignedAngle (Vector2.down, gravity));
+                if (succeed) {
+                    AC_DebugAction.CreateSign (dest, Vector2.SignedAngle (Vector2.down, gravity));
+                }
             }
 
 

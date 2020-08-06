@@ -4,7 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class D_DebugEventAction : MonoBehaviour {
+public class AC_DebugAction : MonoBehaviour {
 
 
     public void Log (string sr) {

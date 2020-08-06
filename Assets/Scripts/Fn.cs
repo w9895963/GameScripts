@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 
 public static class Fn {
@@ -51,5 +52,11 @@ public static class Fn {
         timer.WaitToCall (time, call);
     }
 
-
+    public static void AddListener (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
+        EventTrigger trigger = obj.GetComponent<EventTrigger> () ? obj.GetComponent<EventTrigger> () : obj.AddComponent<EventTrigger> ();
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener (action);
+        trigger.triggers.Add (entry);
+    }
 }
