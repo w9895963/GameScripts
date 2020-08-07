@@ -71,6 +71,7 @@ public class FC_CommonForce : MonoBehaviour {
         public bool enable = true;
         public float force = 20;
         public Vector2 point;
+        public float maxSpeed;
         public float distance = 0.1f;
 
         public void CalcForce (ForceModifier mod) {
@@ -100,6 +101,9 @@ public class FC_CommonForce : MonoBehaviour {
                     }
 
                 }
+                if (currSpeed.magnitude > maxSpeed) {
+                    add = default;
+                }
 
 
 
@@ -112,7 +116,6 @@ public class FC_CommonForce : MonoBehaviour {
     [System.Serializable]
     public class Decelerate {
         public bool enable = true;
-        public int runOrder = 10;
         public M_Gravity getGravityFrom;
         public Rigidbody2D GetRigidbody;
         public float decelerateH = 150f;

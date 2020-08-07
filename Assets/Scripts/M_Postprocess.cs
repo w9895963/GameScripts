@@ -6,11 +6,11 @@ public class M_Postprocess : MonoBehaviour {
     public Camera mainCamera;
     public RenderTexture renderTexture;
     public GameObject secondScreen;
-    public Material material;
     public Test test;
 
 
     private void Start () {
+
         Main ();
     }
 
@@ -22,6 +22,13 @@ public class M_Postprocess : MonoBehaviour {
         }
     }
     private void Main () {
+        if (!renderTexture) {
+            RenderTextureDescriptor dis = new RenderTextureDescriptor (Screen.width, Screen.height);
+            renderTexture = new RenderTexture (dis);
+            mainCamera.GetComponent<Camera> ().targetTexture = renderTexture;
+            secondScreen.GetComponent<SpriteRenderer> ().material.SetTexture ("_RenderTexture", renderTexture);
+        }
+
 
         mainCamera.GetComponent<Camera> ().targetTexture = null;
         renderTexture.Release ();
@@ -33,9 +40,6 @@ public class M_Postprocess : MonoBehaviour {
 
         secondScreen.transform.localScale = new Vector3 (scaleX, scale.y, scale.z);
 
-
-    }
-    public void Dothings () {
 
     }
 

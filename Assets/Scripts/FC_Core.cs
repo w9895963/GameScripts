@@ -95,4 +95,11 @@ public class FC_Core : MonoBehaviour {
             core = forceCore_;
         }
     }
+
+
+
+    private void OnValidate () {
+        if (!targetRigidbody)
+            targetRigidbody = GetComponent<Rigidbody2D> ();
+    }
 }

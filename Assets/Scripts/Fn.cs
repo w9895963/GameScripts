@@ -21,10 +21,11 @@ public static class Fn {
         Debug.DrawLine (p3, p4, Color.red, 1f);
     }
 
-    public static void DrawVector (Vector2 position, Vector2 vector) {
+    public static void DrawVector (Vector2 position, Vector2 vector, float time = 1f) {
         Vector2 p2 = position + vector;
 
-        Debug.DrawLine (position, p2, Color.red, 1f);
+        Debug.DrawLine (position, p2, Color.red, time);
+        //Debug.DrawLine (position, p2, Color.red);
         DrawCross (p2);
     }
 

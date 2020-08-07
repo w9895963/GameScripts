@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -24,7 +25,7 @@ public class M_GroundFinder : MonoBehaviour {
 
         trigerBox.events.onTriggerEnter2D.AddListener ((Collider2D other) => {
             // bool groundDetect = other.gameObject.tag == "Ground";
-            bool groundDetect = other.gameObject.layer == LayerMask.NameToLayer("Ground");
+            bool groundDetect = other.gameObject.layer == LayerMask.NameToLayer ("Ground");
             if (groundDetect) {
                 grounds = Fn.ArrayAddUniq (grounds, other.gameObject);
             }
@@ -38,7 +39,7 @@ public class M_GroundFinder : MonoBehaviour {
 
         trigerBox.events.onTriggerExit2D.AddListener ((Collider2D other) => {
             // bool isGround = other.gameObject.tag == "Ground";
-            bool isGround = other.gameObject.layer == LayerMask.NameToLayer("Ground");
+            bool isGround = other.gameObject.layer == LayerMask.NameToLayer ("Ground");
             if (isGround) {
                 grounds = Fn.ArrayRemove (grounds, other.gameObject);
             }
@@ -64,9 +65,8 @@ public class M_GroundFinder : MonoBehaviour {
             RaycastHit2D hit = Physics2D.Raycast (mainRigidbody.position, gravity, 1.5f, LayerMask.GetMask ("Ground"));
 
             if (hit) {
-                // Debug.Log (hit.collider.name);
-
-                groundOnFeet = hit.collider.gameObject;
+                if (grounds.Contains (hit.collider.gameObject))
+                    groundOnFeet = hit.collider.gameObject;
 
             } else {
                 if (normal != default)
@@ -115,8 +115,9 @@ public class M_GroundFinder : MonoBehaviour {
     public GameObject GetGround () {
         return groundOnFeet;
     }
-    public bool IsOnGround () {
 
+
+    public bool IsOnGround () {
         return grounds.Length > 0 ? true : false;
     }
 
