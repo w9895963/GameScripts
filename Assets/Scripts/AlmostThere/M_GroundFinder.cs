@@ -69,10 +69,10 @@ public class M_GroundFinder : MonoBehaviour {
                     groundOnFeet = hit.collider.gameObject;
 
             } else {
-                if (normal != default)
-                    groundOnFeet = grounds[0];
-                else
-                    groundOnFeet = default;
+                // if (normal != default)
+                //     groundOnFeet = grounds[0];
+                // else
+                groundOnFeet = grounds[0];
             }
         } else {
             groundOnFeet = default;
@@ -91,7 +91,7 @@ public class M_GroundFinder : MonoBehaviour {
         List<RaycastHit2D> hits = new List<RaycastHit2D> (hitsArray).GetRange (0, count);
 
 
-        hits = hits.FindAll ((RaycastHit2D hit) => Vector2.Angle (-gravity, hit.normal) < 45);
+        hits = hits.FindAll ((RaycastHit2D hit) => Vector2.Angle (-gravity, hit.normal) < 60);
         hits.Sort ((RaycastHit2D hit1, RaycastHit2D hit2) => {
             Vector2 p = mainRigidbody.transform.position;
             float length1 = (hit1.point - p).magnitude;
@@ -99,7 +99,7 @@ public class M_GroundFinder : MonoBehaviour {
             return length1 > length2 ? 1 : -1;
         });
         if (hits.Count > 0) {
-            // Fn.DrawVector (hits[0].point, hits[0].normal);
+            Fn.DrawVector (hits[0].point, hits[0].normal);
             return hits[0].normal;
         } else {
             return default (Vector2);

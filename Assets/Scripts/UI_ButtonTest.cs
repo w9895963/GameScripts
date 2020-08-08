@@ -13,7 +13,7 @@ public class UI_ButtonTest : MonoBehaviour {
 
     private void Update () {
         if (Time.time - time > 0.2f & count > 0) {
-            Vector2 dir = Fn.RotateClock (importGravity.GetGravity (), count * 90);
+            Vector2 dir = Fn.RotateClock (importGravity.GetGravity (), count * 180);
             importGravity.SetGravityDirection (dir);
             count = 0;
         }

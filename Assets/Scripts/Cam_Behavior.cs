@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraBehavior : MonoBehaviour {
+public class Cam_Behavior : MonoBehaviour {
 
     public GameObject follow;
 

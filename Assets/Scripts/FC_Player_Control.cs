@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class FC_Player_Control : MonoBehaviour {
     [Header ("Import")]
@@ -10,6 +11,7 @@ public class FC_Player_Control : MonoBehaviour {
     public M_InputFilter importInputControl;
     [Header ("Setting")]
     public float minDistance = 0.7f;
+    public GameObject sign;
     [Header ("Status")]
     public bool onWalking;
 
@@ -43,7 +45,14 @@ public class FC_Player_Control : MonoBehaviour {
                 }
 
                 if (succeed) {
-                    AC_DebugAction.CreateSign (dest, Vector2.SignedAngle (Vector2.down, gravity));
+                    // AC_DebugAction.CreateSign (dest, Vector2.SignedAngle (Vector2.down, gravity));
+                    Vector3 p = importInputControl.GetTargetInner ();
+                    Quaternion quaternion = new Quaternion (0, 0, 0, 0);
+                    GameObject si = GameObject.Instantiate (sign, p, quaternion);
+                    // Fn.WaitToCall (3, () => Destroy (si));
+                    Fn.AddListener (GameObject.FindGameObjectWithTag ("ClickableZone"),
+                        EventTriggerType.PointerDown, d => Destroy (si));
+
                 }
             }
 
@@ -101,6 +110,12 @@ public class FC_Player_Control : MonoBehaviour {
         }
 
     }
+
+    public void Stop () {
+        onWalking = false;
+    }
+
+
 
 
     //* test

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class autoDestroy : MonoBehaviour {
+public class D_AutoDestroy : MonoBehaviour {
     public float time;
     public float timeCreate;
     // Start is called before the first frame update

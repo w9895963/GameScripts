@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -11,6 +13,8 @@ public class FC_CommonForce : MonoBehaviour {
     public Gravity gravity;
     public Force force;
     public ForceToPoint forceToPoint;
+    public TargetRotation targetRotation;
+    public TargetForce targetForce;
     public Decelerate decelerate;
     public MaxSpeed maxSpeed;
 
@@ -20,11 +24,19 @@ public class FC_CommonForce : MonoBehaviour {
         core.modifierList.Add (new ForceModifier (0, core, gravity.CalcForce));
         core.modifierList.Add (new ForceModifier (1, core, force.CalcForce));
         core.modifierList.Add (new ForceModifier (1, core, forceToPoint.CalcForce));
+        core.modifierList.Add (new ForceModifier (1, core, targetForce.CalcForce));
+
+
+        core.modifierList.Add (new ForceModifier (1, core, targetRotation.CalcForce));
+
+
+
         core.modifierList.Add (new ForceModifier (2, core, decelerate.CalcForce));
         core.modifierList.Add (new ForceModifier (2, core, maxSpeed.CalcForce));
 
         dragToForce.ApplyEvent (gameObject, force, forceToPoint);
     }
+    private void Start () { }
 
     [System.Serializable]
     public class Gravity {
@@ -67,6 +79,105 @@ public class FC_CommonForce : MonoBehaviour {
     }
 
     [System.Serializable]
+    public class TargetForce {
+        public bool enable = false;
+        public Vector2 target;
+        public float maxSpeed = 10;
+        public float minForce = 0.5f;
+        public float SpeedUpForce = 100;
+        public float slowDownDistance = 2;
+        public float slowDownForce = 100;
+
+        public void CalcForce (ForceModifier mod) {
+
+            if (enable) {
+                Rigidbody2D rb = mod.core.GetComponent<Rigidbody2D> ();
+
+                Vector2 position = rb.position;
+                Vector2 vector = target - position;
+                float dist = vector.magnitude;
+                Vector2 dir = vector.normalized;
+                Vector2 v_H = Vector3.Project (rb.velocity, dir);
+                Vector2 v_V = rb.velocity - v_H;
+
+
+                Vector2 f_H = default;
+                float wantSpeed = dist * (maxSpeed / slowDownDistance);
+                wantSpeed = Mathf.Clamp (wantSpeed, 0, maxSpeed);
+                Vector2 wantV = wantSpeed * dir;
+                Vector2 deltaV = wantV - v_H;
+                f_H = deltaV / Time.fixedDeltaTime;
+
+
+                bool accelerate = f_H.normalized == dir.normalized;
+                if (accelerate)
+                    f_H = Mathf.Clamp (f_H.magnitude, 0, SpeedUpForce) * f_H.normalized;
+                else
+                    f_H = Mathf.Clamp (f_H.magnitude, 0, slowDownForce) * f_H.normalized;
+
+
+                Vector2 f_V = -v_V / Time.fixedDeltaTime;
+                f_V = Mathf.Clamp (f_V.magnitude, 0, SpeedUpForce) * f_V.normalized;
+
+
+                mod.forceAdd = f_H;
+                mod.forceAdd += f_V;
+            }
+
+        }
+    }
+
+    [System.Serializable]
+    public class TargetRotation {
+        public bool enable = false;
+        public float targetAngle = 0;
+        public float angleForce = 100;
+        public float maxRotateSpeed = 100;
+        public float slowDownAngle = 10;
+        public float slowDownMultiply = 2;
+
+        public float slowDownForce = 100;
+
+        public void CalcForce (ForceModifier mod) {
+
+            if (enable) {
+                Rigidbody2D rb = mod.core.GetComponent<Rigidbody2D> ();
+
+                float currAngle = (rb.rotation + 180) % 360 - 180;
+                if (rb.rotation < 0) currAngle = -((-rb.rotation + 180) % 360 - 180);
+                float currSpeed = rb.angularVelocity;
+                float deltaAngle = targetAngle - currAngle;
+                float fixedDeltaTime = Time.fixedDeltaTime;
+
+
+
+
+                float f;
+                float wantSpeed = deltaAngle * (maxRotateSpeed / slowDownAngle);
+                wantSpeed = Mathf.Clamp (wantSpeed, -maxRotateSpeed, maxRotateSpeed);
+                float deltaV = wantSpeed - currSpeed;
+                f = deltaV;
+
+
+
+
+                bool accelerate = f * deltaAngle > 0;
+                if (accelerate)
+                    f = Mathf.Clamp (f, -angleForce, angleForce);
+                else
+                    f = Mathf.Clamp (f, -slowDownForce, slowDownForce);
+
+                // Debug.Log (wantSpeed + ":" + currSpeed + ":" + f);
+
+
+
+                rb.AddTorque (f * slowDownMultiply * rb.mass);
+            }
+
+        }
+    }
+
+    [System.Serializable]
     public class ForceToPoint {
         public bool enable = true;
         public Vector2 force;
@@ -77,9 +188,12 @@ public class FC_CommonForce : MonoBehaviour {
             if (enable) {
                 Vector2 vector3 = mod.core.GetComponent<Transform> ().transform.TransformDirection (deltaP);
                 Vector2 p = mod.core.GetComponent<Rigidbody2D> ().position + vector3;
-                Fn.DrawVector (p, force.normalized);
+                // Fn.DrawVector (p, force.normalized);
+                if (force != default) {
+                    AC_DebugAction.DrawDotLine (p, p + force.normalized * 4);
+                    mod.core.GetComponent<Rigidbody2D> ().AddForceAtPosition (force, p);
 
-                mod.core.GetComponent<Rigidbody2D> ().AddForceAtPosition (force, p);
+                }
             }
 
         }
@@ -164,7 +278,7 @@ public class FC_CommonForce : MonoBehaviour {
         public float multiply = 300;
         public float maxDistance = 0.2f;
         private Vector2 positionBegin;
-        private Vector2 deltaP;
+        private Vector2 deltaP = default;
 
         public void ApplyEvent (GameObject gameObject, Force force, ForceToPoint forceToPoint) {
             Fn.AddListener (gameObject, EventTriggerType.Drag, (data) => {
@@ -180,7 +294,7 @@ public class FC_CommonForce : MonoBehaviour {
                 Vector2 v2 = vector.magnitude * multiply * -vector.normalized;
                 forceToPoint.force = v2;
 
-                //  force.force = v2;
+                force.force = v2;
 
 
                 Vector2 vector3 = gameObject.transform.TransformDirection (deltaP);

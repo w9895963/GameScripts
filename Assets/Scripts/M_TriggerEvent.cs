@@ -1,23 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class M_TriggerEvent : MonoBehaviour {
-    public bool oneTimeEvent;
-    public bool useFilter;
+    public bool useFilter = true;
+    public float delay = 0;
+    public bool runOnce = false;
     private bool used = false;
-    public ObjectTouch gameObjectFilter;
-    public UnityEvent onTouch;
+    public GameObjectFilter gameObjectFilter;
+    public Events events;
 
     private void OnTriggerEnter2D (Collider2D other) {
+        Main (other.gameObject, EventType.OnTriggerEnter);
+    }
+    private void OnCollisionEnter2D (Collision2D other) {
+        Main (other.gameObject, EventType.OnCollisionEnter);
+    }
+
+    private void Main (GameObject obj, EventType type) {
         if (enabled) {
 
             bool filterTest = false;
 
 
-            if (gameObjectFilter.enable) {
-                if (other.gameObject == gameObjectFilter.gameObject) {
+            if (gameObjectFilter.objectFilter) {
+                if (obj == gameObjectFilter.gameObject) {
                     filterTest = true;
                 }
             }
@@ -29,13 +38,13 @@ public class M_TriggerEvent : MonoBehaviour {
 
 
             if (filterTest) {
-                if (oneTimeEvent) {
+                if (runOnce) {
                     if (!used) {
-                        onTouch.Invoke ();
+                        CallEvent (delay, type);
                         used = true;
                     }
                 } else {
-                    onTouch.Invoke ();
+                    CallEvent (delay, type);
                 }
             }
 
@@ -43,13 +52,52 @@ public class M_TriggerEvent : MonoBehaviour {
         }
     }
 
+    private void CallEvent (float waitTime, EventType typ) {
+        if (waitTime == 0) {
+            switch (typ) {
+                case EventType.OnCollisionEnter:
+                    events.onCollisionEnter.Invoke ();
+                    break;
+                case EventType.OnTriggerEnter:
+                    events.onTriggerEnter.Invoke ();
+                    break;
+            }
+        } else {
+            switch (typ) {
+                case EventType.OnCollisionEnter:
+                    Fn.WaitToCall (waitTime, () => events.onCollisionEnter.Invoke ());
+                    break;
+                case EventType.OnTriggerEnter:
+                    Fn.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke ());
+                    break;
+            }
+        }
+
+    }
+
     [System.Serializable]
-    public class ObjectTouch {
-        public bool enable;
+    public class GameObjectFilter {
+        public bool objectFilter;
         public GameObject gameObject;
     }
 
+    [System.Serializable]
+    public class Events {
+        public UnityEvent onTriggerEnter;
+        public UnityEvent onCollisionEnter;
+
+    }
+
+    public enum EventType { OnTriggerEnter, OnCollisionEnter }
+
     private void Start () {
 
+    }
+
+
+
+    //*Extend Method
+    public void AnimationPlay () {
+        GetComponent<Animation> ()?.Play ();
     }
 }

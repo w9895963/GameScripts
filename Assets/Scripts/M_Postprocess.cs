@@ -4,14 +4,19 @@ using UnityEngine;
 
 public class M_Postprocess : MonoBehaviour {
     public Camera mainCamera;
-    public RenderTexture renderTexture;
+    public Camera postCamera;
     public GameObject secondScreen;
+    public RenderTexture renderTexture;
     public Test test;
 
 
     private void Start () {
 
         Main ();
+    }
+
+    private void OnApplicationQuit () {
+        postCamera.gameObject.SetActive (false);
     }
 
 
@@ -27,6 +32,8 @@ public class M_Postprocess : MonoBehaviour {
             renderTexture = new RenderTexture (dis);
             mainCamera.GetComponent<Camera> ().targetTexture = renderTexture;
             secondScreen.GetComponent<SpriteRenderer> ().material.SetTexture ("_RenderTexture", renderTexture);
+            postCamera.enabled = true;
+            postCamera.gameObject.SetActive (true);
         }
 
 

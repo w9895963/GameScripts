@@ -21,9 +21,19 @@ public class AC_DebugAction : MonoBehaviour {
         GameObject oj = GameObject.Instantiate (obj);
         oj.transform.position = position;
         oj.transform.rotation = Quaternion.Euler (0, 0, z);
-        oj.GetComponent<autoDestroy> ().time = exitstTime;
+        oj.GetComponent<D_AutoDestroy> ().time = exitstTime;
 
     }
+    public static void DrawDotLine (Vector2 start, Vector2 end, float exitstTime = 0.05f) {
+        GameObject pref = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
+        GameObject obj = GameObject.Instantiate (pref);
+        obj.transform.position = Vector3.zero;
+        obj.GetComponent<D_AutoDestroy> ().time = exitstTime;
 
+        obj.GetComponent<LineRenderer> ().positionCount = 2;
+        obj.GetComponent<LineRenderer> ().SetPosition (0, start);
+        obj.GetComponent<LineRenderer> ().SetPosition (1, end);
+
+    }
 
 }

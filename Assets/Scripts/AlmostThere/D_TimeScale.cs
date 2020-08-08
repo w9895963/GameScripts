@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class M_TimeScale : MonoBehaviour {
+public class D_TimeScale : MonoBehaviour {
     public bool autoUpdate = true;
     [Range (0, 1)]
     public float timeScale = 1;
