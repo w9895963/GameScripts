@@ -23,7 +23,7 @@ public class FC_CommonForce : MonoBehaviour {
         core.modifierList.Add (new ForceModifier (2, core, decelerate.CalcForce));
         core.modifierList.Add (new ForceModifier (2, core, maxSpeed.CalcForce));
 
-        dragToForce.ApplyEvent (gameObject, force);
+        dragToForce.ApplyEvent (gameObject, force, forceToPoint);
     }
 
     [System.Serializable]
@@ -69,45 +69,17 @@ public class FC_CommonForce : MonoBehaviour {
     [System.Serializable]
     public class ForceToPoint {
         public bool enable = true;
-        public float force = 20;
-        public Vector2 point;
-        public float maxSpeed;
-        public float distance = 0.1f;
+        public Vector2 force;
+        public Vector3 deltaP;
 
         public void CalcForce (ForceModifier mod) {
 
             if (enable) {
-                Rigidbody2D rb = mod.core.targetRigidbody;
-                Vector2 forceDir = (point - rb.position).normalized;
-                Vector2 add = forceDir * force;
-                Vector2 currSpeed = rb.velocity;
-                float fixedDeltaTime = Time.fixedDeltaTime;
-                Vector2 predictSpeed = add * fixedDeltaTime + currSpeed;
+                Vector2 vector3 = mod.core.GetComponent<Transform> ().transform.TransformDirection (deltaP);
+                Vector2 p = mod.core.GetComponent<Rigidbody2D> ().position + vector3;
+                Fn.DrawVector (p, force.normalized);
 
-
-
-
-                Vector2 dist = point - rb.position;
-                Vector2 v_on_dr = Vector3.Project (currSpeed, dist);
-                Vector2 v_on_V = currSpeed - v_on_dr;
-
-
-                if (dist.magnitude < distance) {
-
-                    if (v_on_dr.normalized == dist.normalized) {
-                        rb.MovePosition (point);
-                        rb.velocity = Vector2.zero;
-                        add = Vector2.zero;
-                    }
-
-                }
-                if (currSpeed.magnitude > maxSpeed) {
-                    add = default;
-                }
-
-
-
-                mod.forceAdd = add;
+                mod.core.GetComponent<Rigidbody2D> ().AddForceAtPosition (force, p);
             }
 
         }
@@ -191,24 +163,47 @@ public class FC_CommonForce : MonoBehaviour {
     public class DragToForce {
         public float multiply = 300;
         public float maxDistance = 0.2f;
-        public void ApplyEvent (GameObject gameObject, Force force) {
+        private Vector2 positionBegin;
+        private Vector2 deltaP;
+
+        public void ApplyEvent (GameObject gameObject, Force force, ForceToPoint forceToPoint) {
             Fn.AddListener (gameObject, EventTriggerType.Drag, (data) => {
                 var da = (PointerEventData) data;
                 Vector2 delta = da.delta;
                 Vector2 p1 = Camera.main.ScreenToViewportPoint (da.position);
                 Vector2 p2 = Camera.main.ScreenToViewportPoint (da.pressPosition);
                 Vector2 vector = p2 - p1;
-                float max = maxDistance;
-                vector.x = Mathf.Clamp (vector.x, -max, max);
-                vector.y = Mathf.Clamp (vector.y, -max, max);
+                vector = Mathf.Clamp (vector.magnitude, 0, maxDistance) * vector.normalized;
+                // vector.x = Mathf.Clamp (vector.x, -maxDistance, maxDistance);
+                // vector.y = Mathf.Clamp (vector.y, -maxDistance, maxDistance);
 
                 Vector2 v2 = vector.magnitude * multiply * -vector.normalized;
-                force.force = v2;
+                forceToPoint.force = v2;
+
+                //  force.force = v2;
+
+
+                Vector2 vector3 = gameObject.transform.TransformDirection (deltaP);
+                Vector2 p = gameObject.GetComponent<Rigidbody2D> ().position + vector3;
+                //Fn.DrawVector (p, v2);
+
+                //gameObject.GetComponent<Rigidbody2D> ().AddForceAtPosition (v2, p);
 
             });
             Fn.AddListener (gameObject, EventTriggerType.EndDrag, (data) => {
                 force.force = Vector2.zero;
+                forceToPoint.force = default;
             });
+            Fn.AddListener (gameObject, EventTriggerType.BeginDrag, (data) => {
+                var da = (PointerEventData) data;
+                positionBegin = gameObject.GetComponent<Rigidbody2D> ().position;
+                Vector2 p2_W = Camera.main.ScreenToWorldPoint (da.pressPosition);
+
+                forceToPoint.deltaP = gameObject.transform.InverseTransformDirection (p2_W - positionBegin);
+            });
+
+
+
         }
     }
 }
