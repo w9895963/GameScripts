@@ -9,6 +9,9 @@ public class FC_Core : MonoBehaviour {
     [Header ("Requre")]
     public Rigidbody2D targetRigidbody;
     public bool autoCalculateMass = true;
+
+
+
     private Vector2 velocity;
 
     // public List;
@@ -45,6 +48,7 @@ public class FC_Core : MonoBehaviour {
 
         targetRigidbody.AddForce (forceAdd);
 
+
         foreach (var e in modifierList) {
             e.forceAdd = Vector2.zero;
         }
@@ -52,6 +56,18 @@ public class FC_Core : MonoBehaviour {
     }
 
 
+
+
+    //*Public Method
+
+
+
+
+    public void AddModifier (UnityAction<ForceModifier> calcForce, int runOrder = 0) {
+
+        modifierList.Add (new ForceModifier (runOrder, this, calcForce));
+
+    }
 
 
     public void Sort () {

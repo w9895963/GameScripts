@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class FC_Player_Control : MonoBehaviour {
@@ -11,6 +13,7 @@ public class FC_Player_Control : MonoBehaviour {
     public M_InputFilter importInputControl;
     [Header ("Setting")]
     public float minDistance = 0.7f;
+    public float VerticalDistanceClick = 4f;
     public GameObject sign;
     [Header ("Status")]
     public bool onWalking;
@@ -18,62 +21,62 @@ public class FC_Player_Control : MonoBehaviour {
     [Header ("Date")]
     public Vector2 destination;
     public float distance;
+    [Header ("Event")]
+    public Events events;
 
     public Test test;
 
     private void Awake () {
-        Rigidbody2D rb = GetComponent<Rigidbody2D> ();
         importInputControl = importInputControl?importInputControl : GetComponent<M_InputFilter> ();
         importInputControl.events.click.AddListener (() => {
 
             if (enabled) {
-                Vector2 dest = importInputControl.GetGroundPosition ();
-                Vector2 v = Vector3.Project (importInputControl.GetTargetInner () - rb.position, gravity);
-                Vector2 v2 = Vector3.ProjectOnPlane (importInputControl.GetTargetInner () - rb.position, gravity);
+
+                Rigidbody2D rb = GetComponent<Rigidbody2D> ();
+                gravity = importGravity.GetGravity ();
+
+                Vector2 dest = importInputControl.GetClickPosition ();
+                Vector2 dest_vector = dest - rb.position;
+                Vector2 dest_Vr = Vector3.Project (dest_vector, gravity);
 
 
-                bool succeed = false;
-                if (dest != default) {
+                bool verticleDistCheck = dest_Vr.magnitude < VerticalDistanceClick;
+                if (verticleDistCheck) {
                     WalkTo (dest);
-                    succeed = true;
-
-                } else if (Mathf.Abs (v.y) < 6) {
-                    dest = rb.position + v2 + gravity.normalized * 0.5f;
-                    WalkTo (dest);
-                    succeed = true;
-
+                    CreateSign (dest);
                 }
 
-                if (succeed) {
-                    // AC_DebugAction.CreateSign (dest, Vector2.SignedAngle (Vector2.down, gravity));
-                    Vector3 p = importInputControl.GetTargetInner ();
-                    Quaternion quaternion = new Quaternion (0, 0, 0, 0);
-                    GameObject si = GameObject.Instantiate (sign, p, quaternion);
-                    // Fn.WaitToCall (3, () => Destroy (si));
-                    Fn.AddListener (GameObject.FindGameObjectWithTag ("ClickableZone"),
-                        EventTriggerType.PointerDown, d => Destroy (si));
-
-                }
             }
 
 
         });
     }
 
+    private void CreateSign (Vector2 dest) {
+        GameObject obj = Fn.Create (sign, dest, Vector2.Angle (Vector2.up, -gravity));
+        M_Gravity childG = obj.GetComponentInChildren<M_Gravity> ();
+        childG.SetGravityDirection (gravity);
+        // childG.gameObject.GetComponent<Rigidbody2D> ().velocity = gravity.normalized * 40;
+        childG.gameObject.GetComponent<Rigidbody2D> ().AddForce (gravity.normalized * 40, ForceMode2D.Impulse);
+        Fn.AddOneTimeListener (new UnityEvent[] { events.onArrived, importInputControl.events.click },
+            () => {
+                Destroy (obj);
+            });
+    }
+
+
     private void FixedUpdate () {
         if (onWalking) {
             gravity = importGravity.GetGravity ();
 
-
-            // Vector2 position = importGroundMove.GetComponent<Rigidbody2D> ().position;
             Vector2 position = importPlayer.GetComponent<Rigidbody2D> ().position;
             Vector2 distanceV = destination - position;
             distance = Vector3.ProjectOnPlane (distanceV, gravity).magnitude;
 
 
             if (distance < minDistance) {
-                // importGroundMove.SetAction (WalkAction.stop);
                 importPlayer.Stop ();
+                events.onArrived.Invoke ();
 
                 onWalking = false;
             } else {
@@ -115,7 +118,10 @@ public class FC_Player_Control : MonoBehaviour {
         onWalking = false;
     }
 
-
+    [System.Serializable]
+    public class Events {
+        public UnityEvent onArrived;
+    }
 
 
     //* test

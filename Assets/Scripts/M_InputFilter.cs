@@ -7,12 +7,12 @@ using UnityEngine.InputSystem;
 
 public class M_InputFilter : MonoBehaviour {
     [Header ("Import")]
-    public EventTrigger clickZone;
+    public GameObject innerZone;
     public M_Gravity gravityImport;
     public Vector2 gravity;
 
     [Header ("Output")]
-    public Vector2 targetInner;
+    public Vector2 clickPosition;
     public Vector2 targetOnGround;
 
     [Header ("Output Event")]
@@ -20,56 +20,28 @@ public class M_InputFilter : MonoBehaviour {
 
 
     private void Awake () {
-        EventTrigger.Entry en = new EventTrigger.Entry ();
-        en.eventID = EventTriggerType.PointerDown;
-        en.callback.AddListener ((a => {
-            if (enabled) {
-                gravity = gravityImport.GetGravity ();
-                Rigidbody2D rb = GetComponent<Rigidbody2D> ();
 
-                Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Pointer.current.position.ReadValue ());
-                //Vector2 clickPosition = Camera.main.ScreenToWorldPoint (Mouse.current.position.ReadValue ());
-                Vector2 playerPosition = transform.position;
+        Fn.AddEventToTrigger (innerZone, EventTriggerType.PointerClick, (data) => {
 
-                bool isInner;
-                RaycastHit2D[] hits = Physics2D.RaycastAll (clickPosition, Vector2.zero, 0f, LayerMask.GetMask ("Zone"));
-                List<RaycastHit2D> hits_ = new List<RaycastHit2D> (hits);
-
-                isInner = hits_.Exists (hit => hit.collider.name == "InnerZone");
-
-                if (isInner) {
-                    targetInner = clickPosition;
-
-                    RaycastHit2D hitG = Physics2D.Raycast (targetInner, gravity, 8, LayerMask.GetMask ("Ground"));
-                    targetOnGround = hitG?hitG.point : default;
+            gravity = gravityImport.GetGravity ();
+            PointerEventData dat = (PointerEventData) data;
+            clickPosition = Camera.main.ScreenToWorldPoint (dat.position);
 
 
-                    events.click.Invoke ();
+            RaycastHit2D hitG = Physics2D.Raycast (clickPosition, gravity, 10, LayerMask.GetMask ("Ground"));
+            targetOnGround = hitG?hitG.point : default;
 
 
-                } else {
-                    targetInner = default;
-                    targetOnGround = default;
-                }
-
-            }
-
-        }));
-
-        clickZone.triggers.Add (en);
+            events.click.Invoke ();
+        });
     }
 
-    private void Start () {
-
-    }
+    private void Start () { }
 
 
-    public Vector2 GetGroundPosition () {
-        return targetOnGround;
-    }
-    public Vector2 GetTargetInner () {
-        return targetInner;
-    }
+    public Vector2 GetGroundPosition () => targetOnGround;
+
+    public Vector2 GetClickPosition () => clickPosition;
 
     [System.Serializable]
     public class Events {

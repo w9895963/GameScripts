@@ -127,7 +127,7 @@ public class FC_CommonForce : MonoBehaviour {
         }
     }
 
-    [System.Serializable]
+  [System.Serializable]
     public class TargetRotation {
         public bool enable = false;
         public float targetAngle = 0;
@@ -281,7 +281,7 @@ public class FC_CommonForce : MonoBehaviour {
         private Vector2 deltaP = default;
 
         public void ApplyEvent (GameObject gameObject, Force force, ForceToPoint forceToPoint) {
-            Fn.AddListener (gameObject, EventTriggerType.Drag, (data) => {
+            Fn.AddEventToTrigger (gameObject, EventTriggerType.Drag, (data) => {
                 var da = (PointerEventData) data;
                 Vector2 delta = da.delta;
                 Vector2 p1 = Camera.main.ScreenToViewportPoint (da.position);
@@ -304,11 +304,11 @@ public class FC_CommonForce : MonoBehaviour {
                 //gameObject.GetComponent<Rigidbody2D> ().AddForceAtPosition (v2, p);
 
             });
-            Fn.AddListener (gameObject, EventTriggerType.EndDrag, (data) => {
+            Fn.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, (data) => {
                 force.force = Vector2.zero;
                 forceToPoint.force = default;
             });
-            Fn.AddListener (gameObject, EventTriggerType.BeginDrag, (data) => {
+            Fn.AddEventToTrigger (gameObject, EventTriggerType.BeginDrag, (data) => {
                 var da = (PointerEventData) data;
                 positionBegin = gameObject.GetComponent<Rigidbody2D> ().position;
                 Vector2 p2_W = Camera.main.ScreenToWorldPoint (da.pressPosition);

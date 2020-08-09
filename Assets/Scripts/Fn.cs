@@ -29,6 +29,12 @@ public static class Fn {
         DrawCross (p2);
     }
 
+    public static GameObject Create (GameObject obj, Vector2 position, float rotate = 0) {
+        return GameObject.Instantiate (obj, position, Quaternion.AngleAxis (rotate, Vector3.forward));
+    }
+
+
+
 
     public static Vector2 RotateClock (Vector2 vector, float angle) {
         return Quaternion.AngleAxis (angle, Vector3.back) * vector;
@@ -53,11 +59,33 @@ public static class Fn {
         timer.WaitToCall (time, call);
     }
 
-    public static void AddListener (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
-        EventTrigger trigger = obj.GetComponent<EventTrigger> () ? obj.GetComponent<EventTrigger> () : obj.AddComponent<EventTrigger> ();
+    public static void AddEventToTrigger (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
+        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
+        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
         EventTrigger.Entry entry = new EventTrigger.Entry ();
         entry.eventID = type;
         entry.callback.AddListener (action);
         trigger.triggers.Add (entry);
+    }
+
+    public static void AddOneTimeListener (UnityEvent[] eventList, UnityAction atn) {
+        UnityAction action = null;
+        action = () => {
+            atn ();
+            foreach (var e in eventList)
+                e.RemoveListener (action);
+        };
+        foreach (var e in eventList)
+            e.AddListener (action);
+
+    }
+    public static void AddOneTimeListener (UnityEvent singleEvent, UnityAction atn) {
+        UnityAction action = null;
+        action = () => {
+            atn ();
+            singleEvent.RemoveListener (action);
+        };
+        singleEvent.AddListener (action);
+
     }
 }
