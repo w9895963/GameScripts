@@ -64,8 +64,13 @@ public class FC_Core : MonoBehaviour {
 
 
     public void AddModifier (UnityAction<ForceModifier> calcForce, int runOrder = 0) {
+        if (!modifierList.Exists (m => m.act == calcForce))
+            modifierList.Add (new ForceModifier (runOrder, this, calcForce));
 
-        modifierList.Add (new ForceModifier (runOrder, this, calcForce));
+    }
+    public void RemoveModifier (UnityAction<ForceModifier> calcForce) {
+
+        modifierList.RemoveAll (m => m.act == calcForce);
 
     }
 

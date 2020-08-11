@@ -127,7 +127,7 @@ public class FC_CommonForce : MonoBehaviour {
         }
     }
 
-  [System.Serializable]
+    [System.Serializable]
     public class TargetRotation {
         public bool enable = false;
         public float targetAngle = 0;
@@ -156,7 +156,8 @@ public class FC_CommonForce : MonoBehaviour {
                 float wantSpeed = deltaAngle * (maxRotateSpeed / slowDownAngle);
                 wantSpeed = Mathf.Clamp (wantSpeed, -maxRotateSpeed, maxRotateSpeed);
                 float deltaV = wantSpeed - currSpeed;
-                f = deltaV;
+
+                f = deltaV / Time.fixedDeltaTime * Mathf.Deg2Rad * rb.inertia;
 
 
 
@@ -167,7 +168,6 @@ public class FC_CommonForce : MonoBehaviour {
                 else
                     f = Mathf.Clamp (f, -slowDownForce, slowDownForce);
 
-                // Debug.Log (wantSpeed + ":" + currSpeed + ":" + f);
 
 
 

@@ -15,26 +15,31 @@ public class M_Postprocess : MonoBehaviour {
         Main ();
     }
 
-    private void OnApplicationQuit () {
-        postCamera.gameObject.SetActive (false);
-    }
+
 
 
     private void Update () {
         Vector2 scale = secondScreen.transform.localScale;
-        if (Screen.width / Screen.height != scale.x / scale.y) {
+        bool resolutionChanged = Mathf.Abs (Screen.height * scale.x / scale.y - Screen.width) > 1;
+        if (resolutionChanged) {
             Main ();
         }
     }
+
+    private void OnApplicationQuit () {
+        postCamera.gameObject.SetActive (false);
+    }
+
     private void Main () {
         if (!renderTexture) {
-            RenderTextureDescriptor dis = new RenderTextureDescriptor (Screen.width, Screen.height);
+            RenderTextureDescriptor dis = new RenderTextureDescriptor (Screen.width,
+                Screen.height, RenderTextureFormat.Default, 24);
             renderTexture = new RenderTexture (dis);
             mainCamera.GetComponent<Camera> ().targetTexture = renderTexture;
             secondScreen.GetComponent<SpriteRenderer> ().material.SetTexture ("_RenderTexture", renderTexture);
-            postCamera.enabled = true;
-            postCamera.gameObject.SetActive (true);
+            // postCamera.enabled = true;
         }
+        postCamera.gameObject.SetActive (true);
 
 
         mainCamera.GetComponent<Camera> ().targetTexture = null;

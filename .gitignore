@@ -10,7 +10,8 @@ Assets/*
 !Assets/Scripts/
 
 *.meta
+*.log
+*.csproj
 
-Assembly-CSharp.csproj
 Golden Bun.sln
 

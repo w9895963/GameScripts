@@ -59,13 +59,20 @@ public static class Fn {
         timer.WaitToCall (time, call);
     }
 
-    public static void AddEventToTrigger (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
+    public static EventTrigger.Entry AddEventToTrigger (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
         EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
         EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
         EventTrigger.Entry entry = new EventTrigger.Entry ();
         entry.eventID = type;
         entry.callback.AddListener (action);
         trigger.triggers.Add (entry);
+        return entry;
+    }
+    public static void RemoveEventToTrigger (GameObject obj, EventTriggerType type, EventTrigger.Entry entry) {
+        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
+        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
+  
+        trigger.triggers.Remove (entry);
     }
 
     public static void AddOneTimeListener (UnityEvent[] eventList, UnityAction atn) {
