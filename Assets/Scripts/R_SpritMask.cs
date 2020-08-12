@@ -1,167 +1,96 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.U2D;
+
 
 public class R_SpritMask : MonoBehaviour {
-    public GameObject background;
-    [ReadOnly, SerializeField]
-    private SpriteShapeController curve;
+
+
+    public GameObject drawObjectTemplate;
+    private GameObject drawObj;
     void Start () {
 
-        GameObject obj = GameObject.FindWithTag ("ClickableZone");
+        // SpriteRenderer refSpriteRender = GetComponent<SpriteRenderer> ();
+        // Fn.LayerRender data = new Fn.LayerRender (refSpriteRender, front.bounds);
+
+        // SpriteRenderer sprite = new GameObject ("Sprite").AddComponent<SpriteRenderer> ();
+
+        // sprite.sprite = data.RenderToSprite (LayerMask.GetMask ("Temp"));
+
+        // sprite.transform.position = data.spritePosition;
+        // sprite.transform.localScale = data.scale;
 
 
-        Fn.AddEventToTrigger (obj, EventTriggerType.BeginDrag, (d) => {
-            PointerEventData data = (PointerEventData) d;
-            if (curve == null)
-                curve = new GameObject ("DrawShape").AddComponent<SpriteShapeController> ();
-            curve.splineDetail = 16;
-            curve.spriteShapeRenderer.sortingOrder = 1;
-            Vector2 p = Camera.main.ScreenToWorldPoint (data.position);
-            curve.transform.position = p;
-            curve.spline.Clear ();
-
-        });
-
-
-
-        var entry = Fn.AddEventToTrigger (obj, EventTriggerType.Drag, (d) => {
-            PointerEventData data = (PointerEventData) d;
-            Spline spline = curve.spline;
-            Vector2 position = Camera.main.ScreenToWorldPoint (data.position) - curve.transform.position;
-
-
-            spline.InsertPointAt (spline.GetPointCount (), position);
-        });
-
-
-
-        Fn.AddEventToTrigger (obj, EventTriggerType.EndDrag, (d) => {
-            PointerEventData data = (PointerEventData) d;
-
-
-            // int layerInt = curve.gameObject.layer;
-            // curve.gameObject.layer = LayerMask.NameToLayer ("Temp");
-            GameObject[] list = CutBackground (curve.gameObject, background, "Temp");
-
-            background = list[0];
-
-        });
 
     }
 
-    private GameObject[] CutBackground (GameObject cutObject, GameObject background, string layerName) {
-        int layerInt = curve.gameObject.layer;
-        curve.gameObject.layer = LayerMask.NameToLayer (layerName);
-        Bounds holeBounds = cutObject.gameObject.GetComponent<Renderer> ().bounds;
-        GameObject mask = RenderLayerToMask (holeBounds, LayerMask.GetMask (layerName));
-
-        Destroy (this.curve.gameObject);
-
-
-        mask.layer = LayerMask.NameToLayer (layerName);
-        background.layer = LayerMask.NameToLayer (layerName);
-        Bounds backGrBounds = background.GetComponent<Renderer> ().bounds;
-
-        MaskInteraction (background, SpriteMaskInteraction.VisibleOutsideMask);
-        GameObject obj1 = RenderLayerToGameObject (backGrBounds, LayerMask.GetMask (layerName));
-        // obj1.layer = layerInt;
-
-
-        MaskInteraction (background, SpriteMaskInteraction.VisibleInsideMask);
-        GameObject obj2 = RenderLayerToGameObject (holeBounds, LayerMask.GetMask (layerName));
-
-        obj2.layer = layerInt;
-
-        Destroy (background);
-        Destroy (mask);
-
-        // background = obj1;
-        return new GameObject[] { obj1, obj2 };
+    private void Awake () {
+        Fn.AddEventToTrigger (gameObject, EventTriggerType.BeginDrag, BeginDrag);
+        Fn.AddEventToTrigger (gameObject, EventTriggerType.Drag, Drag);
+        Fn.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, EndDrag);
     }
 
-    public void MaskInteraction (GameObject gameObject, SpriteMaskInteraction intion) {
-        if (gameObject.GetComponent<SpriteShapeRenderer> ())
-            gameObject.GetComponent<SpriteShapeRenderer> ().maskInteraction = intion;
-        else
-            gameObject.GetComponent<SpriteRenderer> ().maskInteraction = intion;
+    private void EndDrag (BaseEventData arg0) {
+        if (enabled) {
+            PointerEventData data = (PointerEventData) arg0;
+
+            drawObj.GetComponent<SpriteRenderer> ().enabled = false;
+            drawObj.GetComponent<SpriteMask> ().enabled = true;
+            drawObj.layer = LayerMask.NameToLayer ("Temp");
+
+            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer> ();
+            spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+
+
+            Fn.LayerRender render;
+            SpriteRenderer spriteMask = drawObj.GetComponent<SpriteRenderer> ();
+            render = new Fn.LayerRender (spriteRenderer, spriteMask.bounds);
+            spriteMask.sprite = render.RenderToSprite (LayerMask.GetMask ("Temp"));
+
+            Fn.LayerRender render2;
+            spriteRenderer.maskInteraction = SpriteMaskInteraction.VisibleOutsideMask;
+            render2 = new Fn.LayerRender (spriteRenderer, spriteRenderer.bounds);
+            spriteRenderer.sprite = render2.RenderToSprite (LayerMask.GetMask ("Temp"));
+            Destroy (spriteRenderer.GetComponent<PolygonCollider2D> ());
+            spriteRenderer.gameObject.AddComponent<PolygonCollider2D> ().isTrigger = true;
+
+
+            spriteMask.color = Color.white;
+            spriteMask.enabled = true;
+            drawObj.transform.position = render.spritePosition;
+            drawObj.transform.localScale = render.scale;
+            drawObj.layer = 0;
+            Destroy (spriteMask.GetComponent<SpriteMask> ());
+            drawObj.AddComponent<Rigidbody2D> ();
+            drawObj.AddComponent<PolygonCollider2D> ();
+            drawObj.AddComponent<ConstantForce2D> ().force = Vector2.down * 20;
+
+
+
+
+        }
     }
 
+    private void Drag (BaseEventData arg0) {
+        if (enabled) {
+            PointerEventData data = (PointerEventData) arg0;
 
-
-
-    public GameObject RenderLayerToMask (Bounds bounds, int layerMaks, int unitPixel = 100) {
-        float re = unitPixel;
-        Vector2 size = bounds.size;
-        Vector3 center = bounds.center;
-        float h = Mathf.Ceil (size.y * re);
-        float w = Mathf.Ceil (size.x * re);
-
-
-        Sprite sprite = renderLayerToSprite (bounds, layerMaks, unitPixel);
-
-
-        GameObject mask = new GameObject ("Mask", typeof (SpriteMask));
-        mask.GetComponent<SpriteMask> ().sprite = sprite;
-        mask.transform.position = center;
-        mask.transform.localScale = new Vector2 (h / re, h / re);
-        return mask;
-    }
-    public GameObject RenderLayerToGameObject (Bounds bounds, int layerMaks, int unitPixel = 100) {
-        float re = unitPixel;
-        Vector2 size = bounds.size;
-        Vector3 center = bounds.center;
-        float h = Mathf.Ceil (size.y * re);
-        float w = Mathf.Ceil (size.x * re);
-
-
-        Sprite sprite = renderLayerToSprite (bounds, layerMaks, unitPixel);
-
-
-        GameObject mask = new GameObject ("Sprite");
-        mask.AddComponent<SpriteRenderer> ().sprite = sprite;
-        mask.transform.position = center;
-        mask.transform.localScale = new Vector2 (h / re, h / re);
-        return mask;
+            Vector2 position = drawObj.transform.position;
+            Vector2 pointer = Camera.main.ScreenToWorldPoint (data.position);
+            float scale = (pointer - position).magnitude;
+            scale = Mathf.Clamp (scale, 0, 4);
+            drawObj.transform.localScale = new Vector3 (scale, scale, 1);
+        }
     }
 
+    private void BeginDrag (BaseEventData arg0) {
+        if (enabled) {
+            PointerEventData data = (PointerEventData) arg0;
 
-
-
-    public static Sprite renderLayerToSprite (Bounds bounds, int layerMaks, int unitPixel) {
-        float re = unitPixel;
-        Vector3 size = bounds.size;
-        Vector3 center = bounds.center;
-        float h = Mathf.Ceil (size.y * re);
-        float w = Mathf.Ceil (size.x * re);
-
-
-
-        RenderTexture te = new RenderTexture ((int) w, (int) h, 24);
-        GameObject camera = new GameObject ("Cam", typeof (Camera));
-
-        Camera cam = camera.GetComponent<Camera> ();
-        cam.transform.position = new Vector3 (center.x, center.y, center.z - 10);
-        cam.orthographic = true;
-        cam.orthographicSize = h / re / 2;
-        cam.targetTexture = te;
-        cam.cullingMask = layerMaks;
-        cam.Render ();
-
-
-
-        Rect r = new Rect (0, 0, w, h);
-        Texture2D t = new Texture2D ((int) w, (int) h);
-        RenderTexture.active = te;
-        t.ReadPixels (r, 0, 0);
-        t.Apply ();
-        RenderTexture.active = null;
-
-
-        Destroy (camera);
-        Destroy (te);
-        return Sprite.Create (t, r, new Vector2 (0.5f, 0.5f), h);
+            drawObj = GameObject.Instantiate (drawObjectTemplate);
+            Vector3 p = Camera.main.ScreenToWorldPoint (data.pressPosition);
+            p.z = 0;
+            drawObj.transform.position = p;
+        }
     }
 }

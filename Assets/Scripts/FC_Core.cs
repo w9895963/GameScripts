@@ -79,7 +79,7 @@ public class FC_Core : MonoBehaviour {
         modifierList.Sort ((am, bm) => {
 
             if (am.order * bm.order >= 0) {
-                return (int) Mathf.Sign (am.order - bm.order);
+                return Mathf.RoundToInt (Mathf.Sign (am.order - bm.order));
             } else {
                 return am.order < 0 ? 1 : -1;
             }
