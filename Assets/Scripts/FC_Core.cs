@@ -9,23 +9,14 @@ public class FC_Core : MonoBehaviour {
     [Header ("Requre")]
     public Rigidbody2D targetRigidbody;
     public bool autoCalculateMass = true;
-
-
-
+    [SerializeField]
+    public List<ForceModifier> modifierList = new List<ForceModifier> ();
+    [ReadOnly, SerializeField]
     private Vector2 velocity;
 
-    // public List;
-    public List<ForceModifier> modifierList = new List<ForceModifier> ();
 
 
-
-
-    private void OnEnable () {
-        Sort ();
-    }
-
-
-
+    //*Main
     private void FixedUpdate () {
         velocity = targetRigidbody.velocity;
 
@@ -60,12 +51,10 @@ public class FC_Core : MonoBehaviour {
 
     //*Public Method
 
-
-
-
     public void AddModifier (UnityAction<ForceModifier> calcForce, int runOrder = 0) {
         if (!modifierList.Exists (m => m.act == calcForce))
             modifierList.Add (new ForceModifier (runOrder, this, calcForce));
+        Sort ();
 
     }
     public void RemoveModifier (UnityAction<ForceModifier> calcForce) {
@@ -73,8 +62,6 @@ public class FC_Core : MonoBehaviour {
         modifierList.RemoveAll (m => m.act == calcForce);
 
     }
-
-
     public void Sort () {
         modifierList.Sort ((am, bm) => {
 
@@ -103,6 +90,8 @@ public class FC_Core : MonoBehaviour {
 
 
 
+    //*Class
+
     public class ForceModifier {
         public int order = 0;
         public UnityAction<ForceModifier> act;
@@ -115,6 +104,7 @@ public class FC_Core : MonoBehaviour {
             act = action_;
             core = forceCore_;
         }
+
     }
 
 

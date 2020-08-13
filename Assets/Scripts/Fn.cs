@@ -186,4 +186,18 @@ public static class Fn {
         }
 
     }
+
+    [System.Serializable]
+    public class Curve {
+        public float inputMax = 1;
+        public float inputMin = 0;
+        public float outputMax = 10;
+        public float outputMin = 0;
+        public AnimationCurve curve = default;
+
+        public float Evaluate (float index) {
+            float i = (index - inputMin) / (inputMax - inputMin);
+            return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
+        }
+    }
 }

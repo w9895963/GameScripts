@@ -320,4 +320,10 @@ public class FC_CommonForce : MonoBehaviour {
 
         }
     }
+
+
+    private void OnValidate () {
+        if (core == null) core = GetComponent<FC_Core> ();
+
+    }
 }
