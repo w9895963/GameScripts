@@ -17,7 +17,7 @@ public class FS_Grab : MonoBehaviour {
     [SerializeField]
     private float force = 50;
     [SerializeField]
-    private Vector2 curveMaxMin = new Vector2 (0, 1);
+    private Vector2 curveMaxMin = new Vector2 (1, 0);
     [SerializeField]
     private AnimationCurve forceCurve = default;
     [SerializeField]

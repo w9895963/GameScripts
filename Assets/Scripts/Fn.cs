@@ -110,7 +110,7 @@ public static class Fn {
             CalcDates (refSpriteRender, clacBounds);
         }
 
-        public void CalcDates (SpriteRenderer refSpriteRender, Bounds calcBounds) {
+        private void CalcDates (SpriteRenderer refSpriteRender, Bounds calcBounds) {
 
 
             float pixelUnit = refSpriteRender.sprite.rect.height / refSpriteRender.bounds.size.y;
@@ -193,7 +193,9 @@ public static class Fn {
         public float inputMin = 0;
         public float outputMax = 10;
         public float outputMin = 0;
-        public AnimationCurve curve = default;
+        public AnimationCurve curve = defautCurve;
+        public static AnimationCurve defautCurve = new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+
 
         public float Evaluate (float index) {
             float i = (index - inputMin) / (inputMax - inputMin);

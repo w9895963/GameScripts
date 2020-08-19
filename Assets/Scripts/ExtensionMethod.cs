@@ -7,4 +7,11 @@ public static class ExtensionMethod {
         keyframes.Sort ((a, b) => a.value > b.value? - 1 : 1);
         return keyframes[0].value;
     }
+
+    public static float Evaluate (this AnimationCurve curve, float index, float indexMin, float indexMax,
+        float valueMin, float valueMax) {
+        float indexNew = (index - indexMin) / (indexMax - indexMin);
+
+        return curve.Evaluate (indexNew) * (valueMax - valueMin) + valueMin;
+    }
 }
