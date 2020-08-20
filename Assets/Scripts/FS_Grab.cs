@@ -39,7 +39,7 @@ public class FS_Grab : MonoBehaviour {
 
     private void FixedUpdate () {
         if (onDragging) {
-            Fn.DrawCross (rigidbody.GetRelativePoint (beginPosition));
+            // Fn.DrawCross (rigidbody.GetRelativePoint (beginPosition));
             Vector2 vector = target - rigidbody.GetRelativePoint (beginPosition);
             float index = (vector.magnitude - curveMaxMin[1]) / (curveMaxMin[0] - curveMaxMin[1]);
 

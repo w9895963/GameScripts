@@ -7,8 +7,6 @@ using UnityEngine.Events;
 public class M_TriggerEvent : MonoBehaviour {
     public bool useFilter = true;
     public float delay = 0;
-    public bool runOnce = false;
-    private bool used = false;
     public GameObjectFilter gameObjectFilter;
     public Events events;
 
@@ -18,12 +16,17 @@ public class M_TriggerEvent : MonoBehaviour {
     private void OnCollisionEnter2D (Collision2D other) {
         Main (other.gameObject, EventType.OnCollisionEnter);
     }
+    private void OnTriggerExit2D (Collider2D other) {
+        Main (other.gameObject, EventType.OnTriggerExit);
+    }
+    private void OnCollisionExit2D (Collision2D other) {
+        Main (other.gameObject, EventType.OnCollisionExit);
+    }
 
     private void Main (GameObject obj, EventType type) {
         if (enabled) {
 
             bool filterTest = false;
-
 
             if (gameObjectFilter.objectFilter) {
                 if (obj == gameObjectFilter.gameObject) {
@@ -31,21 +34,14 @@ public class M_TriggerEvent : MonoBehaviour {
                 }
             }
 
-
             if (!useFilter) {
                 filterTest = true;
             }
 
 
+
             if (filterTest) {
-                if (runOnce) {
-                    if (!used) {
-                        CallEvent (delay, type);
-                        used = true;
-                    }
-                } else {
-                    CallEvent (delay, type);
-                }
+                CallEvent (delay, type);
             }
 
 
@@ -58,8 +54,14 @@ public class M_TriggerEvent : MonoBehaviour {
                 case EventType.OnCollisionEnter:
                     events.onCollisionEnter.Invoke ();
                     break;
+                case EventType.OnCollisionExit:
+                    events.OnCollisionExit.Invoke ();
+                    break;
                 case EventType.OnTriggerEnter:
                     events.onTriggerEnter.Invoke ();
+                    break;
+                case EventType.OnTriggerExit:
+                    events.OnTriggerExit.Invoke ();
                     break;
             }
         } else {
@@ -67,8 +69,14 @@ public class M_TriggerEvent : MonoBehaviour {
                 case EventType.OnCollisionEnter:
                     Fn.WaitToCall (waitTime, () => events.onCollisionEnter.Invoke ());
                     break;
+                case EventType.OnCollisionExit:
+                    Fn.WaitToCall (waitTime, () => events.OnCollisionExit.Invoke ());
+                    break;
                 case EventType.OnTriggerEnter:
                     Fn.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke ());
+                    break;
+                case EventType.OnTriggerExit:
+                    Fn.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke ());
                     break;
             }
         }
@@ -84,11 +92,13 @@ public class M_TriggerEvent : MonoBehaviour {
     [System.Serializable]
     public class Events {
         public UnityEvent onTriggerEnter;
+        public UnityEvent OnTriggerExit;
         public UnityEvent onCollisionEnter;
+        public UnityEvent OnCollisionExit;
 
     }
 
-    public enum EventType { OnTriggerEnter, OnCollisionEnter }
+    public enum EventType { OnTriggerEnter, OnTriggerExit, OnCollisionEnter, OnCollisionExit }
 
     private void Start () {
 
@@ -96,8 +106,4 @@ public class M_TriggerEvent : MonoBehaviour {
 
 
 
-    //*Extend Method
-    public void AnimationPlay () {
-        GetComponent<Animation> ()?.Play ();
-    }
 }

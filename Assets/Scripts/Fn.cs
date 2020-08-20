@@ -193,12 +193,18 @@ public static class Fn {
         public float inputMin = 0;
         public float outputMax = 10;
         public float outputMin = 0;
-        public AnimationCurve curve = defautCurve;
-        public static AnimationCurve defautCurve = new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+        public AnimationCurve curve = DefautCurve;
+
+        public static AnimationCurve DefautCurve {
+            get {
+                return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+            }
+        }
 
 
         public float Evaluate (float index) {
             float i = (index - inputMin) / (inputMax - inputMin);
+            // pr
             return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
         }
     }
