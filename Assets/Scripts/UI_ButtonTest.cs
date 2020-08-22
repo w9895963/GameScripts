@@ -6,7 +6,7 @@ using UnityEngine.Rendering.Universal;
 
 public class UI_ButtonTest : MonoBehaviour {
 
-    public M_Gravity importGravity;
+    public FS_Gravity importGravity;
     public int count;
     public float time;
 

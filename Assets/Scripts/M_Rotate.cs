@@ -5,7 +5,7 @@ using UnityEngine;
 public class M_Rotate : MonoBehaviour {
 
     [Header ("Import")]
-    public M_Gravity importGravity;
+    public FS_Gravity importGravity;
     public Vector2 gravity;
     [Header ("Setting")]
     public float totalTime = 0.7f;
@@ -19,7 +19,7 @@ public class M_Rotate : MonoBehaviour {
     public float angleToRotate;
 
     private void Awake () {
-        importGravity.events.gravityChanged.AddListener (OnGravityChanged);
+        importGravity.events.onGravityChange.AddListener (OnGravityChanged);
 
     }
 

@@ -6,6 +6,6 @@ public class M_Reset : MonoBehaviour {
     public GameObject moveto;
     public void Reset () {
         gameObject.transform.position = moveto.transform.position;
-        GetComponent<M_Gravity> ().SetGravityDirection (Vector2.down);
+        GetComponent<FS_Gravity> ().SetGravityDirection (Vector2.down);
     }
 }

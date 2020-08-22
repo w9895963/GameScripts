@@ -10,7 +10,7 @@ public class FS_ForceJoint : MonoBehaviour {
     [SerializeField]
     private MapVariable mapping = new MapVariable ();
     [SerializeField]
-    private AnimationCurve forceCurve = Fn.Curve.DefautCurve;
+    private AnimationCurve forceCurve = Fn.Curve.ZeroOneCurve;
     [SerializeField]
     private float maxForce = 30;
     [SerializeField]

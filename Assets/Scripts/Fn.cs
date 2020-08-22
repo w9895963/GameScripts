@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -93,6 +94,18 @@ public static class Fn {
             singleEvent.RemoveListener (action);
         };
         singleEvent.AddListener (action);
+
+    }
+    public static M_OnArrive OnArrive (GameObject gameObject, Vector2 position,
+        UnityAction callBack, Vector2 distanceDirection = default,
+        float distance = 0.01f, bool autoDestroy = true) {
+
+
+        M_OnArrive comp = gameObject.AddComponent<M_OnArrive> ();
+        comp.SetPosition (position, distanceDirection, distance);
+        comp.SetEvent (callBack, autoDestroy);
+
+        return comp;
 
     }
 
@@ -193,11 +206,16 @@ public static class Fn {
         public float inputMin = 0;
         public float outputMax = 10;
         public float outputMin = 0;
-        public AnimationCurve curve = DefautCurve;
+        public AnimationCurve curve = ZeroOneCurve;
 
-        public static AnimationCurve DefautCurve {
+        public static AnimationCurve ZeroOneCurve {
             get {
                 return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+            }
+        }
+        public static AnimationCurve OneOneCurve {
+            get {
+                return new AnimationCurve (new Keyframe (0, 1, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
             }
         }
 

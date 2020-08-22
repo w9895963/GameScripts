@@ -8,10 +8,27 @@ public static class ExtensionMethod {
         return keyframes[0].value;
     }
 
-    public static float Evaluate (this AnimationCurve curve, float index, float indexMin, float indexMax,
+    public static float Evaluate (this AnimationCurve curve, float index,
+        float indexMin, float indexMax,
         float valueMin, float valueMax) {
-        float indexNew = (index - indexMin) / (indexMax - indexMin);
 
+
+        float indexNew = (index - indexMin) / (indexMax - indexMin);
         return curve.Evaluate (indexNew) * (valueMax - valueMin) + valueMin;
     }
+
+
+    public static T[] Add<T> (this T[] source, T newMember) {
+        List<T> list = new List<T> (source);
+        list.Add (newMember);
+        return list.ToArray ();
+    }
+
+    public static Vector2 ProjectOnPlane (this Vector2 vector, Vector2 normal) {
+        return (Vector2) Vector3.ProjectOnPlane (vector, normal);
+    }
+    public static Vector2 Project (this Vector2 vector, Vector2 direction) {
+        return (Vector2) Vector3.Project (vector, direction);
+    }
+
 }
