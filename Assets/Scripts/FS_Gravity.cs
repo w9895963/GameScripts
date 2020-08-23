@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 public class FS_Gravity : MonoBehaviour {
     [SerializeField]
-    private new Rigidbody2D rigidbody;
+    private Rigidbody2D rigidBody;
     [SerializeField]
     private bool ignoreMass = true;
     [SerializeField]
@@ -19,8 +19,8 @@ public class FS_Gravity : MonoBehaviour {
     //*Main
     private void FixedUpdate () {
         Vector2 force = gravity;
-        force *= (ignoreMass == true) ? rigidbody.mass : 1;
-        rigidbody.AddForce (force);
+        force *= (ignoreMass == true) ? rigidBody.mass : 1;
+        rigidBody.AddForce (force);
     }
 
 
@@ -49,7 +49,7 @@ public class FS_Gravity : MonoBehaviour {
 
     //*OnValidate
     private void OnValidate () {
-        if (rigidbody == null) { rigidbody = GetComponent<Rigidbody2D> (); }
+        if (rigidBody == null) { rigidBody = GetComponent<Rigidbody2D> (); }
 
         if (debug.setGravityAngle) {
             debug.setGravityAngle = false;

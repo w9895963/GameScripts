@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 
 
 public static class Fn {
@@ -30,11 +31,25 @@ public static class Fn {
         DrawCross (p2);
     }
 
-    public static GameObject Create (GameObject obj, Vector2 position, float rotate = 0) {
-        return GameObject.Instantiate (obj, position, Quaternion.AngleAxis (rotate, Vector3.forward));
+    public static GameObject DrawLineOnScreen (Vector2 start, Vector2 end, float time = 0.1f) {
+        GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
+        GameObject lineNew = GameObject.Instantiate (line);
+        if (time != 0) lineNew.AddComponent<D_AutoDestroy> ().SetTime (time);
+        lineNew.transform.position = start;
+
+        SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
+        Spline spline = shape.spline;
+
+        spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
+        spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
+        return lineNew;
     }
 
 
+
+    public static GameObject Create (GameObject obj, Vector2 position, float rotate = 0) {
+        return GameObject.Instantiate (obj, position, Quaternion.AngleAxis (rotate, Vector3.forward));
+    }
 
 
     public static Vector2 RotateClock (Vector2 vector, float angle) {
@@ -74,6 +89,12 @@ public static class Fn {
         EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
 
         trigger.triggers.Remove (entry);
+    }
+    public static M_PointerEvent AddPointerEvent (M_PointerEvent.PointerEventType type, UnityAction<M_PointerEvent.PointerData> action) {
+        GameObject obj = new GameObject ("Pointer Event");
+        M_PointerEvent comp = obj.AddComponent<M_PointerEvent> ();
+        comp.AddEvent (type, action);
+        return comp;
     }
 
     public static void AddOneTimeListener (UnityEvent[] eventList, UnityAction atn) {

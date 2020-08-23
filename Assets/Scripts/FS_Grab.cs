@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class FS_Grab : MonoBehaviour {
     [SerializeField]
@@ -22,6 +23,8 @@ public class FS_Grab : MonoBehaviour {
     private AnimationCurve forceCurve = default;
     [SerializeField]
     private Events events = new Events ();
+    [SerializeField]
+    private EnableZone enableZone = new EnableZone ();
     [SerializeField, ReadOnly]
     private bool onDragging = false;
     [SerializeField, ReadOnly]
@@ -38,8 +41,46 @@ public class FS_Grab : MonoBehaviour {
 
 
     private void FixedUpdate () {
+        bool inZoneTest = true;
+        inZoneTest = enableZone.enable?enableZone.testResult : true;
+        if (inZoneTest) {
+            Main_Updata ();
+        } else {
+            onDragging = false;
+        }
+
+
+    }
+
+
+    //*OnEvent
+    private void Start () {
+        Main_SetupPointerEvent ();
+
+        if (enableZone.enable & enableZone.targetTriggerBox != null & enableZone.thisTriggerBox != null) {
+
+            Collider2D targetBox = enableZone.targetTriggerBox;
+            if (targetBox.GetComponent<M_TriggerEvent> () == null) { }
+            M_TriggerEvent eventComp = targetBox.gameObject.AddComponent<M_TriggerEvent> ();
+            eventComp.SetObject (gameObject);
+            eventComp.AddListener (M_TriggerEvent.EventType.OnTriggerEnter, () =>
+                enableZone.testResult = true);
+            eventComp.AddListener (M_TriggerEvent.EventType.OnTriggerExit, () =>
+                enableZone.testResult = false);
+
+        }
+
+    }
+    private void OnEnable () { }
+
+
+    private void OnDisable () {
+        onDragging = false;
+    }
+
+    //*Private Method
+    private void Main_Updata () {
         if (onDragging) {
-            // Fn.DrawCross (rigidbody.GetRelativePoint (beginPosition));
             Vector2 vector = target - rigidbody.GetRelativePoint (beginPosition);
             float index = (vector.magnitude - curveMaxMin[1]) / (curveMaxMin[0] - curveMaxMin[1]);
 
@@ -56,8 +97,7 @@ public class FS_Grab : MonoBehaviour {
             }
         }
     }
-
-    private void OnEnable () {
+    private void Main_SetupPointerEvent () {
         var obj = pointerTrigger.gameObject;
         Fn.AddEventToTrigger (obj, EventTriggerType.BeginDrag, (d) => {
             if (enabled) {
@@ -82,15 +122,20 @@ public class FS_Grab : MonoBehaviour {
         });
     }
 
-
-    private void OnDisable () {
-        onDragging = false;
-    }
-
+    //*Property Class
     [System.Serializable]
     public class Events {
         public UnityEvent dragBegin = new UnityEvent ();
         public UnityEvent dragEnd = new UnityEvent ();
+    }
+
+    [System.Serializable]
+    public class EnableZone {
+        public bool enable = false;
+        public Collider2D thisTriggerBox;
+        public Collider2D targetTriggerBox;
+        [ReadOnly]
+        public bool testResult = false;
     }
 
 }

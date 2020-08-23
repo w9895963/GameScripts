@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class D_AutoDestroy : MonoBehaviour {
-    public float time;
-    public float timeCreate;
-    // Start is called before the first frame update
+    [SerializeField] private float time;
+    [SerializeField, ReadOnly] private float timeCreate;
+
+
     void Start () {
         timeCreate = Time.time;
     }
 
-    // Update is called once per frame
     void Update () {
         if (Time.time - timeCreate >= time) {
             Destroy (gameObject);
@@ -19,5 +19,9 @@ public class D_AutoDestroy : MonoBehaviour {
 
     private void OnEnable () {
         timeCreate = Time.time;
+    }
+
+    public void SetTime (float time) {
+        this.time = time;
     }
 }

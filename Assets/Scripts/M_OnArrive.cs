@@ -13,6 +13,11 @@ public class M_OnArrive : MonoBehaviour {
     private Vector2 lastPosition;
     private bool lastPositionSetup = false;
 
+
+
+    private void Awake () {
+        if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
+    }
     private void FixedUpdate () {
         ArriveEvent ();
     }

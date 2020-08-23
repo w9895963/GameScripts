@@ -7,8 +7,8 @@ using UnityEngine.Events;
 public class M_TriggerEvent : MonoBehaviour {
     public bool useFilter = true;
     public float delay = 0;
-    public GameObjectFilter gameObjectFilter;
-    public Events events;
+    public GameObjectFilter gameObjectFilter = new GameObjectFilter ();
+    public Events events = new Events ();
 
     private void OnTriggerEnter2D (Collider2D other) {
         Main (other.gameObject, EventType.OnTriggerEnter);
@@ -91,10 +91,10 @@ public class M_TriggerEvent : MonoBehaviour {
 
     [System.Serializable]
     public class Events {
-        public UnityEvent onTriggerEnter;
-        public UnityEvent OnTriggerExit;
-        public UnityEvent onCollisionEnter;
-        public UnityEvent OnCollisionExit;
+        public UnityEvent onTriggerEnter = new UnityEvent ();
+        public UnityEvent OnTriggerExit = new UnityEvent ();
+        public UnityEvent onCollisionEnter = new UnityEvent ();
+        public UnityEvent OnCollisionExit = new UnityEvent ();
 
     }
 
@@ -102,6 +102,31 @@ public class M_TriggerEvent : MonoBehaviour {
 
     private void Start () {
 
+    }
+
+
+    //*Public Method
+    public void SetObject (GameObject obj) {
+        gameObjectFilter.gameObject = obj;
+        gameObjectFilter.objectFilter = true;
+    }
+
+
+    public void AddListener (EventType type, UnityAction action) {
+        switch (type) {
+            case EventType.OnTriggerEnter:
+                events.onTriggerEnter.AddListener (action);
+                break;
+                case EventType.OnTriggerExit:
+                    events.OnTriggerExit.AddListener (action);
+                    break;
+                case EventType.OnCollisionEnter:
+                    events.onCollisionEnter.AddListener (action);
+                    break;
+                case EventType.OnCollisionExit:
+                    events.OnCollisionExit.AddListener (action);
+                    break;
+        }
     }
 
 

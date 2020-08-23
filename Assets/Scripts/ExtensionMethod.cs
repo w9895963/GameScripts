@@ -30,5 +30,8 @@ public static class ExtensionMethod {
     public static Vector2 Project (this Vector2 vector, Vector2 direction) {
         return (Vector2) Vector3.Project (vector, direction);
     }
+    public static Vector2 ScreenToWold (this Vector2 vector) {
+        return Camera.main.ScreenToWorldPoint (vector);
+    }
 
 }

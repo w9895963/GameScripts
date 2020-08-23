@@ -29,8 +29,11 @@ public class FS_SimpleForce : MonoBehaviour {
 
 
 
-    //*OnValidate
+    //*On
     private void OnValidate () {
+        if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
+    }
+    private void Awake () {
         if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
     }
 

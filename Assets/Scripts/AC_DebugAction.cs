@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class AC_DebugAction : MonoBehaviour {
+    public Text text_;
+    public static Text text;
 
-
+    private void Awake () {
+        text = text_;
+    }
     public void Log (string sr) {
         Debug.Log (sr);
     }
@@ -21,19 +26,22 @@ public class AC_DebugAction : MonoBehaviour {
         GameObject oj = GameObject.Instantiate (obj);
         oj.transform.position = position;
         oj.transform.rotation = Quaternion.Euler (0, 0, z);
-        oj.GetComponent<D_AutoDestroy> ().time = exitstTime;
+        oj.GetComponent<D_AutoDestroy> ().SetTime (exitstTime);
 
     }
     public static void DrawDotLine (Vector2 start, Vector2 end, float exitstTime = 0.05f) {
         GameObject pref = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
         GameObject obj = GameObject.Instantiate (pref);
         obj.transform.position = Vector3.zero;
-        obj.GetComponent<D_AutoDestroy> ().time = exitstTime;
+        obj.GetComponent<D_AutoDestroy> ().SetTime (exitstTime);
 
         obj.GetComponent<LineRenderer> ().positionCount = 2;
         obj.GetComponent<LineRenderer> ().SetPosition (0, start);
         obj.GetComponent<LineRenderer> ().SetPosition (1, end);
 
+    }
+    public static void LogScreen (string str) {
+        text.text = str + "\n" + text.text;
     }
 
 }
