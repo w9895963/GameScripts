@@ -7,7 +7,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 
 
-public static class Fn {
+public class Fn {
+    public static Fn _ = new Fn ();
 
     public static void DrawCross (Vector2 position, float l = 0.2f) {
 
@@ -69,6 +70,7 @@ public static class Fn {
     }
 
 
+
     public static void WaitToCall (float time, UnityAction call) {
         GameObject obj = new GameObject ();
         Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
@@ -115,18 +117,6 @@ public static class Fn {
             singleEvent.RemoveListener (action);
         };
         singleEvent.AddListener (action);
-
-    }
-    public static M_OnArrive OnArrive (GameObject gameObject, Vector2 position,
-        UnityAction callBack, Vector2 distanceDirection = default,
-        float distance = 0.01f, bool autoDestroy = true) {
-
-
-        M_OnArrive comp = gameObject.AddComponent<M_OnArrive> ();
-        comp.SetPosition (position, distanceDirection, distance);
-        comp.SetEvent (callBack, autoDestroy);
-
-        return comp;
 
     }
 

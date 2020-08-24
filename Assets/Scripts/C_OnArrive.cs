@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class M_OnArrive : MonoBehaviour {
+public class C_OnArrive : MonoBehaviour {
     public Rigidbody2D rigidBody;
     public Vector2 targetPosition;
     public float distance = 0.001f;
@@ -15,15 +15,19 @@ public class M_OnArrive : MonoBehaviour {
 
 
 
-    private void Awake () {
-        if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
-    }
+
     private void FixedUpdate () {
-        ArriveEvent ();
+        Main ();
+    }
+
+    private void Awake () {
+        Initial ();
     }
 
 
-    private void ArriveEvent () {
+
+    //*Privat Method
+    private void Main () {
         if (lastPositionSetup & lastPosition != rigidBody.position) {
 
             if (distanceDirection == default) {
@@ -85,16 +89,12 @@ public class M_OnArrive : MonoBehaviour {
         lastPosition = rigidBody.position;
         lastPositionSetup = true;
     }
-
-
-
-
-    //*OnValidate
-    private void OnValidate () {
+    private void Initial () {
         if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
     }
 
-    //*Method
+
+    //*Public Method
     public void SetPosition (Vector2 position, Vector2 distanceDirection = default, float distance = 0.01f) {
         targetPosition = position;
         this.distanceDirection = distanceDirection;
@@ -106,4 +106,17 @@ public class M_OnArrive : MonoBehaviour {
     }
 
 
+}
+public static class _Extension_M_OnArrive {
+    public static C_OnArrive OnArrive (this Fn fn, GameObject gameObject, Vector2 position,
+        UnityAction callBack, Vector2 distanceDirection = default,
+        float distance = 0.01f, bool autoDestroy = true) {
+
+
+        C_OnArrive comp = gameObject.AddComponent<C_OnArrive> ();
+        comp.SetPosition (position, distanceDirection, distance);
+        comp.SetEvent (callBack, autoDestroy);
+
+        return comp;
+    }
 }

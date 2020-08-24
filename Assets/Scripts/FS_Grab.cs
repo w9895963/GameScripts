@@ -7,28 +7,17 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class FS_Grab : MonoBehaviour {
-    [SerializeField]
-    private new Rigidbody2D rigidbody;
-    [SerializeField]
-    private Collider2D pointerTrigger;
-    [SerializeField]
-    private bool ignoreMass = true;
-    [SerializeField]
-    private bool pointForceMode = true;
-    [SerializeField]
-    private float force = 50;
-    [SerializeField]
-    private Vector2 curveMaxMin = new Vector2 (1, 0);
-    [SerializeField]
-    private AnimationCurve forceCurve = default;
-    [SerializeField]
-    private Events events = new Events ();
-    [SerializeField]
-    private EnableZone enableZone = new EnableZone ();
-    [SerializeField, ReadOnly]
-    private bool onDragging = false;
-    [SerializeField, ReadOnly]
-    private Vector2 target;
+    [SerializeField] private new Rigidbody2D rigidbody;
+    [SerializeField] private Collider2D pointerTrigger;
+    [SerializeField] private bool ignoreMass = true;
+    [SerializeField] private bool pointForceMode = true;
+    [SerializeField] private float force = 50;
+    [SerializeField] private Vector2 curveMaxMin = new Vector2 (1, 0);
+    [SerializeField] private AnimationCurve forceCurve = default;
+    [SerializeField] private Events events = new Events ();
+    [SerializeField] private EnableZone enableZone = new EnableZone ();
+    [SerializeField, ReadOnly] private bool onDragging = false;
+    [SerializeField, ReadOnly] private Vector2 target;
     private Vector2 beginPosition;
 
 
@@ -60,14 +49,9 @@ public class FS_Grab : MonoBehaviour {
         if (enableZone.enable & enableZone.targetTriggerBox != null & enableZone.thisTriggerBox != null) {
 
             Collider2D targetBox = enableZone.targetTriggerBox;
-            if (targetBox.GetComponent<M_TriggerEvent> () == null) { }
-            M_TriggerEvent eventComp = targetBox.gameObject.AddComponent<M_TriggerEvent> ();
-            eventComp.SetObject (gameObject);
-            eventComp.AddListener (M_TriggerEvent.EventType.OnTriggerEnter, () =>
-                enableZone.testResult = true);
-            eventComp.AddListener (M_TriggerEvent.EventType.OnTriggerExit, () =>
-                enableZone.testResult = false);
 
+            Fn._.AddTriggerEvent (targetBox.gameObject, enableZone.thisTriggerBox.gameObject,
+                () => enableZone.testResult = true, () => enableZone.testResult = false);
         }
 
     }

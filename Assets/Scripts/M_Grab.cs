@@ -47,14 +47,9 @@ public class M_Grab : MonoBehaviour {
         });
 
 
-        M_TriggerEvent ev = clickBox.gameObject.AddComponent<M_TriggerEvent> ();
-        ev.SetObject (triggerZone.gameObject);
-        ev.AddListener (M_TriggerEvent.EventType.OnTriggerEnter, () => {
-            onTriggerZone = true;
-        });
-        ev.AddListener (M_TriggerEvent.EventType.OnTriggerExit, () => {
-            onTriggerZone = false;
-        });
+
+        Fn._.AddTriggerEvent (clickBox.gameObject, triggerZone.gameObject,
+            () => onTriggerZone = true, () => onTriggerZone = false);
 
     }
 

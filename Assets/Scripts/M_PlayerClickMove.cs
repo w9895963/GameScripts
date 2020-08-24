@@ -21,7 +21,7 @@ public class M_PlayerClickMove : MonoBehaviour {
     public Debug debug = new Debug ();
     [SerializeField, ReadOnly] private Vector2 gravity;
     [SerializeField, ReadOnly] private FS_SimpleForce simpleForce;
-    [SerializeField, ReadOnly] private M_OnArrive onArrive;
+    [SerializeField, ReadOnly] private C_OnArrive onArrive;
 
     void Start () {
         Fn.AddEventToTrigger (inputZone.gameObject, EventTriggerType.PointerClick, (d) => {
@@ -66,7 +66,7 @@ public class M_PlayerClickMove : MonoBehaviour {
 
 
         if (onArrive) Destroy (onArrive);
-        onArrive = Fn.OnArrive (rigidBody.gameObject, point, () => simpleForce.enabled = false, moveVector, arriveDistance);
+        onArrive = Fn._.OnArrive (rigidBody.gameObject, point, () => simpleForce.enabled = false, moveVector, arriveDistance);
         return point;
     }
     public void Stop () {
