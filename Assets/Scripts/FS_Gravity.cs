@@ -11,8 +11,8 @@ public class FS_Gravity : MonoBehaviour {
     private bool ignoreMass = true;
     [SerializeField]
     private Vector2 gravity = new Vector2 (0, -30);
-    public Events events;
-    public Debug debug;
+    public Events events = new Events ();
+    public Debug debug = new Debug ();
 
 
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class M_PointerEvent : MonoBehaviour {
+public class C_PointerEvent : MonoBehaviour {
 
     public Vector2 lastPointerPosition;
     public bool lastPointerPositionSetup = false;
@@ -13,6 +13,9 @@ public class M_PointerEvent : MonoBehaviour {
     public bool onDrag = false;
     public Events events = new Events ();
     public PointerData data = new PointerData ();
+    public float pointerDownTime = 0;
+    public float clickAllowTime = 0.1f;
+    public Component createBy = null;
 
 
     //*Main
@@ -21,18 +24,19 @@ public class M_PointerEvent : MonoBehaviour {
         data.position = p;
 
 
-        if (Pointer.current.press.isPressed) {
+        bool pressDown = Pointer.current.press.isPressed;
+        if (pressDown) {
             if (lastPressDown == false) {
                 lastPressDown = true;
                 pressBeginPosition = p;
                 data.pointerDownPosition = p;
+                pointerDownTime = Time.unscaledTime;
                 events.onPressDown.Invoke (data);
             } else {
 
                 if (p != pressBeginPosition) {
                     if (onDrag == false) {
                         onDrag = true;
-                        data.lastPosition = lastPointerPosition;
                         events.onDragBegin.Invoke (data);
                     }
 
@@ -40,8 +44,7 @@ public class M_PointerEvent : MonoBehaviour {
                     events.onHold.Invoke (data);
                 }
 
-                if (p != lastPointerPosition) {
-                    data.lastPosition = lastPointerPosition;
+                if (onDrag) {
                     events.onDrag.Invoke (data);
                 }
 
@@ -52,20 +55,24 @@ public class M_PointerEvent : MonoBehaviour {
                 events.onPressUp.Invoke (data);
                 if (onDrag) {
                     onDrag = false;
-                    data.lastPosition = lastPointerPosition;
                     events.onDragEnd.Invoke (data);
 
 
-                } else if (pressBeginPosition == p) {
+                } else if (pressBeginPosition == p | Time.unscaledTime - pointerDownTime < clickAllowTime) {
                     events.onClick.Invoke (data);
                 }
             }
+        }
+
+        if (p != lastPointerPosition & !pressDown & lastPointerPositionSetup) {
+            events.onMove.Invoke (data);
         }
 
 
 
 
         lastPointerPosition = p;
+        data.lastPosition = p;
         lastPointerPositionSetup = true;
     }
     private void OnDisable () {
@@ -96,6 +103,9 @@ public class M_PointerEvent : MonoBehaviour {
             case PointerEventType.onDrag:
                 events.onDrag.AddListener (action);
                 break;
+            case PointerEventType.onMove:
+                events.onMove.AddListener (action);
+                break;
         }
 
 
@@ -110,20 +120,58 @@ public class M_PointerEvent : MonoBehaviour {
         public UnityEvent<PointerData> onDragEnd = new UnityEvent<PointerData> ();
         public UnityEvent<PointerData> onDrag = new UnityEvent<PointerData> ();
         public UnityEvent<PointerData> onClick = new UnityEvent<PointerData> ();
+        public UnityEvent<PointerData> onMove = new UnityEvent<PointerData> ();
     }
-    public class PointerData {
-        public Vector2 pointerDownPosition;
-        public Vector2 lastPosition;
-        public Vector2 position;
+}
 
+
+
+public enum PointerEventType {
+    onPressDown,
+    onPressUp,
+    onHold,
+    onDragBegin,
+    onDragEnd,
+    onDrag,
+    onClick,
+    onMove
+}
+
+
+
+public class PointerData {
+    public Vector2 pointerDownPosition;
+    public Vector2 lastPosition;
+    public Vector2 position;
+
+}
+
+
+public static class _Extention_M_PointerEvent {
+    public static C_PointerEvent AddPointerEvent (this Component component,
+        PointerEventType type,
+        UnityAction<PointerData> action) {
+
+
+        GameObject obj = new GameObject ("Pointer Event");
+        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
+        comp.createBy = component;
+        comp.AddEvent (type, action);
+        return comp;
     }
-    public enum PointerEventType {
-        onPressDown,
-        onPressUp,
-        onHold,
-        onDragBegin,
-        onDragEnd,
-        onDrag,
-        onClick
+    public static C_PointerEvent Ex_AddPointerEventOnece (this Component component,
+        PointerEventType type,
+        UnityAction<PointerData> action) {
+
+
+        GameObject obj = new GameObject ("Pointer Event");
+        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
+        comp.createBy = component;
+        UnityAction<PointerData> ac = (d) => {
+            action (d);
+            GameObject.Destroy (obj);
+        };
+        comp.AddEvent (type, ac);
+        return comp;
     }
 }

@@ -19,7 +19,7 @@ public class M_Rotate : MonoBehaviour {
     public float angleToRotate;
 
     private void Awake () {
-        importGravity.events.onGravityChange.AddListener (OnGravityChanged);
+        importGravity?.events.onGravityChange.AddListener (OnGravityChanged);
 
     }
 

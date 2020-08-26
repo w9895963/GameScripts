@@ -20,11 +20,11 @@ public class M_PlayerClickMove : MonoBehaviour {
     public string groundLayer = "Ground";
     public Debug debug = new Debug ();
     [SerializeField, ReadOnly] private Vector2 gravity;
-    [SerializeField, ReadOnly] private FS_SimpleForce simpleForce;
+    [SerializeField, ReadOnly] private C_Force simpleForce;
     [SerializeField, ReadOnly] private C_OnArrive onArrive;
 
     void Start () {
-        Fn.AddEventToTrigger (inputZone.gameObject, EventTriggerType.PointerClick, (d) => {
+        Fn._.AddEventToTrigger (inputZone.gameObject, EventTriggerType.PointerClick, (d) => {
             if (enabled) {
                 PointerEventData data = (PointerEventData) d;
                 Vector2 pointerP = data.position;
@@ -54,7 +54,7 @@ public class M_PlayerClickMove : MonoBehaviour {
     public Vector2 MoveTo (Vector2 position, float maxSpeed) {
         gravity = rigidBody.GetComponent<FS_Gravity> ().GetGravity ();
         if (simpleForce == null) {
-            simpleForce = rigidBody.gameObject.AddComponent<FS_SimpleForce> ();
+            simpleForce = rigidBody.gameObject.AddComponent<C_Force> ();
         }
 
 

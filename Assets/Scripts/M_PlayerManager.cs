@@ -9,11 +9,9 @@ public class M_PlayerManager : MonoBehaviour {
 
     private void OnValidate () {
         playerClickMove = playerClickMove?playerClickMove : GetComponent<M_PlayerClickMove> ();
-        Gb.charactorMain = Gb.charactorMain?Gb.charactorMain : this;
     }
     private void Awake () {
         playerClickMove = playerClickMove?playerClickMove : GetComponent<M_PlayerClickMove> ();
-        Gb.charactorMain = Gb.charactorMain?Gb.charactorMain : this;
     }
 
     public void MoveTo (Vector2 position, float maxSpeed) => playerClickMove.MoveTo (position, maxSpeed);

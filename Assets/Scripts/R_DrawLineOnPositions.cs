@@ -21,7 +21,8 @@ public class R_DrawLineOnPositions : MonoBehaviour {
         Spline spline = spriteShape.spline;
         spline.Clear ();
         for (int i = 0; i < objects.Length; i++) {
-            spline.InsertPointAt (i, objects[i].transform.localPosition);
+            Vector3 p = objects[i].transform.position;
+            spline.InsertPointAt (i, transform.InverseTransformPoint (p));
             spline.SetTangentMode (i, ShapeTangentMode.Continuous);
 
             float rotate = objects[i].transform.rotation.eulerAngles.z;
@@ -42,7 +43,7 @@ public class R_DrawLineOnPositions : MonoBehaviour {
 
     }
 
-    private void OnValidate () {
+    private void Reset () {
         if (spriteShape == null) spriteShape = GetComponent<SpriteShapeController> ();
     }
 

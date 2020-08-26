@@ -25,9 +25,9 @@ public class R_SpritMask : MonoBehaviour {
     }
 
     private void Awake () {
-        Fn.AddEventToTrigger (gameObject, EventTriggerType.BeginDrag, BeginDrag);
-        Fn.AddEventToTrigger (gameObject, EventTriggerType.Drag, Drag);
-        Fn.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, EndDrag);
+        Fn._.AddEventToTrigger (gameObject, EventTriggerType.BeginDrag, BeginDrag);
+        Fn._.AddEventToTrigger (gameObject, EventTriggerType.Drag, Drag);
+        Fn._.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, EndDrag);
     }
 
     private void EndDrag (BaseEventData arg0) {

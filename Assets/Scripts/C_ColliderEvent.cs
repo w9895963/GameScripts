@@ -12,13 +12,13 @@ public class C_ColliderEvent : MonoBehaviour {
 
 
     private void OnTriggerEnter2D (Collider2D other) {
-        Main (other.gameObject, EventType.OnTriggerEnter);
+        Main (other.gameObject, EventType.OnTriggerEnter, other);
     }
     private void OnCollisionEnter2D (Collision2D other) {
         Main (other.gameObject, EventType.OnCollisionEnter);
     }
     private void OnTriggerExit2D (Collider2D other) {
-        Main (other.gameObject, EventType.OnTriggerExit);
+        Main (other.gameObject, EventType.OnTriggerExit, other);
     }
     private void OnCollisionExit2D (Collision2D other) {
         Main (other.gameObject, EventType.OnCollisionExit);
@@ -26,7 +26,7 @@ public class C_ColliderEvent : MonoBehaviour {
 
 
     //*Private Method
-    private void Main (GameObject obj, EventType type) {
+    private void Main (GameObject obj, EventType type, Collider2D collider = null) {
         if (enabled) {
 
             bool filterTest = true;
@@ -41,14 +41,14 @@ public class C_ColliderEvent : MonoBehaviour {
 
 
             if (filterTest) {
-                CallEvent (delay, type);
+                CallEvent (delay, type, collider);
             }
 
 
         }
     }
 
-    private void CallEvent (float waitTime, EventType typ) {
+    private void CallEvent (float waitTime, EventType typ, Collider2D collider = null) {
         if (waitTime == 0) {
             switch (typ) {
                 case EventType.OnCollisionEnter:
@@ -58,10 +58,10 @@ public class C_ColliderEvent : MonoBehaviour {
                     events.OnCollisionExit.Invoke ();
                     break;
                 case EventType.OnTriggerEnter:
-                    events.onTriggerEnter.Invoke ();
+                    events.onTriggerEnter.Invoke (collider);
                     break;
                 case EventType.OnTriggerExit:
-                    events.OnTriggerExit.Invoke ();
+                    events.OnTriggerExit.Invoke (collider);
                     break;
             }
         } else {
@@ -73,10 +73,10 @@ public class C_ColliderEvent : MonoBehaviour {
                     Fn.WaitToCall (waitTime, () => events.OnCollisionExit.Invoke ());
                     break;
                 case EventType.OnTriggerEnter:
-                    Fn.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke ());
+                    Fn.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
                     break;
                 case EventType.OnTriggerExit:
-                    Fn.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke ());
+                    Fn.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
                     break;
             }
         }
@@ -91,7 +91,7 @@ public class C_ColliderEvent : MonoBehaviour {
         gameObjectFilter.gameObject = obj;
         gameObjectFilter.objectFilter = true;
     }
-    public void AddListener (EventType type, UnityAction action) {
+    public void AddListener (EventType type, UnityAction<Collider2D> action) {
         switch (type) {
             case EventType.OnTriggerEnter:
                 events.onTriggerEnter.AddListener (action);
@@ -99,6 +99,10 @@ public class C_ColliderEvent : MonoBehaviour {
             case EventType.OnTriggerExit:
                 events.OnTriggerExit.AddListener (action);
                 break;
+        }
+    }
+    public void AddListener (EventType type, UnityAction action) {
+        switch (type) {
             case EventType.OnCollisionEnter:
                 events.onCollisionEnter.AddListener (action);
                 break;
@@ -107,11 +111,14 @@ public class C_ColliderEvent : MonoBehaviour {
                 break;
         }
     }
+
+
+
     public static C_ColliderEvent AddTriggerEvent (
         GameObject gameObject,
         GameObject targetGameobject = null,
-        UnityAction enterAction = null,
-        UnityAction exitAction = null) {
+        UnityAction<Collider2D> enterAction = null,
+        UnityAction<Collider2D> exitAction = null) {
 
 
         C_ColliderEvent comp = gameObject.AddComponent<C_ColliderEvent> ();
@@ -133,8 +140,8 @@ public class C_ColliderEvent : MonoBehaviour {
     //*Property
     [System.Serializable]
     public class Events {
-        public UnityEvent onTriggerEnter = new UnityEvent ();
-        public UnityEvent OnTriggerExit = new UnityEvent ();
+        public UnityEvent<Collider2D> onTriggerEnter = new UnityEvent<Collider2D> ();
+        public UnityEvent<Collider2D> OnTriggerExit = new UnityEvent<Collider2D> ();
         public UnityEvent onCollisionEnter = new UnityEvent ();
         public UnityEvent OnCollisionExit = new UnityEvent ();
 
@@ -160,11 +167,21 @@ public static class _Extension_C_ColliderEvent {
     public static C_ColliderEvent AddTriggerEvent (this Fn fn,
             GameObject gameObject,
             GameObject targetGameobject = null,
-            UnityAction enterAction = null,
-            UnityAction exitAction = null) =>
+            UnityAction<Collider2D> enterAction = null,
+            UnityAction<Collider2D> exitAction = null) =>
 
         C_ColliderEvent.AddTriggerEvent (gameObject,
             targetGameobject,
             enterAction,
             exitAction);
+
+    public static C_ColliderEvent Ex_AddTriggerEvent (this Collider2D collider,
+            GameObject targetGameobject = null,
+            UnityAction<Collider2D> enter = null,
+            UnityAction<Collider2D> exit = null) =>
+
+        C_ColliderEvent.AddTriggerEvent (collider.gameObject,
+            targetGameobject,
+            enter,
+            exit);
 }

@@ -10,7 +10,7 @@ public class M_Timeline : MonoBehaviour {
     public float z = 0;
 
     void Awake () {
-        Fn.AddEventToTrigger (gameObject, EventTriggerType.Drag, dt => {
+        Fn._.AddEventToTrigger (gameObject, EventTriggerType.Drag, dt => {
             PointerEventData data = (PointerEventData) dt;
             Vector2 pressPosition = data.pressPosition;
             Vector2 position = data.position;
@@ -32,7 +32,7 @@ public class M_Timeline : MonoBehaviour {
 
             lastVector = vector;
         });
-        Fn.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, dt => {
+        Fn._.AddEventToTrigger (gameObject, EventTriggerType.EndDrag, dt => {
             lastVector = default;
         });
 

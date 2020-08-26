@@ -10,6 +10,9 @@ using UnityEngine.U2D;
 public class Fn {
     public static Fn _ = new Fn ();
 
+
+
+
     public static void DrawCross (Vector2 position, float l = 0.2f) {
 
         Vector2 p = position;
@@ -32,19 +35,6 @@ public class Fn {
         DrawCross (p2);
     }
 
-    public static GameObject DrawLineOnScreen (Vector2 start, Vector2 end, float time = 0.1f) {
-        GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
-        GameObject lineNew = GameObject.Instantiate (line);
-        if (time != 0) lineNew.AddComponent<D_AutoDestroy> ().SetTime (time);
-        lineNew.transform.position = start;
-
-        SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
-        Spline spline = shape.spline;
-
-        spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
-        spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
-        return lineNew;
-    }
 
 
 
@@ -77,27 +67,6 @@ public class Fn {
         timer.WaitToCall (time, call);
     }
 
-    public static EventTrigger.Entry AddEventToTrigger (GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
-        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
-        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener (action);
-        trigger.triggers.Add (entry);
-        return entry;
-    }
-    public static void RemoveEventToTrigger (GameObject obj, EventTriggerType type, EventTrigger.Entry entry) {
-        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
-        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
-
-        trigger.triggers.Remove (entry);
-    }
-    public static M_PointerEvent AddPointerEvent (M_PointerEvent.PointerEventType type, UnityAction<M_PointerEvent.PointerData> action) {
-        GameObject obj = new GameObject ("Pointer Event");
-        M_PointerEvent comp = obj.AddComponent<M_PointerEvent> ();
-        comp.AddEvent (type, action);
-        return comp;
-    }
 
     public static void AddOneTimeListener (UnityEvent[] eventList, UnityAction atn) {
         UnityAction action = null;
@@ -224,9 +193,14 @@ public class Fn {
                 return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
             }
         }
+        public static AnimationCurve OneZeroCurve {
+            get {
+                return new AnimationCurve (new Keyframe (0, 1, 0, 0, 0, 0), new Keyframe (1, 0, 0, 0, 0, 0));
+            }
+        }
         public static AnimationCurve OneOneCurve {
             get {
-                return new AnimationCurve (new Keyframe (0, 1, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+                return new AnimationCurve (new Keyframe (0, 1), new Keyframe (1, 1));
             }
         }
 
@@ -237,4 +211,48 @@ public class Fn {
             return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
         }
     }
+
+
+
+
+}
+public static class _Extension_Fn {
+    //*Event Trigger
+    public static EventTrigger.Entry AddEventToTrigger (this Fn fn, GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
+        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
+        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener (action);
+        trigger.triggers.Add (entry);
+        return entry;
+    }
+    public static void RemoveEventToTrigger (this Fn fn, GameObject obj, EventTriggerType type, EventTrigger.Entry entry) {
+        EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
+        EventTrigger trigger = eventTrigger != null ? eventTrigger : obj.AddComponent<EventTrigger> ();
+
+        trigger.triggers.Remove (entry);
+    }
+
+    public static GameObject DrawLineOnScreen (this Fn fn, Vector2 start, Vector2 end, float time = 0.1f) {
+        GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
+        GameObject lineNew = GameObject.Instantiate (line);
+        if (time != 0) lineNew.AddComponent<D_AutoDestroy> ().SetTime (time);
+        lineNew.transform.position = start;
+
+        SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
+        Spline spline = shape.spline;
+
+        spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
+        spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
+        return lineNew;
+    }
+    public static GameObject DrawPoint (this Fn fn, Vector2 position, float size = 0.1f, float time = 0.1f) {
+        GameObject point = Resources.Load ("DebugFile/IndicatePoint", typeof (GameObject)) as GameObject;
+        point = GameObject.Instantiate (point, (Vector3) position, Quaternion.Euler (0, 0, 0));
+        Fn._.AutoDestroy (point, time);
+        return point;
+    }
+
+
 }

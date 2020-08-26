@@ -13,7 +13,7 @@ public class FS_Grab : MonoBehaviour {
     [SerializeField] private bool pointForceMode = true;
     [SerializeField] private float force = 50;
     [SerializeField] private Vector2 curveMaxMin = new Vector2 (1, 0);
-    [SerializeField] private AnimationCurve forceCurve = default;
+    [SerializeField] private AnimationCurve forceCurve = Fn.Curve.ZeroOneCurve;
     [SerializeField] private Events events = new Events ();
     [SerializeField] private EnableZone enableZone = new EnableZone ();
     [SerializeField, ReadOnly] private bool onDragging = false;
@@ -51,7 +51,7 @@ public class FS_Grab : MonoBehaviour {
             Collider2D targetBox = enableZone.targetTriggerBox;
 
             Fn._.AddTriggerEvent (targetBox.gameObject, enableZone.thisTriggerBox.gameObject,
-                () => enableZone.testResult = true, () => enableZone.testResult = false);
+                (d) => enableZone.testResult = true, (d) => enableZone.testResult = false);
         }
 
     }
@@ -83,7 +83,7 @@ public class FS_Grab : MonoBehaviour {
     }
     private void Main_SetupPointerEvent () {
         var obj = pointerTrigger.gameObject;
-        Fn.AddEventToTrigger (obj, EventTriggerType.BeginDrag, (d) => {
+        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.BeginDrag, (d) => {
             if (enabled) {
                 PointerEventData data = d as PointerEventData;
                 beginPosition = rigidbody.GetPoint (Camera.main.ScreenToWorldPoint (data.pressPosition));
@@ -91,14 +91,14 @@ public class FS_Grab : MonoBehaviour {
                 events.dragBegin.Invoke ();
             }
         });
-        Fn.AddEventToTrigger (obj, EventTriggerType.Drag, (d) => {
+        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.Drag, (d) => {
             if (enabled) {
                 PointerEventData data = d as PointerEventData;
                 target = Camera.main.ScreenToWorldPoint (data.position);
             }
 
         });
-        Fn.AddEventToTrigger (obj, EventTriggerType.EndDrag, (d) => {
+        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.EndDrag, (d) => {
             if (enabled) {
                 onDragging = false;
                 events.dragEnd.Invoke ();
