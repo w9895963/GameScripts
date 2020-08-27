@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class C_PointerEvent : MonoBehaviour {
+public class C_MouseEvent : MonoBehaviour {
 
     public Vector2 lastPointerPosition;
     public bool lastPointerPositionSetup = false;
@@ -12,25 +12,27 @@ public class C_PointerEvent : MonoBehaviour {
     public bool lastPressDown = false;
     public bool onDrag = false;
     public Events events = new Events ();
-    public PointerData data = new PointerData ();
-    public float pointerDownTime = 0;
+    public MouseData data = new MouseData ();
+    public float mouseDownTime = 0;
     public float clickAllowTime = 0.1f;
     public Component createBy = null;
 
 
     //*Main
     void Update () {
-        Vector2 p = Pointer.current.position.ReadValue ();
+        Vector2 p = Mouse.current.position.ReadValue ();
         data.position_Screen = p;
+        data.delta = Mouse.current.delta.ReadValue ();
 
 
-        bool pressDown = Pointer.current.press.isPressed;
+
+        bool pressDown = Mouse.current.press.isPressed;
         if (pressDown) {
             if (lastPressDown == false) {
                 lastPressDown = true;
                 pressBeginPosition = p;
-                data.pointerDownPosition = p;
-                pointerDownTime = Time.unscaledTime;
+                data.pressDownPosition = p;
+                mouseDownTime = Time.unscaledTime;
                 events.onPressDown.Invoke (data);
             } else {
 
@@ -58,13 +60,13 @@ public class C_PointerEvent : MonoBehaviour {
                     events.onDragEnd.Invoke (data);
 
 
-                } else if (pressBeginPosition == p | Time.unscaledTime - pointerDownTime < clickAllowTime) {
+                } else if (pressBeginPosition == p | Time.unscaledTime - mouseDownTime < clickAllowTime) {
                     events.onClick.Invoke (data);
                 }
             }
         }
 
-        if (p != lastPointerPosition & !pressDown & lastPointerPositionSetup) {
+        if (Mouse.current.delta.ReadValue ().magnitude > 0) {
             events.onMove.Invoke (data);
         }
 
@@ -79,31 +81,31 @@ public class C_PointerEvent : MonoBehaviour {
         lastPointerPositionSetup = false;
     }
     //*Public Method
-    public void AddEvent (PointerEventType type, UnityAction<PointerData> action) {
+    public void AddEvent (MouseEventType type, UnityAction<MouseData> action) {
 
         switch (type) {
-            case PointerEventType.onPressDown:
+            case MouseEventType.onPressDown:
                 events.onPressDown.AddListener (action);
                 break;
-            case PointerEventType.onPressUp:
+            case MouseEventType.onPressUp:
                 events.onPressUp.AddListener (action);
                 break;
-            case PointerEventType.onHold:
+            case MouseEventType.onHold:
                 events.onHold.AddListener (action);
                 break;
-            case PointerEventType.onDragBegin:
+            case MouseEventType.onDragBegin:
                 events.onDragBegin.AddListener (action);
                 break;
-            case PointerEventType.onDragEnd:
+            case MouseEventType.onDragEnd:
                 events.onDragEnd.AddListener (action);
                 break;
-            case PointerEventType.onClick:
+            case MouseEventType.onClick:
                 events.onClick.AddListener (action);
                 break;
-            case PointerEventType.onDrag:
+            case MouseEventType.onDrag:
                 events.onDrag.AddListener (action);
                 break;
-            case PointerEventType.onMove:
+            case MouseEventType.onMove:
                 events.onMove.AddListener (action);
                 break;
         }
@@ -113,20 +115,18 @@ public class C_PointerEvent : MonoBehaviour {
     //*Property
     [System.Serializable]
     public class Events {
-        public UnityEvent<PointerData> onPressDown = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onPressUp = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onHold = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onDragBegin = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onDragEnd = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onDrag = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onClick = new UnityEvent<PointerData> ();
-        public UnityEvent<PointerData> onMove = new UnityEvent<PointerData> ();
+        public UnityEvent<MouseData> onPressDown = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onPressUp = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onHold = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onDragBegin = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onDragEnd = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onDrag = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onClick = new UnityEvent<MouseData> ();
+        public UnityEvent<MouseData> onMove = new UnityEvent<MouseData> ();
     }
 }
 
-
-
-public enum PointerEventType {
+public enum MouseEventType {
     onPressDown,
     onPressUp,
     onHold,
@@ -138,36 +138,36 @@ public enum PointerEventType {
 }
 
 
-
-public class PointerData {
-    public Vector2 pointerDownPosition;
+public class MouseData {
+    public Vector2 pressDownPosition;
     public Vector2 lastPosition_Screen;
     public Vector2 position_Screen;
+    public Vector2 delta;
 
 }
 
 
-public static class _Extention_M_PointerEvent {
-    public static GameObject Ex_AddPointerEvent (this Component component,
-        PointerEventType type,
-        UnityAction<PointerData> action) {
+public static class _Extention_M_MouseEvent {
+    public static GameObject Ex_AddMouseEvent (this Component component,
+        MouseEventType type,
+        UnityAction<MouseData> action) {
 
 
-        GameObject obj = new GameObject ("Pointer Event");
-        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
+        GameObject obj = new GameObject ("Mouse Event");
+        C_MouseEvent comp = obj.AddComponent<C_MouseEvent> ();
         comp.createBy = component;
         comp.AddEvent (type, action);
         return obj;
     }
-    public static GameObject Ex_AddPointerEventOnece (this Component component,
-        PointerEventType type,
-        UnityAction<PointerData> action) {
+    public static GameObject Ex_AddMouseEventOnece (this Component component,
+        MouseEventType type,
+        UnityAction<MouseData> action) {
 
 
         GameObject obj = new GameObject ("Pointer Event");
-        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
+        C_MouseEvent comp = obj.AddComponent<C_MouseEvent> ();
         comp.createBy = component;
-        UnityAction<PointerData> ac = (d) => {
+        UnityAction<MouseData> ac = (d) => {
             action (d);
             GameObject.Destroy (obj);
         };

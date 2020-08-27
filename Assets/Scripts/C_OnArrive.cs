@@ -108,9 +108,10 @@ public class C_OnArrive : MonoBehaviour {
 
 }
 public static class _Extension_M_OnArrive {
-    public static C_OnArrive OnArrive (this Fn fn, GameObject gameObject, Vector2 position,
-        UnityAction callBack, Vector2 distanceDirection = default,
-        float distance = 0.01f, bool autoDestroy = true) {
+    public static C_OnArrive OnArrive (this Fn fn, GameObject gameObject,
+        Vector2 position, Vector2 distanceDirection = default,
+        float distance = 0.01f, bool autoDestroy = true,
+        UnityAction callBack = null) {
 
 
         C_OnArrive comp = gameObject.AddComponent<C_OnArrive> ();

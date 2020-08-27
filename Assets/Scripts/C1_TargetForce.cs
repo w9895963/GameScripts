@@ -40,12 +40,10 @@ public class C1_TargetForce : MonoBehaviour {
         }
         forceAdd = disVector.normalized * force * forceRate;
 
-        // if (ignoreMass) forceAdd *= rigidBody.mass;
-
 
 
         UpdataDate ();
-        forceComp.Force = forceAdd;
+        forceComp.force = forceAdd;
     }
 
 
@@ -53,13 +51,13 @@ public class C1_TargetForce : MonoBehaviour {
         if (forceComp) {
             forceComp.SetPointForceMode (forceAtpoint.enable, forceAtpoint.localPosition);
             forceComp.SetSpeedForceCurve (speedForceCurve.enable, speedForceCurve.curve, speedForceCurve.maxSpeed);
-            forceComp.IgnoreMass = ignoreMass;
+            forceComp.ignoreMass = ignoreMass;
         }
 
     }
     private void Setup () {
         if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
-        if (forceComp == null) forceComp = this.AddForceComponent ();
+        if (forceComp == null) forceComp = this.Ex_AddForce ();
     }
 
     //*Main
@@ -101,29 +99,41 @@ public class C1_TargetForce : MonoBehaviour {
         distanceForceCurve.enable = true;
         distanceForceCurve.distanceCurve = curve;
         distanceForceCurve.maxDistance = maxDistance;
-        UpdataDate ();
     }
 
-    public static C1_TargetForce AddTargetForce (GameObject gameObject, Vector2 targetPosition,
-        float force,
+    public static C1_TargetForce AddTargetForce (GameObject gameObject,
+        Vector2 targetPosition, float force,
         Vector2 applyPosition = default,
-        AnimationCurve forceCurve = null,
-        float curveDistance = 1f) {
+        AnimationCurve forceDistanceCurve = null, float curveDistance = 1f,
+        AnimationCurve speedForceCurve = null, float maxSpeed = 1f,
+        Vector2 singleDimension = default,
+        Component createBy = null) {
 
 
         C1_TargetForce comp = gameObject.AddComponent<C1_TargetForce> ();
+        comp.targetPosition = targetPosition;
         comp.force = force;
         if (applyPosition != Vector2.zero) {
             comp.forceAtpoint.enable = true;
             comp.forceAtpoint.localPosition = applyPosition;
         }
-        if (forceCurve != null) {
+        if (forceDistanceCurve != null) {
             comp.distanceForceCurve.enable = true;
-            comp.distanceForceCurve.distanceCurve = forceCurve;
+            comp.distanceForceCurve.distanceCurve = forceDistanceCurve;
             comp.distanceForceCurve.maxDistance = curveDistance;
         }
+        if (speedForceCurve != null) {
+            comp.speedForceCurve.enable = true;
+            comp.speedForceCurve.curve = speedForceCurve;
+            comp.speedForceCurve.maxSpeed = maxSpeed;
+        }
+        if (singleDimension != default) {
+            comp.singleDimension.enable = true;
+            comp.singleDimension.dimension = singleDimension;
 
+        }
 
+        comp.createBy = createBy;
         return comp;
     }
 
@@ -162,25 +172,29 @@ public class C1_TargetForce : MonoBehaviour {
 
 public static class _Extension_FS_PointForce {
     public static C1_TargetForce Ex_AddTargetForce (this Component component,
-        Vector2 targetPosition,
-        float force,
-        Vector2 applyPosition = default,
-        AnimationCurve forceCurve = null,
-        float curveMaxDistance = 1f) {
+            Vector2 targetPosition,
+            float force,
+            Vector2 applyPosition = default,
+            AnimationCurve forceDistanceCurve = null,
+            float curveMaxDistance = 1f,
+            AnimationCurve speedForceCurve = null,
+            Vector2 singleDimension = default,
+            float curveMaxSpeed = 1f
 
+        ) =>
 
-
-        C1_TargetForce ctargetForce = C1_TargetForce.AddTargetForce (component.gameObject,
+        C1_TargetForce.AddTargetForce (component.gameObject,
             targetPosition,
             force,
             applyPosition,
-            forceCurve,
-            curveMaxDistance);
+            forceDistanceCurve,
+            curveMaxDistance,
+            speedForceCurve,
+            curveMaxSpeed,
+            singleDimension,
+            component);
 
 
 
-        ctargetForce.createBy = component;
-        return ctargetForce;
-    }
 
 }

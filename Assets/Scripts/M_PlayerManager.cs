@@ -4,18 +4,23 @@ using UnityEngine;
 
 public class M_PlayerManager : MonoBehaviour {
     [Header ("Dependent Component")]
-    public M_PlayerClickMove playerClickMove;
+    public M_PlayerMove moveComp;
 
 
-    private void OnValidate () {
-        playerClickMove = playerClickMove?playerClickMove : GetComponent<M_PlayerClickMove> ();
-    }
-    private void Awake () {
-        playerClickMove = playerClickMove?playerClickMove : GetComponent<M_PlayerClickMove> ();
+    private void Reset () {
+        moveComp = moveComp?moveComp : GetComponent<M_PlayerMove> ();
     }
 
-    public void MoveTo (Vector2 position, float maxSpeed) => playerClickMove.MoveTo (position, maxSpeed);
-    public void Stop () => playerClickMove.Stop ();
+
+    public void MoveTo (Vector2 position) => moveComp.MoveTo (position);
+    public void Move (Vector2 direction, float speed = -1) {
+        if (speed != -1) {
+            moveComp.maxSpeed = speed;
+        }
+        moveComp.Move (direction);
+    }
+
+    public void Stop () => moveComp.Stop ();
 
     public Vector2 position { get => gameObject.transform.position; }
 

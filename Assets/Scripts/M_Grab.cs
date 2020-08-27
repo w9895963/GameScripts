@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,45 +15,35 @@ public class M_Grab : MonoBehaviour {
     public AnimationCurve forceDistanceCurve = Fn.Curve.OneOneCurve;
     public float curveMaxDistance = 1f;
     public Vector2 pointForcePosition = default;
-    public float walkSpeed = 2f;
-    public float maxGrabDistance = 4f;
     public TriggerZone triggerZone = new TriggerZone ();
-    public LinkToObject linkToObject = new LinkToObject ();
+    public DistanceToTarget maxDistance = new DistanceToTarget ();
+    public CharactorMove charactorMove = new CharactorMove ();
+    public Events events = new Events ();
     [SerializeField, ReadOnly] private C1_TargetForce targetForceComp = null;
     [SerializeField, ReadOnly] private bool onGrab = false;
     [SerializeField, ReadOnly] private Vector2 targetPoint = Vector2.zero;
-    private EventTrigger clickTrigger = null;
-    private C_PointerEvent ev;
-    private C_PointerEvent ev1;
-    private C_PointerEvent ev2;
-    private UnityEngine.Object[] cellection = new UnityEngine.Object[0];
-
-    void Awake () {
-
-        if (triggerZone.enable) {
-            triggerZone.trigerZone.Ex_AddTriggerEvent (gameObject,
-                (d) => {
-                    Setup ();
-                }, (d) => {
-                    StopGrab ();
-                });
-        } else {
-            Setup ();
-        }
-
-    }
-
-    private void Break () {
-        StopGrab ();
-    }
+    private Object[] inputEvents = new Object[7];
 
     private void OnDisable () {
+        DestroyTriggerZoneEvent ();
         StopGrab ();
+    }
+    private void OnEnable () {
+        SetupTriggerZoneEvent ();
     }
 
     private void FixedUpdate () {
 
         if (onGrab) {
+            if (maxDistance.enable) {
+                Vector2 position = (Vector2) maxDistance.target.transform.position;
+                Vector2 dir = targetPoint - position;
+                float value = Mathf.Min (dir.magnitude, maxDistance.distance);
+                targetPoint = position + dir.normalized * value;
+            }
+
+
+
 
             targetForceComp.SetTarget (targetPoint);
             Fn._.DrawPoint (targetPoint);
@@ -71,75 +60,119 @@ public class M_Grab : MonoBehaviour {
     private void StartGrab () {
         onGrab = true;
         targetPoint = rigidBody.position;
+        if (maxDistance.enable) {
+            Vector2 position = (Vector2) maxDistance.target.transform.position;
+            targetPoint = (rigidBody.position - position).normalized * maxDistance.distance + position;
+        }
         Cursor.visible = false;
 
         if (!targetForceComp) {
             targetForceComp = this.Ex_AddTargetForce (targetPoint,
                 force,
                 pointForcePosition,
-                forceCurve : forceDistanceCurve,
+                forceDistanceCurve : forceDistanceCurve,
                 curveMaxDistance : curveMaxDistance);
         }
-        if (linkToObject.enable) {
-            DistanceJoint2D ds = gameObject.AddComponent<DistanceJoint2D> ();
-            ds.connectedBody = linkToObject.gameObject.GetComponent<Rigidbody2D> ();
-            ds.enableCollision = true;
-            ds.autoConfigureDistance = false;
-            ds.distance = linkToObject.distance;
-            ds.maxDistanceOnly = true;
-
-            linkToObject.jointComp = ds;
-
-        }
 
 
+        events.grabBegin.Invoke ();
+        SetupCharactorMoveEvent ();
+        DestroyTriggerZoneEvent ();
     }
     private void StopGrab () {
         onGrab = false;
         Cursor.visible = true;
-        if (targetForceComp) {
-            Destroy (targetForceComp);
-        }
-        if (ev)
-            Destroy (ev.gameObject);
-        if (ev1)
-            Destroy (ev1.gameObject);
-        if (clickTrigger)
-            Destroy (clickTrigger);
-        if (ev2)
-            Destroy (ev2.gameObject);
+        targetForceComp.Destroy ();
+        Fn._.Destroy (inputEvents);
 
-        if (linkToObject.jointComp) {
-            Destroy (linkToObject.jointComp);
-        }
+        events.grabEnd.Invoke ();
+        DestroyCharactorMoveEvent ();
+        SetupTriggerZoneEvent ();
     }
 
-    private void Setup () {
-        clickTrigger = clickTrigger? clickTrigger : this.Ex_AddInputEventToTriggerOnece (clickBox, EventTriggerType.PointerClick, (d) => {
-            StartGrab ();
+    private void SetupInputEvent () {
+        if (!inputEvents[0]) {
+
+            EventTrigger eventTrigger = this.Ex_AddInputEventToTriggerOnece (clickBox, EventTriggerType.PointerClick, (d) => {
+                StartGrab ();
 
 
 
-            ev = ev?ev : this.AddPointerEvent (PointerEventType.onDrag, (d2) => {
-                Vector2 vector = d2.position.ScreenToWold () - d2.lastPosition.ScreenToWold ();
-                targetPoint += vector;
+                if (!inputEvents[1]) {
+                    var ev = this.Ex_AddPointerEvent (PointerEventType.onDrag, (d2) => {
+                        Vector2 vector = d2.position_Screen.ScreenToWold () - d2.lastPosition_Screen.ScreenToWold ();
+                        targetPoint += vector;
+                    });
+                    inputEvents[1] = ev;
+                }
+
+
+                if (!inputEvents[2]) {
+                    var ev1 = this.Ex_AddMouseEvent (MouseEventType.onMove, (d2) => {
+                        Vector2 vector = d2.delta.ScreenToWold () - Vector2.zero.ScreenToWold ();
+                        targetPoint += vector;
+                    });
+                    inputEvents[2] = ev1;
+                }
+
+
+
+                if (!inputEvents[3]) {
+                    var ev2 = this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
+
+                        StopGrab ();
+                        SetupInputEvent ();
+                    });
+                    inputEvents[3] = ev2;
+                }
+
             });
-            ev1 = ev1?ev1 : this.AddPointerEvent (PointerEventType.onMove, (d2) => {
-                Vector2 vector = d2.position.ScreenToWold () - d2.lastPosition.ScreenToWold ();
-                targetPoint += vector;
-            });
 
-            ev2 = ev2?ev2 : this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
+            inputEvents[0] = eventTrigger;
 
-                StopGrab ();
-                Setup ();
-            });
+        }
 
-        });
 
 
 
     }
+    private void SetupTriggerZoneEvent () {
+        if (triggerZone.enable & !triggerZone.eventObject) {
+            triggerZone.eventObject = triggerZone.trigerZone.Ex_AddTriggerEvent (gameObject,
+                (d) => {
+                    SetupInputEvent ();
+                }, (d) => {
+                    Fn._.Destroy (inputEvents);
+                });
+        } else {
+            SetupInputEvent ();
+        }
+    }
+    private void DestroyTriggerZoneEvent () {
+        triggerZone.eventObject.Destroy ();
+    }
+    private void SetupCharactorMoveEvent () {
+        if (charactorMove.enable) {
+            if (charactorMove.deafaltSpeed == default) {
+                charactorMove.deafaltSpeed = charactorMove.playerMoveComp.maxSpeed;
+            }
+            charactorMove.moveEvent.Destroy ();
+            charactorMove.moveEvent = this.Ex_AddMouseEvent (MouseEventType.onMove, (d) => {
+                charactorMove.playerMoveComp.Move (d.delta, charactorMove.speed, 0.1f);
+            });
+
+        }
+
+    }
+    private void DestroyCharactorMoveEvent () {
+        charactorMove.moveEvent.Destroy ();
+        if (charactorMove.playerMoveComp != null) {
+            charactorMove.playerMoveComp.maxSpeed = charactorMove.deafaltSpeed;
+            charactorMove.deafaltSpeed = default;
+        }
+
+    }
+
 
 
 
@@ -148,18 +181,31 @@ public class M_Grab : MonoBehaviour {
     public class TriggerZone {
         public bool enable = false;
         public Collider2D trigerZone = null;
-        [ReadOnly] public bool onTriggerZone = false;
+        [ReadOnly] public Object eventObject;
 
 
     }
 
     [System.Serializable]
-    public class LinkToObject {
+    public class DistanceToTarget {
         public bool enable = false;
-        public GameObject gameObject;
+        public GameObject target;
         public float distance = 1f;
-        [ReadOnly] public DistanceJoint2D jointComp;
+    }
 
+    [System.Serializable]
+    public class CharactorMove {
+        public bool enable = false;
+        public M_PlayerMove playerMoveComp = null;
+        public float speed = 3f;
+        [ReadOnly] public float deafaltSpeed;
+        [ReadOnly] public Object moveEvent;
+    }
+
+    [System.Serializable]
+    public class Events {
+        public UnityEvent grabBegin = new UnityEvent ();
+        public UnityEvent grabEnd = new UnityEvent ();
     }
 
 }

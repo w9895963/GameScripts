@@ -27,6 +27,18 @@ public static class ExtensionMethod {
         list.Add (newMember);
         return list.ToArray ();
     }
+    public static T[] Add<T> (this T[] source, int index, T newMember) {
+        List<T> list = new List<T> (source);
+        if (list.Count > index) {
+            list[index] = newMember;
+        } else {
+            T[] ts = new T[index + 1];
+            source.CopyTo (ts, 0);
+            ts[index] = newMember;
+            list = new List<T> (ts);
+        }
+        return list.ToArray ();
+    }
     public static bool Contain<T> (this T[] source, T menber) {
         List<T> list = new List<T> (source);
         return list.Contains (menber);
@@ -35,6 +47,7 @@ public static class ExtensionMethod {
         List<T> list = new List<T> (source);
         return list.Exists (match);
     }
+
 
 
 
@@ -47,11 +60,16 @@ public static class ExtensionMethod {
     public static Vector2 ScreenToWold (this Vector2 vector) {
         return Camera.main.ScreenToWorldPoint (vector);
     }
+    public static Vector2 Rotate (this Vector2 vector, float angle) {
+        return Quaternion.AngleAxis (angle, Vector3.forward) * vector;
+    }
+
 
 
     public static float Sign (this float f) {
         return Mathf.Sign (f);
     }
+
 
 
     public static EventTrigger Ex_AddInputToTrigger (this Component comp,
@@ -85,6 +103,25 @@ public static class ExtensionMethod {
         });
         trigger.triggers.Add (entry);
         return trigger;
+    }
+
+
+
+    public static void Destroy (this Fn fn, Object[] objects) {
+        foreach (var obj in objects) {
+            if (obj != null) GameObject.Destroy (obj);
+        }
+    }
+
+    public static void Destroy (this Object obj, float timeWait = 0) {
+        if (timeWait <= 0) {
+            GameObject.Destroy (obj);
+        } else {
+            GameObject.Destroy (obj, timeWait);
+        }
+    }
+    public static void Destroy (this Component component) {
+        if (component != null) GameObject.Destroy (component);
     }
 
 }

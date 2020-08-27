@@ -10,7 +10,7 @@ public class M_FixedTo : MonoBehaviour {
     public Collider2D findTargetZone = null;
     public Collider2D releaseClickZone = null;
     [SerializeField, ReadOnly] private GameObject targetObject = null;
-    [SerializeField, ReadOnly] private C_PointerEvent pointEventComp = null;
+    [SerializeField, ReadOnly] private GameObject pointEventObj = null;
     [SerializeField, ReadOnly] private FixedJoint2D fixedJointComp = null;
 
     private void Awake () {
@@ -18,7 +18,7 @@ public class M_FixedTo : MonoBehaviour {
             enter: (cl) => {
                 if (fixedTargets.Contain (cl.gameObject)) {
                     targetObject = cl.gameObject;
-                    pointEventComp = this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d) => {
+                    pointEventObj = this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d) => {
                         if (targetObject) {
                             SetUpFixe ();
                         }
@@ -31,8 +31,8 @@ public class M_FixedTo : MonoBehaviour {
                 if (targetObject == cl.gameObject) {
                     targetObject = null;
                 }
-                if (pointEventComp) {
-                    Destroy (pointEventComp.gameObject);
+                if (pointEventObj) {
+                    Destroy (pointEventObj.gameObject);
                 }
             });
     }

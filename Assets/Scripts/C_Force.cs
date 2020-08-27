@@ -6,8 +6,8 @@ using UnityEngine.Events;
 public class C_Force : MonoBehaviour {
 
     [SerializeField] private Rigidbody2D rigidBody = null;
-    [SerializeField] private bool ignoreMass = true;
-    [SerializeField] private Vector2 force = Vector2.zero;
+    public bool ignoreMass = true;
+    public Vector2 force = Vector2.zero;
     [SerializeField] private SpeedForceCurve speedForceCurve = new SpeedForceCurve ();
     [SerializeField] private PointForceMode pointForceMode = new PointForceMode ();
     [SerializeField, ReadOnly] private Component createby = null;
@@ -56,6 +56,12 @@ public class C_Force : MonoBehaviour {
         public bool enable = false;
         public AnimationCurve curve = Fn.Curve.OneZeroCurve;
         public float maxSpeed = 5f;
+
+        public void Set (bool enable, AnimationCurve curve = default, float maxSpeed = 0) {
+            this.enable = enable;
+            this.curve = curve;
+            this.maxSpeed = maxSpeed;
+        }
     }
 
     [System.Serializable]
@@ -68,10 +74,6 @@ public class C_Force : MonoBehaviour {
     //*Public Method
 
 
-    public Vector2 Force {
-        get { return force; }
-        set { force = value; }
-    }
     public void SetForce (Vector2 force, float maxSpeed, AnimationCurve forceCurve) {
         this.force = force;
         this.speedForceCurve.curve = forceCurve;
@@ -83,23 +85,35 @@ public class C_Force : MonoBehaviour {
         pointForceMode.localPosition = localPosition;
     }
     public void SetSpeedForceCurve (bool enable, AnimationCurve curve = default, float maxSpeed = 0) {
-        speedForceCurve.enable = enable;
-        speedForceCurve.curve = curve;
-        speedForceCurve.maxSpeed = maxSpeed;
-    }
-    public bool IgnoreMass {
-        set { ignoreMass = value; }
-        get { return ignoreMass; }
+        speedForceCurve.Set (enable, curve, maxSpeed);
     }
     public static C_Force AddForceComponent (GameObject gameObject, Component componentCall = null) {
         C_Force comp = gameObject.AddComponent<C_Force> ();
         comp.createby = componentCall;
         return comp;
     }
+    public static C_Force AddForce (GameObject gameObject, Vector2 force,
+        float maxSpeed, AnimationCurve speedCurve, Component componentCall = null) {
+
+
+        C_Force comp = gameObject.AddComponent<C_Force> ();
+        comp.createby = componentCall;
+        comp.SetForce (force, maxSpeed, speedCurve);
+        return comp;
+    }
 }
 
 
 public static class _Extension_C_Force {
-    public static C_Force AddForceComponent (this Component component) =>
+    public static C_Force Ex_AddForce (this Component component,
+            Vector2 force,
+            float maxSpeed,
+            AnimationCurve speedCurve) =>
+
+
+        C_Force.AddForce (component.gameObject, force, maxSpeed, speedCurve, component);
+
+
+    public static C_Force Ex_AddForce (this Component component) =>
         C_Force.AddForceComponent (component.gameObject, component);
 }
