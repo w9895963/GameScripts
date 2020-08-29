@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.U2D;
 
 
-public class Fn {
+public class Fn : Object {
     public static Fn _ = new Fn ();
 
 
@@ -234,10 +234,10 @@ public static class _Extension_Fn {
         trigger.triggers.Remove (entry);
     }
 
-    public static GameObject DrawLineOnScreen (this Fn fn, Vector2 start, Vector2 end, float time = 0.1f) {
+    public static GameObject DrawLineOnScreen (this Fn fn, Vector2 start, Vector2 end, float time = 0.03f) {
         GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
         GameObject lineNew = GameObject.Instantiate (line);
-        if (time != 0) lineNew.AddComponent<D_AutoDestroy> ().SetTime (time);
+        if (time >= 0) lineNew.Ex_AutoDestroy (time);
         lineNew.transform.position = start;
 
         SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
@@ -247,12 +247,41 @@ public static class _Extension_Fn {
         spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
         return lineNew;
     }
-    public static GameObject DrawPoint (this Fn fn, Vector2 position, float size = 0.1f, float time = 0.1f) {
+    public static GameObject DrawPoint (this Fn fn, Vector2 position,
+        float sizePixel = 6f, float stayTime = 0.03f, Color color = default) {
+        /////////////////////////////////////////////////////
         GameObject point = Resources.Load ("DebugFile/IndicatePoint", typeof (GameObject)) as GameObject;
         point = GameObject.Instantiate (point, (Vector3) position, Quaternion.Euler (0, 0, 0));
-        Fn._.AutoDestroy (point, time);
+        if (stayTime > 0) point.Ex_AutoDestroy (stayTime);
+        float heightUnit = Camera.main.orthographicSize * 2;
+        float pixelUnit = Screen.height / heightUnit;
+        float scale = sizePixel / pixelUnit;
+        point.transform.localScale = new Vector3 (scale, scale, 1);
+        if (color != default) point.GetComponent<SpriteRenderer> ().color = color;
         return point;
     }
 
+    public static Dictionary<string, k> EnumToDict<k> (this Fn fn) {
+        Dictionary<string, k> dict = new Dictionary<string, k> ();
+        foreach (k i in System.Enum.GetValues (typeof (k))) {
+            dict.Add (i.ToString (), i);
+        }
 
+        return dict;
+    }
+    public static string[] EnumToArray<k> (this Fn fn) {
+        string[] str = new string[0];
+        foreach (k i in System.Enum.GetValues (typeof (k))) {
+            str = str.Add (i.ToString ());
+        }
+
+        return str;
+    }
+
+
+    public static void Destroy (this Fn fn, Object[] objects) {
+        foreach (var obj in objects) {
+            if (obj != null) GameObject.Destroy (obj);
+        }
+    }
 }

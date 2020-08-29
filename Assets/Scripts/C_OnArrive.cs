@@ -28,31 +28,29 @@ public class C_OnArrive : MonoBehaviour {
 
     //*Privat Method
     private void Main () {
-        if (lastPositionSetup & lastPosition != rigidBody.position) {
+        if (lastPositionSetup) {
+
+
 
             if (distanceDirection == default) {
-
                 Vector2 v1 = targetPosition - lastPosition;
                 Vector2 v2 = targetPosition - rigidBody.position;
-                Vector2 closedP = (Vector2) Vector3.Project (v1, rigidBody.position - lastPosition) + lastPosition;
+                Vector2 dir = rigidBody.position - lastPosition;
+                Vector2 projPoint = v1.Project (dir) + lastPosition;
 
+                float closedDist = v1.magnitude.Min (v2.magnitude);
 
-                bool isClosePointOnLine = false;
-                float moveDist = (rigidBody.position - lastPosition).magnitude;
-                if ((closedP - lastPosition).magnitude < moveDist
-                    & (closedP - rigidBody.position).magnitude < moveDist) {
-
-                    isClosePointOnLine = true;
+                bool isOnLine = false;
+                float moveDist = dir.magnitude;
+                if ((projPoint - lastPosition).magnitude < moveDist
+                    & (projPoint - rigidBody.position).magnitude < moveDist) {
+                    isOnLine = true;
                 }
-
-                if (v1.magnitude > distance) {
-                    if (v2.magnitude <= distance) {
-                        onArrive.Invoke ();
-                    } else if (isClosePointOnLine
-                        & (closedP - targetPosition).magnitude <= distance) {
-                        onArrive.Invoke ();
-                    }
-
+                if (isOnLine) {
+                    closedDist = (projPoint - targetPosition).magnitude;
+                }
+                if (closedDist <= distance) {
+                    onArrive.Invoke ();
                 }
 
             } else {
@@ -64,26 +62,27 @@ public class C_OnArrive : MonoBehaviour {
                 Vector2 vNow = tar - pNow;
 
 
-                bool isTargetOnLine = false;
+                float closedDist = vNow.magnitude.Min (vLast.magnitude);
                 float moveDist = (pNow - pLast).magnitude;
-
                 if ((tar - pLast).magnitude < moveDist
                     & (tar - pNow).magnitude < moveDist) {
 
-                    isTargetOnLine = true;
+                    closedDist = 0;
                 }
 
-                if (vLast.magnitude > distance) {
-                    if (vNow.magnitude <= distance) {
-                        onArrive.Invoke ();
-                    } else if (isTargetOnLine) {
-                        onArrive.Invoke ();
-                    }
-
+                if (closedDist <= distance) {
+                    onArrive.Invoke ();
                 }
+
             }
-
-
+        } else {
+            Vector2 dir = rigidBody.position - targetPosition;
+            if (distanceDirection != default) {
+                dir = dir.Project (dir);
+            }
+            if (dir.magnitude <= distance) {
+                onArrive.Invoke ();
+            }
         }
 
         lastPosition = rigidBody.position;

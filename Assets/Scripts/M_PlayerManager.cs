@@ -5,10 +5,14 @@ using UnityEngine;
 public class M_PlayerManager : MonoBehaviour {
     [Header ("Dependent Component")]
     public M_PlayerMove moveComp;
+    public M_Gravity gravityComp;
+    public Collider2D GrabBox = null;
+
 
 
     private void Reset () {
         moveComp = moveComp?moveComp : GetComponent<M_PlayerMove> ();
+        gravityComp = gravityComp?gravityComp : GetComponent<M_Gravity> ();
     }
 
 
@@ -19,9 +23,11 @@ public class M_PlayerManager : MonoBehaviour {
         }
         moveComp.Move (direction);
     }
-
     public void Stop () => moveComp.Stop ();
 
-    public Vector2 position { get => gameObject.transform.position; }
+    public void ReverseGravity () {
+        gravityComp.SetGravityDirection (-gravityComp.GetGravity ());
+    }
+
 
 }

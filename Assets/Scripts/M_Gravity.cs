@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class FS_Gravity : MonoBehaviour {
+public class M_Gravity : MonoBehaviour {
     [SerializeField]
     private Rigidbody2D rigidBody;
     [SerializeField]

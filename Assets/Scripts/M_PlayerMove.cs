@@ -24,6 +24,7 @@ public class M_PlayerMove : MonoBehaviour {
 
     private void OnEnable () {
         EnableInput ();
+
     }
     private void OnDisable () {
         DisableInput ();
@@ -31,6 +32,7 @@ public class M_PlayerMove : MonoBehaviour {
 
 
     //*Editor Event
+#if UNITY_EDITOR
     private void Reset () {
         rigidBody = GetComponent<Rigidbody2D> ();
     }
@@ -65,7 +67,7 @@ public class M_PlayerMove : MonoBehaviour {
         }
 
     }
-
+#endif
 
 
 
@@ -77,7 +79,7 @@ public class M_PlayerMove : MonoBehaviour {
             drawposition = raycastHit2D.point - gravity.normalized;
         }
         GameObject circle = GameObject.Instantiate (input.indicateObject, drawposition, default);
-        Fn.WaitToCall (1, () => Destroy (circle));
+        circle.Destroy (0.3f);
     }
 
 
@@ -85,7 +87,7 @@ public class M_PlayerMove : MonoBehaviour {
 
     //* Public Method
     public Vector2 MoveTo (Vector2 position) {
-        gravity = rigidBody.GetComponent<FS_Gravity> ().GetGravity ();
+        gravity = rigidBody.GetComponent<M_Gravity> ().GetGravity ();
         Vector2 point = position;
         Vector2 moveVector = (point - rigidBody.position).ProjectOnPlane (gravity);
 
@@ -103,7 +105,7 @@ public class M_PlayerMove : MonoBehaviour {
     }
     public void Move (Vector2 direction, float maxSpeed = -1f, float duration = -1f) {
         this.maxSpeed = (maxSpeed < 0) ? this.maxSpeed : maxSpeed;
-        gravity = rigidBody.GetComponent<FS_Gravity> ().GetGravity ();
+        gravity = rigidBody.GetComponent<M_Gravity> ().GetGravity ();
         Vector2 moveVector = (direction).ProjectOnPlane (gravity);
 
         forceComp.Destroy ();
@@ -117,15 +119,17 @@ public class M_PlayerMove : MonoBehaviour {
 
     }
     public void EnableInput () {
-        inputEvent = inputEvent?inputEvent : this.Ex_AddInputToTrigger (input.inputZone, EventTriggerType.PointerClick, (d) => {
-            PointerEventData data = (PointerEventData) d;
-            Vector2 pointerP = data.position;
+        inputEvent = inputEvent?inputEvent : this.Ex_AddInputToTrigger (
+            input.inputZone, EventTriggerType.PointerClick, (d) => {
+                ////////////////////////////////////////
+                PointerEventData data = (PointerEventData) d;
+                Vector2 pointerP = data.position;
 
-            Vector2 point = MoveTo (pointerP.ScreenToWold ());
+                Vector2 point = MoveTo (pointerP.ScreenToWold ());
 
-            DrawIndicate (point);
+                DrawIndicate (point);
 
-        });
+            });
     }
     public void DisableInput () {
         inputEvent.Destroy ();

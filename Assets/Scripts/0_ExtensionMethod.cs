@@ -47,8 +47,10 @@ public static class ExtensionMethod {
         List<T> list = new List<T> (source);
         return list.Exists (match);
     }
-
-
+    public static T Find<T> (this T[] source, System.Predicate<T> match) {
+        List<T> list = new List<T> (source);
+        return list.Find (match);
+    }
 
 
     public static Vector2 ProjectOnPlane (this Vector2 vector, Vector2 normal) {
@@ -64,6 +66,15 @@ public static class ExtensionMethod {
         return Quaternion.AngleAxis (angle, Vector3.forward) * vector;
     }
 
+    public static float Min (this float f, float compareWith) {
+        return f < compareWith ? f : compareWith;
+    }
+    public static float Min (this float f, params float[] compareWith) {
+        List<float> l = new List<float> (compareWith);
+        l.Add (f);
+        l.Sort ();
+        return l[0];
+    }
 
 
     public static float Sign (this float f) {
@@ -86,8 +97,37 @@ public static class ExtensionMethod {
         trigger.triggers.Add (entry);
         return trigger;
     }
+    public static EventTrigger Ex_AddInputToTrigger (this Component comp,
+        GameObject gameobject,
+        EventTriggerType type,
+        UnityAction<BaseEventData> action) {
+        //////////////////////////////////////
+        EventTrigger trigger = gameobject.AddComponent<EventTrigger> ();
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener (action);
+        trigger.triggers.Add (entry);
+        return trigger;
+    }
 
-    public static EventTrigger Ex_AddInputEventToTriggerOnece (this Component comp,
+    public static EventTrigger Ex_AddInputToTriggerOnece (this Component comp,
+        GameObject gameobject,
+        EventTriggerType type,
+        UnityAction<BaseEventData> action) {
+
+
+
+        EventTrigger trigger = gameobject.AddComponent<EventTrigger> ();
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener ((d) => {
+            action (d);
+            GameObject.Destroy (trigger);
+        });
+        trigger.triggers.Add (entry);
+        return trigger;
+    }
+    public static EventTrigger Ex_AddInputToTriggerOnece (this Component comp,
         Collider2D targetCollider,
         EventTriggerType type,
         UnityAction<BaseEventData> action) {
@@ -107,11 +147,6 @@ public static class ExtensionMethod {
 
 
 
-    public static void Destroy (this Fn fn, Object[] objects) {
-        foreach (var obj in objects) {
-            if (obj != null) GameObject.Destroy (obj);
-        }
-    }
 
     public static void Destroy (this Object obj, float timeWait = 0) {
         if (timeWait <= 0) {
@@ -121,7 +156,13 @@ public static class ExtensionMethod {
         }
     }
     public static void Destroy (this Component component) {
-        if (component != null) GameObject.Destroy (component);
+        GameObject.Destroy (component);
     }
+
+
+    public static void Set2dPosition (this Transform transform, Vector2 position) {
+        transform.position = new Vector3 (position.x, position.y, transform.position.z);
+    }
+
 
 }

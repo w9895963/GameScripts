@@ -5,6 +5,9 @@ using UnityEngine;
 public class M_CameraMapper : MonoBehaviour {
     public Camera targetCamera = null;
 
+    private void Update () {
+
+    }
 
     private void OnValidate () {
         MapCamera (targetCamera);

@@ -49,7 +49,7 @@ public class M_FixedTo : MonoBehaviour {
         fixedJointComp.connectedAnchor = Vector2.zero;
 
         if (releaseClickZone) {
-            this.Ex_AddInputEventToTriggerOnece (releaseClickZone, EventTriggerType.PointerClick, (d) => {
+            this.Ex_AddInputToTriggerOnece (releaseClickZone, EventTriggerType.PointerClick, (d) => {
                 Destroy (fixedJointComp);
             });
         }

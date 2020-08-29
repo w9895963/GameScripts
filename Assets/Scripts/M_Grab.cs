@@ -93,7 +93,7 @@ public class M_Grab : MonoBehaviour {
     private void SetupInputEvent () {
         if (!inputEvents[0]) {
 
-            EventTrigger eventTrigger = this.Ex_AddInputEventToTriggerOnece (clickBox, EventTriggerType.PointerClick, (d) => {
+            EventTrigger eventTrigger = this.Ex_AddInputToTriggerOnece (clickBox, EventTriggerType.PointerClick, (d) => {
                 StartGrab ();
 
 
@@ -137,7 +137,7 @@ public class M_Grab : MonoBehaviour {
 
     }
     private void SetupTriggerZoneEvent () {
-        if (triggerZone.enable & !triggerZone.eventObject) {
+        if (triggerZone.enable & !triggerZone.eventObject & triggerZone.trigerZone) {
             triggerZone.eventObject = triggerZone.trigerZone.Ex_AddTriggerEvent (gameObject,
                 (d) => {
                     SetupInputEvent ();
@@ -153,8 +153,8 @@ public class M_Grab : MonoBehaviour {
     }
     private void SetupCharactorMoveEvent () {
         if (charactorMove.enable) {
-            if (charactorMove.deafaltSpeed == default) {
-                charactorMove.deafaltSpeed = charactorMove.playerMoveComp.maxSpeed;
+            if (charactorMove.defaultSpeed == default) {
+                charactorMove.defaultSpeed = charactorMove.playerMoveComp.maxSpeed;
             }
             charactorMove.moveEvent.Destroy ();
             charactorMove.moveEvent = this.Ex_AddMouseEvent (MouseEventType.onMove, (d) => {
@@ -165,10 +165,12 @@ public class M_Grab : MonoBehaviour {
 
     }
     private void DestroyCharactorMoveEvent () {
-        charactorMove.moveEvent.Destroy ();
-        if (charactorMove.playerMoveComp != null) {
-            charactorMove.playerMoveComp.maxSpeed = charactorMove.deafaltSpeed;
-            charactorMove.deafaltSpeed = default;
+        if (charactorMove.moveEvent != null) {
+            if (charactorMove.playerMoveComp != null) {
+                charactorMove.playerMoveComp.maxSpeed = charactorMove.defaultSpeed;
+                charactorMove.defaultSpeed = default;
+            }
+            charactorMove.moveEvent.Destroy ();
         }
 
     }
@@ -198,7 +200,7 @@ public class M_Grab : MonoBehaviour {
         public bool enable = false;
         public M_PlayerMove playerMoveComp = null;
         public float speed = 3f;
-        [ReadOnly] public float deafaltSpeed;
+        [ReadOnly] public float defaultSpeed;
         [ReadOnly] public Object moveEvent;
     }
 

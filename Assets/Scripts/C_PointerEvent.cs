@@ -159,6 +159,16 @@ public static class _Extention_M_PointerEvent {
         comp.AddEvent (type, action);
         return obj;
     }
+    public static GameObject AddPointerEvent (this Fn fn,
+        PointerEventType type,
+        UnityAction<PointerData> action) {
+
+
+        GameObject obj = new GameObject ("Pointer Event");
+        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
+        comp.AddEvent (type, action);
+        return obj;
+    }
     public static GameObject Ex_AddPointerEventOnece (this Component component,
         PointerEventType type,
         UnityAction<PointerData> action) {
