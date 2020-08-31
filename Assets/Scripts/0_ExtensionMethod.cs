@@ -62,6 +62,11 @@ public static class ExtensionMethod {
     public static T[] ToArray<T> (this T source) {
         return new T[] { source };
     }
+    public static void ForEach<T> (this T[] source, System.Action<T> action) {
+        foreach (var t in source) {
+            action (t);
+        }
+    }
 
 
 
@@ -192,8 +197,41 @@ public static class ExtensionMethod {
         foreach (var i in indexs) {
             if (objects.Count > i) {
                 GameObject.Destroy (objects[i]);
+                objects[i] = null;
             }
         }
+    }
+    public static void Destroy (this List<Object> objects) {
+        foreach (var obj in objects) {
+            GameObject.Destroy (obj);
+        }
+    }
+    public static void SetEnabled (this List<MonoBehaviour> component, bool enable) {
+        foreach (var comp in component) {
+            if (comp) {
+                comp.enabled = enable;
+            }
+        }
+    }
+    public static T[] GetComponents<T> (this GameObject[] source) {
+        List<T> list = new List<T> ();
+        source.ForEach ((o) => {
+            T t = o.GetComponent<T> ();
+            if (t != null) {
+                list.Add (t);
+            }
+        });
+        return list.ToArray ();
+    }
+    public static T[] GetComponents<T> (this List<GameObject> source) {
+        List<T> list = new List<T> ();
+        source.ForEach ((o) => {
+            T t = o.GetComponent<T> ();
+            if (t != null) {
+                list.Add (t);
+            }
+        });
+        return list.ToArray ();
     }
 
 
@@ -208,8 +246,8 @@ public static class ExtensionMethod {
         return (Vector2) gameObject.transform.position;
     }
     public static FixedJoint2D Ex_ConnectTo (this Rigidbody2D rigid, Rigidbody2D to,
-        Vector2 fixedAnchor = default, Vector2 connectedAnchor = default) {
-        //--------------------------------//
+        Vector2 fixedAnchor = default, Vector2 connectedAnchor = default
+    ) { //--------------------------------//
         FixedJoint2D fixedJointComp = rigid.gameObject.AddComponent<FixedJoint2D> ();
         fixedJointComp.connectedBody = to;
         fixedJointComp.autoConfigureConnectedAnchor = false;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class I_Placing : MonoBehaviour {
+public class I_Placing : IC_Base {
     public bool autoQuit = true;
     public Rigidbody2D targetBody;
     public Events events = new Events ();
@@ -16,7 +16,7 @@ public class I_Placing : MonoBehaviour {
     void Update () {
         Fn._.DrawLineOnScreen (Gb.MainCharactor.transform.position, targetPosition, 0.01f);
     }
-    private void OnEnable () {
+    public override void EnableAction () {
         events.inEvent.Invoke ();
         Gb.CanvasTopLayer.enabled = true;
 
@@ -35,26 +35,18 @@ public class I_Placing : MonoBehaviour {
 
 
     }
-
-
-    private void OnDisable () {
+    public override void DisableAction () {
         elist[0].Destroy ();
         Gb.CanvasTopLayer.enabled = false;
 
 
-        if (autoQuit) {
-            var c = GetComponent<I_Connecter> ();
-            c.Enable ();
-        }
 
 
         events.outEvent.Invoke ();
     }
 
 
-    //*PUlic
-    public void Enable () => enabled = true;
-    public void Disable () => enabled = false;
+    //* Class Definition
 
     [System.Serializable]
     public class Events {

@@ -192,7 +192,7 @@ public class M_Pickable : MonoBehaviour {
             };
             grabZoneEventEnable = true;
             if (grabZoneEvent == null) {
-                grabZoneEvent = Gb.MainCharactor.GrabBox.Ex_AddCollierEvent (enter, exit);
+                grabZoneEvent = Gb.MainCharactor.GrabBox.Ex_AddCollierEvent (null, enter, exit);
             }
 
         } else {

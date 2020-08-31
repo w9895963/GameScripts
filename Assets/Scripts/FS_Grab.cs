@@ -51,10 +51,11 @@ public class FS_Grab : MonoBehaviour {
             Collider2D targetBox = enableZone.targetTriggerBox;
             GameObject obj = targetBox.gameObject;
 
-            obj.Ex_AddCollierEvent (
+            obj.GetComponent<Collider2D> ().Ex_AddCollierEvent (
+                enableZone.thisTriggerBox.gameObject.ToArray (),
                 (d) => enableZone.testResult = true,
-                (d) => enableZone.testResult = false,
-                targetFilter : enableZone.thisTriggerBox.gameObject.ToArray ());
+                (d) => enableZone.testResult = false
+            );
         }
 
     }

@@ -36,7 +36,7 @@ public class I_InPack : MonoBehaviour {
     private void Exit () {
         if (autoQuit) {
             var c = GetComponent<I_Placing> ();
-            if (c) c.Enable ();
+           
         }
         events.outEvent.Invoke ();
     }
