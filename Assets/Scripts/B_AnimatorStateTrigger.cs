@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class B_GameStateTrigger : StateMachineBehaviour {
+public class B_AnimatorStateTrigger : StateMachineBehaviour {
     override public void OnStateEnter (Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         Main (animator, stateInfo, (e) => e.OnStateEnter.Invoke ());
     }
@@ -16,11 +16,11 @@ public class B_GameStateTrigger : StateMachineBehaviour {
     private static void Main (
         Animator animator,
         AnimatorStateInfo stateInfo,
-        UnityAction<M_GameStateEvent.StateEvent> action) {
+        UnityAction<M_AnimatorStateEvent.StateEvent> action) {
 
 
-        M_GameStateEvent eventCom = animator.GetComponent<M_GameStateEvent> ();
-        M_GameStateEvent.StateEvent[] events = eventCom.stateEvents;
+        M_AnimatorStateEvent eventCom = animator.GetComponent<M_AnimatorStateEvent> ();
+        M_AnimatorStateEvent.StateEvent[] events = eventCom.stateEvents;
         if (eventCom.enabled) {
             foreach (var ev in events) {
                 if (stateInfo.IsName (ev.name)) {

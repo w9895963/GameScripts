@@ -244,7 +244,9 @@ public static class _Extension_Fn {
         Spline spline = shape.spline;
 
         spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
+        spline.SetHeight (0, 0.2f);
         spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
+        spline.SetHeight (1, 0.2f);
         return lineNew;
     }
     public static GameObject DrawPoint (this Fn fn, Vector2 position,
@@ -261,22 +263,7 @@ public static class _Extension_Fn {
         return point;
     }
 
-    public static Dictionary<string, k> EnumToDict<k> (this Fn fn) {
-        Dictionary<string, k> dict = new Dictionary<string, k> ();
-        foreach (k i in System.Enum.GetValues (typeof (k))) {
-            dict.Add (i.ToString (), i);
-        }
 
-        return dict;
-    }
-    public static string[] EnumToArray<k> (this Fn fn) {
-        string[] str = new string[0];
-        foreach (k i in System.Enum.GetValues (typeof (k))) {
-            str = str.Add (i.ToString ());
-        }
-
-        return str;
-    }
 
 
     public static void Destroy (this Fn fn, Object[] objects) {
@@ -284,4 +271,7 @@ public static class _Extension_Fn {
             if (obj != null) GameObject.Destroy (obj);
         }
     }
+
+
+
 }

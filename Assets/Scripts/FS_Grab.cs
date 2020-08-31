@@ -49,9 +49,12 @@ public class FS_Grab : MonoBehaviour {
         if (enableZone.enable & enableZone.targetTriggerBox != null & enableZone.thisTriggerBox != null) {
 
             Collider2D targetBox = enableZone.targetTriggerBox;
+            GameObject obj = targetBox.gameObject;
 
-            Fn._.AddTriggerEvent (targetBox.gameObject, enableZone.thisTriggerBox.gameObject,
-                (d) => enableZone.testResult = true, (d) => enableZone.testResult = false);
+            obj.Ex_AddCollierEvent (
+                (d) => enableZone.testResult = true,
+                (d) => enableZone.testResult = false,
+                targetFilter : enableZone.thisTriggerBox.gameObject.ToArray ());
         }
 
     }
@@ -83,7 +86,7 @@ public class FS_Grab : MonoBehaviour {
     }
     private void Main_SetupPointerEvent () {
         var obj = pointerTrigger.gameObject;
-        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.BeginDrag, (d) => {
+        pointerTrigger.Ex_AddInputToTrigger (EventTriggerType.BeginDrag, (d) => {
             if (enabled) {
                 PointerEventData data = d as PointerEventData;
                 beginPosition = rigidbody.GetPoint (Camera.main.ScreenToWorldPoint (data.pressPosition));
@@ -91,14 +94,14 @@ public class FS_Grab : MonoBehaviour {
                 events.dragBegin.Invoke ();
             }
         });
-        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.Drag, (d) => {
+        pointerTrigger.Ex_AddInputToTrigger (EventTriggerType.Drag, (d) => {
             if (enabled) {
                 PointerEventData data = d as PointerEventData;
                 target = Camera.main.ScreenToWorldPoint (data.position);
             }
 
         });
-        this.Ex_AddInputToTrigger (obj.GetComponent<Collider2D> (), EventTriggerType.EndDrag, (d) => {
+        pointerTrigger.Ex_AddInputToTrigger (EventTriggerType.EndDrag, (d) => {
             if (enabled) {
                 onDragging = false;
                 events.dragEnd.Invoke ();

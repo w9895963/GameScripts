@@ -2,33 +2,29 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class M_BackPack : MonoBehaviour {
     public GameObject[] storage = new GameObject[1];
     public Test test = new Test ();
+    private EventTrigger iconEvent;
+
     void Start () {
-
+        EnableClick ();
     }
 
-    void Update () {
 
-    }
+
 
     //*Public
     public void PutinStorage (GameObject gameObject) {
         storage[0] = gameObject;
-        gameObject.gameObject.SetActive (false);
 
     }
-    public void PutoutStorage (GameObject gameObject, Vector2 position = default) {
-        if (storage[0] == gameObject) {
-            gameObject.SetActive (true);
-            if (position != default) {
-                gameObject.transform.Set2dPosition (position);
-            } else {
-                gameObject.transform.Set2dPosition (Gb.MainCharactor.transform.position);
-            };
-            storage[0] = null;
+    public void PutoutStorage (int index) {
+        if (storage[index]) {
+            storage[index].GetComponent<I_InPack> ().enabled = false;;
+            storage[index] = null;
         }
     }
     public bool Contain (GameObject gameObject) {
@@ -37,7 +33,15 @@ public class M_BackPack : MonoBehaviour {
     public bool IsFull () {
         return storage[0] != null;
     }
-
+    public void EnableClick () {
+        iconEvent.Destroy ();
+        iconEvent = Gb.BackpackButton.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
+            PutoutStorage (0);
+        });
+    }
+    public void DisableClick () {
+        iconEvent.Destroy ();
+    }
 
 #if UNITY_EDITOR
     private void OnValidate () {
@@ -49,7 +53,7 @@ public class M_BackPack : MonoBehaviour {
                 }
                 if (test.putout) {
                     test.putout = false;
-                    PutoutStorage (test.target, test.position);
+                    PutoutStorage (0);
                 }
             };
 
@@ -63,6 +67,5 @@ public class M_BackPack : MonoBehaviour {
         public bool putin = false;
         public bool putout = false;
         public GameObject target;
-        public Vector2 position;
     }
 }

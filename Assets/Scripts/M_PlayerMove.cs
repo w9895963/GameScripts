@@ -119,8 +119,8 @@ public class M_PlayerMove : MonoBehaviour {
 
     }
     public void EnableInput () {
-        inputEvent = inputEvent?inputEvent : this.Ex_AddInputToTrigger (
-            input.inputZone, EventTriggerType.PointerClick, (d) => {
+        inputEvent = inputEvent?inputEvent : input.inputZone.Ex_AddInputToTrigger (
+            EventTriggerType.PointerClick, (d) => {
                 ////////////////////////////////////////
                 PointerEventData data = (PointerEventData) d;
                 Vector2 pointerP = data.position;

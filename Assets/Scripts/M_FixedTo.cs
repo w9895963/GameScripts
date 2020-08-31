@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,51 +7,115 @@ public class M_FixedTo : MonoBehaviour {
     public GameObject[] fixedTargets = new GameObject[0];
     public Rigidbody2D objectToFixed = null;
     public Collider2D findTargetZone = null;
-    public Collider2D releaseClickZone = null;
-    [SerializeField, ReadOnly] private GameObject targetObject = null;
-    [SerializeField, ReadOnly] private GameObject pointEventObj = null;
-    [SerializeField, ReadOnly] private FixedJoint2D fixedJointComp = null;
+    public Vector2 fixedAnchor = default;
+    public bool enableClickToSetFixe = false;
+    public Realise realiseSet = new Realise ();
 
-    private void Awake () {
-        findTargetZone.Ex_AddTriggerEvent (
-            enter: (cl) => {
+
+    [SerializeField, ReadOnly] private GameObject targetObject = null;
+    [SerializeField, ReadOnly] private FixedJoint2D fixedJointComp = null;
+    [SerializeField] private List<Object> elist = new List<Object> ();
+
+
+    private void OnEnable () {
+        Setup ();
+    }
+    private void OnDisable () {
+
+        Fn._.Destroy (elist.ToArray ());
+        fixedJointComp.Destroy ();
+    }
+
+    private void Setup () {
+        elist.Add (4, default);
+        var ev = findTargetZone.Ex_AddCollierEvent (
+            onTriggerEnter: (cl) => {
                 if (fixedTargets.Contain (cl.gameObject)) {
                     targetObject = cl.gameObject;
-                    pointEventObj = this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d) => {
-                        if (targetObject) {
-                            SetUpFixe ();
-                        }
-                    });
+
+                    if (enableClickToSetFixe) {
+                        elist[1] = this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d) => {
+                            if (targetObject) {
+                                SetUpFixe ();
+                            }
+                        });
+                    }
 
                 }
 
             },
-            exit: (cl) => {
+            OnTriggerExit: (cl) => {
                 if (targetObject == cl.gameObject) {
                     targetObject = null;
                 }
-                if (pointEventObj) {
-                    Destroy (pointEventObj.gameObject);
-                }
+                elist[1].Destroy ();
             });
+
+        elist.Add (0, ev);
     }
 
 
-    private void Start () {
-
+    private void DragToRealiseSetup (bool enabled) {
+        if (enabled) {
+            if (realiseSet.mode == RealiseMode.drag) {
+                var ev = this.Ex_AddInputToTriggerOnece (realiseSet.releaseClickZone.gameObject, EventTriggerType.Drag,
+                    (d) => {
+                        M_Pickable comp = GetComponent<M_Pickable> ();
+                        if (comp) {
+                            comp.state.ChangeState (M_Pickable.State.inhand);
+                            Destroy (fixedJointComp);
+                        }
+                    });
+                elist[3] = ev;
+            }
+        } else {
+            elist[3].Destroy ();
+        }
     }
+
+
 
     private void SetUpFixe () {
         fixedJointComp = gameObject.AddComponent<FixedJoint2D> ();
         fixedJointComp.connectedBody = targetObject.GetComponent<Rigidbody2D> ();
         fixedJointComp.autoConfigureConnectedAnchor = false;
         fixedJointComp.connectedAnchor = Vector2.zero;
+        fixedJointComp.anchor = fixedAnchor;
 
-        if (releaseClickZone) {
-            this.Ex_AddInputToTriggerOnece (releaseClickZone, EventTriggerType.PointerClick, (d) => {
-                Destroy (fixedJointComp);
-            });
-        }
+
+
+        DragToRealiseSetup (true);
 
     }
+
+
+
+
+    //*Property
+    [System.Serializable]
+    public class Realise {
+        public RealiseMode mode = RealiseMode.diable;
+        public Collider2D releaseClickZone = null;
+
+
+
+
+    }
+    public enum RealiseMode {
+        diable,
+        drag,
+        click
+    }
+
+    //*Public
+
+    public bool TryToConnect () {
+        if (targetObject) {
+            SetUpFixe ();
+        }
+        return targetObject != null;
+    }
+
+
+
 }

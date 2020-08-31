@@ -35,7 +35,7 @@ public class C_ConditionForce : MonoBehaviour {
 
         Vector2 targetP = targetCondition.CalcPosition (fromRate);
         if (targetForceComp == null) {
-            targetForceComp = this.Ex_AddTargetForce (targetP, addForce.magnitude);
+            targetForceComp = this.gameObject.Ex_AddTargetForce (targetP, addForce.magnitude);
         } else {
             targetForceComp.SetTarget (targetP);
             targetForceComp.SetForce (addForce.magnitude);

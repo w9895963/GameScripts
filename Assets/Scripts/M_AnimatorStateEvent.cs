@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class M_GameStateEvent : MonoBehaviour {
+public class M_AnimatorStateEvent : MonoBehaviour {
     public StateEvent[] stateEvents;
 
 

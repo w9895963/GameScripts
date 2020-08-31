@@ -171,7 +171,7 @@ public class C1_TargetForce : MonoBehaviour {
 
 
 public static class _Extension_FS_PointForce {
-    public static C1_TargetForce Ex_AddTargetForce (this Component component,
+    public static C1_TargetForce Ex_AddTargetForce (this GameObject gameObject,
             Vector2 targetPosition,
             float force,
             Vector2 applyPosition = default,
@@ -179,11 +179,12 @@ public static class _Extension_FS_PointForce {
             float curveMaxDistance = 1f,
             AnimationCurve speedForceCurve = null,
             Vector2 singleDimension = default,
-            float curveMaxSpeed = 1f
+            float curveMaxSpeed = 1f,
+            Component createBy=null
 
         ) =>
 
-        C1_TargetForce.AddTargetForce (component.gameObject,
+        C1_TargetForce.AddTargetForce (gameObject,
             targetPosition,
             force,
             applyPosition,
@@ -192,7 +193,30 @@ public static class _Extension_FS_PointForce {
             speedForceCurve,
             curveMaxSpeed,
             singleDimension,
-            component);
+            createBy);
+    public static C1_TargetForce Ex_AddTargetForce (this Component comp,
+            Vector2 targetPosition,
+            float force,
+            Vector2 applyPosition = default,
+            AnimationCurve forceDistanceCurve = null,
+            float curveMaxDistance = 1f,
+            AnimationCurve speedForceCurve = null,
+            Vector2 singleDimension = default,
+            float curveMaxSpeed = 1f,
+            Component createBy=null
+
+        ) =>
+
+        C1_TargetForce.AddTargetForce (comp.gameObject,
+            targetPosition,
+            force,
+            applyPosition,
+            forceDistanceCurve,
+            curveMaxDistance,
+            speedForceCurve,
+            curveMaxSpeed,
+            singleDimension,
+            createBy);
 
 
 

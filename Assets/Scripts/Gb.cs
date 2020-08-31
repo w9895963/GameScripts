@@ -20,9 +20,15 @@ public class Gb : MonoBehaviour {
 
     public Image canvasBackGround;
     public static Image CanvasBackGround;
+    public Image canvasTopLayer;
+    public static Image CanvasTopLayer;
+
+
 
     public GameObject backpackButton;
     public static GameObject BackpackButton;
+
+    public static C_StateMachine<PlayMode> PlayModeManager = new C_StateMachine<PlayMode> ();
 
 
 
@@ -30,7 +36,10 @@ public class Gb : MonoBehaviour {
         ApplyData ();
     }
 
-
+    private void Start () {
+        PlayModeManager.SetState (PlayMode.noramal);
+        PlayModeManager.InvokeEnterEvent (PlayMode.noramal);
+    }
 
     private void Reset () {
         mainCharactor = GetComponent<M_PlayerManager> ();
@@ -45,8 +54,12 @@ public class Gb : MonoBehaviour {
         ScreenLog = screenLog ? screenLog : ScreenLog;
         Backpack = backpack ? backpack : Backpack;
         CanvasBackGround = canvasBackGround ? canvasBackGround : CanvasBackGround;
+        CanvasTopLayer = canvasTopLayer ? canvasTopLayer : CanvasTopLayer;
         BackpackButton = backpackButton ? backpackButton : BackpackButton;
     }
 
+    public enum PlayMode {
+        noramal
+    }
 
 }

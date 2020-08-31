@@ -84,13 +84,13 @@ public class M_CamManager : MonoBehaviour {
         Camera cam = GetComponent<Camera> ();
         float oriSize = cam.orthographicSize;
 
-        UnityAction<C_AnimateData.Data> onProcess = (d) => {
-            cam.orthographicSize = d.floatValue;
+        UnityAction<float> onProcess = (d) => {
+            cam.orthographicSize = d;
         };
-        UnityAction<C_AnimateData.Data> onend = (d) => {
-            zoomSet.size = d.floatValue;
+        UnityAction<float> onend = (d) => {
+            zoomSet.size = d;
         };
-        gameObject.Ex_AnimateFloat (oriSize, size, zoomSet.animationTime, zoomSet.curve, onProcess, onend);
+        this.Ex_AnimateFloat (oriSize, size, zoomSet.animationTime, zoomSet.curve, onProcess, onend);
     }
 
 

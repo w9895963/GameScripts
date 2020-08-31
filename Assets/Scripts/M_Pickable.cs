@@ -11,31 +11,35 @@ public class M_Pickable : MonoBehaviour {
     public State objectState = State.onground;
     [SerializeField, ReadOnly] private bool grabZoneEventEnable = false;
     [SerializeField, ReadOnly] private bool inputEventEnable = false;
-    private EventTrigger inputEvent;
+    private Component inputEvent;
     private C_ColliderEvent grabZoneEvent;
     private bool indicateMode = false;
     private EventTrigger backpackButtonEvent;
-    private Dictionary<string, State> enumDict;
-    private C_StateMachine state;
+    public C_StateMachine<State> state;
     private bool passNextTest;
     private EventTrigger canvasBackGroundInput;
+    private State lastState;
 
     private void Awake () {
+        state = new C_StateMachine<State> ();
 
-    }
 
-    private void Start () {
-        enumDict = Fn._.EnumToDict<State> ();
-        state = new C_StateMachine (Fn._.EnumToArray<State> ());
 
 
         state.AddEnterListener (() => {
             GrabZoneEventSetup (true);
-        }, State.onground, State.ongroundCloesed);
-
+        }, State.onground);
         state.AddEnterListener (() => {
             GrabZoneEventSetup (false);
-        }, State.inhand, State.inpack);
+        }, State.animateToPack);
+
+
+
+        state.AddEnterListener (() => {
+            AnimateToPack ();
+        }, State.animateToPack);
+
+
 
 
         state.AddListener (State.ongroundCloesed, () => {
@@ -43,6 +47,29 @@ public class M_Pickable : MonoBehaviour {
         }, () => {
             InputEventSetup (false);
         });
+
+
+
+
+        state.AddListener (State.inpack, () => {
+            if (backpackButtonEvent == null) {
+                backpackButtonEvent = Gb.BackpackButton.Ex_AddInputToTrigger (
+                    EventTriggerType.PointerClick, (d) => {
+                        state.ChangeState (State.inhand);
+                    });
+            }
+        }, () => {
+            backpackButtonEvent.Destroy ();
+        });
+
+        state.AddListener (State.inpack, () => {
+            Gb.Backpack.PutinStorage (gameObject);
+            gameObject.Ex_Hide ();
+        }, () => {
+            Gb.Backpack.PutoutStorage (0);
+            gameObject.Ex_Show ();
+        });
+
 
         state.AddListener (State.inhand, () => {
             IndicateModeSetup (true);
@@ -57,43 +84,41 @@ public class M_Pickable : MonoBehaviour {
         });
 
 
-        state.AddListener (State.inpack, () => {
-            if (backpackButtonEvent == null) {
-                backpackButtonEvent = this.Ex_AddInputToTrigger (Gb.BackpackButton,
-                    EventTriggerType.PointerClick, (d) => {
-                        ////////////////////////////////
-                        state.ChangeState (State.inhand);
-                    });
-            }
-        }, () => {
-            backpackButtonEvent.Destroy ();
-        });
-
-
-
-
-        state.AddListener (State.inpack, () => {
-            Gb.Backpack.PutinStorage (gameObject);
-        }, () => {
-            Gb.Backpack.PutoutStorage (gameObject);
-        });
+        state.AddListener (State.fixedOnWall,
+            () => {
+                I_Grab m_Grab = GetComponent<I_Grab> ();
+                if (m_Grab) m_Grab.enabled = true;
+            }, () => {
+                I_Grab m_Grab = GetComponent<I_Grab> ();
+                if (m_Grab) m_Grab.enabled = false;
+            });
 
 
         state.AddListenerToAll (() => {
-            objectState = enumDict[state.CurrentState];
+            objectState = state.CurrentState;
         });
 
 
 
-        state.SetState (State.onground.ToString ());
-        state.InvokeEnterEvent (State.onground.ToString ());
+        state.SetState (State.onground);
+        state.InvokeEnterEvent (State.onground);
+    }
+
+    private void Start () {
+
 
     }
 
 
-
-    private void OnDisable () { }
-    private void OnEnable () { }
+    private void OnDisable () {
+        lastState = state.CurrentState;
+        state.ChangeState (State.disable);
+    }
+    private void OnEnable () {
+        if (state.IsCurrent (State.disable)) {
+            state.ChangeState (lastState);
+        }
+    }
 
     private void Update () {
         if (indicateMode) {
@@ -101,10 +126,11 @@ public class M_Pickable : MonoBehaviour {
         }
     }
 
+
 #if UNITY_EDITOR
     private void OnValidate () {
         UnityEditor.EditorApplication.delayCall += () => {
-            state?.ChangeState (objectState.ToString ());
+            state?.ChangeState (objectState);
         };
     }
 #endif
@@ -127,20 +153,20 @@ public class M_Pickable : MonoBehaviour {
                 if (Gb.Backpack.IsFull ()) {
 
                 } else {
-                    state.ChangeState (State.inpack);
+                    state.ChangeState (State.animateToPack);
                 }
             };
 
 
             if (inputEvent == null) {
                 inputEvent = this.Ex_AddInputToTriggerOnece (clickBox, EventTriggerType.PointerClick, onclick);
+                inputEventEnable = true;
             }
-            inputEventEnable = inputEvent != null;
 
 
         } else {
             inputEvent.Destroy ();
-            inputEventEnable = inputEvent != null;
+            inputEventEnable = false;
         }
     }
     public void GrabZoneEventSetup (bool enabled) {
@@ -166,7 +192,7 @@ public class M_Pickable : MonoBehaviour {
             };
             grabZoneEventEnable = true;
             if (grabZoneEvent == null) {
-                grabZoneEvent = Gb.MainCharactor.GrabBox.Ex_AddTriggerEvent (gameObject, enter, exit);
+                grabZoneEvent = Gb.MainCharactor.GrabBox.Ex_AddCollierEvent (enter, exit);
             }
 
         } else {
@@ -179,10 +205,6 @@ public class M_Pickable : MonoBehaviour {
     public void IndicateModeSetup (bool enabled) {
         indicateMode = enabled;
         if (enabled) {
-            UnityEngine.Events.UnityAction<PointerData> callback = (d) => {
-                IndicateModeSetup (false);
-            };
-            clickBox.Ex_AddPointerEventOnece (PointerEventType.onClick, callback);
 
 
             Gb.CanvasBackGround.enabled = true;
@@ -191,7 +213,12 @@ public class M_Pickable : MonoBehaviour {
                     EventTriggerType.PointerClick, (d) => {
                         ////////////////////////////////
                         Gb.CanvasBackGround.enabled = false;
-                        state.ChangeState (State.onground);
+                        M_FixedTo fixComp = GetComponent<M_FixedTo> ();
+                        if (fixComp.TryToConnect ()) {
+                            state.ChangeState (State.fixedOnWall);
+                        } else {
+                            state.ChangeState (State.onground);
+                        }
                     });
             }
 
@@ -201,12 +228,29 @@ public class M_Pickable : MonoBehaviour {
 
     }
 
+    private void AnimateToPack () {
+        RectTransform rectTransform = Gb.BackpackButton.GetComponent<RectTransform> ();
+        Vector2 targetPosition = Gb.MainCharactor.transform.position;
+        gameObject.Ex_Moveto (targetPosition, 0.5f);
+        float scale = gameObject.transform.localScale.x;
+        this.Ex_AnimateFloat (scale, 0, 0.5f,
+            onAnimate: (f) => {
+                gameObject.transform.localScale = new Vector3 (f, f, 1);
+            }, onAnimateEnd: (f) => {
+                gameObject.transform.localScale = new Vector3 (scale, scale, 1);
+                state.ChangeState (State.inpack);
+            });
+    }
+
 
     public enum State {
         onground,
         ongroundCloesed,
+        animateToPack,
         inpack,
-        inhand
+        inhand,
+        fixedOnWall,
+        disable
     }
 
 }

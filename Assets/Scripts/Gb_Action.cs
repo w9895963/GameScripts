@@ -29,12 +29,6 @@ public class Gb_Action : MonoBehaviour {
     }
 
 
-    public void _BackPackOut () {
-        GameObject obj = Gb.Backpack.storage[0];
-        Gb.Backpack.PutoutStorage (obj);
-        obj.GetComponent<M_Pickable> ().IndicateModeSetup (true);
-    }
-
 
 
 }
