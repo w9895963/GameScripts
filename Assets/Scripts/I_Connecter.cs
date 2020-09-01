@@ -28,6 +28,10 @@ public class I_Connecter : IC_Base {
         LazyConectSetup (true);
     }
 
+    public override void DisableAction () {
+        LazyConectSetup (false);
+    }
+
 
 
 
@@ -38,6 +42,7 @@ public class I_Connecter : IC_Base {
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),
                     onTriggerStay: (c) => {
                         vars.fixedJointComp = setting.rigidToConnect.Ex_ConnectTo (c.attachedRigidbody);
+                        data.actionIndex=0;
                         this.enabled = false;
                         LazyConectSetup (false);
                     })

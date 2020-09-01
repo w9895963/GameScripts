@@ -92,7 +92,8 @@ public class I_Grab : IC_Base {
         Cursor.visible = false;
 
         if (!variables.targetForceComp) {
-            variables.targetForceComp = setting.rigidBody.gameObject.Ex_AddTargetForce (variables.targetPoint,
+            variables.targetForceComp = setting.rigidBody.gameObject.Ex_AddTargetForce (
+                variables.targetPoint,
                 setting.force,
                 setting.pointForcePosition,
                 forceDistanceCurve : setting.forceDistanceCurve,
@@ -113,12 +114,9 @@ public class I_Grab : IC_Base {
         DestroyCharactorMoveEvent ();
         InputEventSet (false);
 
-        Exit ();
-    }
-
-    private void Exit () {
         this.enabled = false;
     }
+
 
     private void InputEventSet (bool enabled) {
         if (enabled) {
@@ -131,6 +129,7 @@ public class I_Grab : IC_Base {
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
+                    data.actionIndex=0;
                     StopGrab ();
                 });
             data.CallEventIfEmpty (1, ev1);

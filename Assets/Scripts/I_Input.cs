@@ -11,8 +11,6 @@ public class I_Input : IC_Base {
 
 
 
-
-
     public override void EnableAction () {
         if (triggerBox) {
             if (inputType.click) {
@@ -39,7 +37,10 @@ public class I_Input : IC_Base {
 
 
 
-    private void Exit () => enabled = false;
+    private void Exit () {
+       data.actionIndex=0;
+        enabled = false;
+    }
 
     [System.Serializable]
     public class InputType {

@@ -9,19 +9,23 @@ public class I_ConnectBreaker : IC_Base {
 
 
     public override void EnableAction () {
+        I_Connecter[] objs = behaviour.GetConnects<I_Connecter> ();
 
+        if (objs.Length > 0) {
+            objs.ForEach ((con) => {
+                I_Connecter comp = con as I_Connecter;
+                FixedJoint2D joint = comp.vars.fixedJointComp;
 
-        I_Connecter comp = behaviour.dataConnect[0] as I_Connecter;
-        FixedJoint2D joint = comp.vars.fixedJointComp;
+                if (joint) {
+                    joint.Destroy ();
+                    data.actionIndex=success;
+                } else {
+                     data.actionIndex=fail;
+                }
+                this.enabled = false;
+            });
 
-        if (joint) {
-            joint.Destroy ();
-            data.exitIndex = success;
-        } else {
-            data.exitIndex = fail;
         }
-
-        this.enabled = false;
 
     }
 
