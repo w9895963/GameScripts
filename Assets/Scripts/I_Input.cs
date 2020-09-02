@@ -14,7 +14,7 @@ public class I_Input : IC_Base {
     public override void EnableAction () {
         if (triggerBox) {
             if (inputType.click) {
-                data.CallEventIfEmpty (0, () =>
+                data.CallIfEmpty (0, () =>
                     triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
                         Exit ();
                     })
@@ -22,7 +22,7 @@ public class I_Input : IC_Base {
             }
 
             if (inputType.down) {
-                data.CallEventIfEmpty (1, () =>
+                data.CallIfEmpty (1, () =>
                     triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerDown, (d) => {
                         Exit ();
                     })
@@ -31,7 +31,7 @@ public class I_Input : IC_Base {
         }
     }
     public override void DisableAction () {
-        data.DestroyEvents (0, 1);
+        data.DestroyAllEvents (0, 1);
     }
 
 

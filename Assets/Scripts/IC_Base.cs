@@ -20,7 +20,7 @@ public class IC_Base : MonoBehaviour {
         public DataStore shareData = new DataStore ();
 
         //**************************
-        public void CallEventIfEmpty (int index, System.Func<Object> call) {
+        public void CallIfEmpty (int index, System.Func<Object> call) {
             bool empty = false;
             List<Object> evs = creates;
             if (evs.Count <= index) {
@@ -33,8 +33,13 @@ public class IC_Base : MonoBehaviour {
             }
 
         }
-        public void DestroyEvents (params int[] indexs) {
-            creates.Destroy (indexs);
+        public void DestroyAllEvents (params int[] indexs) {
+            if (indexs.Length > 0) {
+                creates.Destroy (indexs);
+            } else {
+                creates.Destroy ();
+            }
+
         }
 
         //********************
@@ -142,20 +147,35 @@ public class IC_Base : MonoBehaviour {
 
 
     //***********************
-    public void OnEnable () {
-        data.actionIndex = behaviour.actionWhenEnable?0: -1;
-        data.UpdateShareDateInterface ();
-        EnableAction ();
-        Begin ();
-    }
+    // public void OnEnable () {
+    //     EnableAction ();
+    //     Begin ();
+    // }
 
-    public void OnDisable () {
-        DisableAction ();
+    // public void OnDisable () {
+    //     DisableAction ();
 
-        Exits ();
+    //     Exits ();
+    // }
+
+    public new bool enabled {
+        set {
+            if (value == true) {
+                Begin ();
+                base.enabled = value;
+            } else {
+                base.enabled = value;
+                Exits ();
+            }
+        }
+        get => base.enabled;
     }
 
     private void Begin () {
+        data.actionIndex = behaviour.actionWhenEnable?0: -1;
+        data.UpdateShareDateInterface ();
+
+
         behaviour.onStart.setDisable.ForEach ((comp) => {
             if (comp) {
                 comp.enabled = false;

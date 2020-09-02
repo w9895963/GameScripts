@@ -125,16 +125,16 @@ public class I_Grab : IC_Base {
                     Vector2 vector = d2.delta.ScreenToWold () - Vector2.zero.ScreenToWold ();
                     variables.targetPoint += vector;
                 });
-            data.CallEventIfEmpty (0, ev1);
+            data.CallIfEmpty (0, ev1);
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
                     data.actionIndex=0;
                     StopGrab ();
                 });
-            data.CallEventIfEmpty (1, ev1);
+            data.CallIfEmpty (1, ev1);
         } else {
-            data.DestroyEvents (0, 1);
+            data.DestroyAllEvents (0, 1);
         }
 
     }

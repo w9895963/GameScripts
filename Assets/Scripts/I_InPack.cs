@@ -4,46 +4,20 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class I_InPack : MonoBehaviour {
+public class I_InPack : IC_Base {
     public GameObject targetObject;
-    public bool autoQuit = true;
-    public Events events = new Events ();
-    public List<Object> elist = new List<Object> (0);
 
 
-    private void OnEnable () {
-        Enter ();
 
+    public override void EnableAction () {
 
-        gameObject.transform.position += new Vector3 (0, 0, -100);
-        gameObject.Ex_Hide ();
-        Gb.Backpack.PutinStorage (targetObject);
-
-
+        targetObject.Ex_Hide ();
+        Gb.Backpack.PutinStorage (this);
     }
-    private void OnDisable () {
+    public override void DisableAction () {
 
-
-        Exit ();
+        targetObject.Ex_Show ();
 
     }
 
-    private void Enter () {
-        events.inEvent.Invoke ();
-    }
-
-
-    private void Exit () {
-        if (autoQuit) {
-            var c = GetComponent<I_Placing> ();
-           
-        }
-        events.outEvent.Invoke ();
-    }
-
-    [System.Serializable]
-    public class Events {
-        public UnityEvent outEvent = new UnityEvent ();
-        public UnityEvent inEvent = new UnityEvent ();
-    };
 }

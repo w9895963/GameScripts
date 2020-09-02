@@ -38,7 +38,7 @@ public class I_Connecter : IC_Base {
     //*Private
     private void LazyConectSetup (bool enabled) {
         if (enabled) {
-            data.CallEventIfEmpty (2, () =>
+            data.CallIfEmpty (2, () =>
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),
                     onTriggerStay: (c) => {
                         vars.fixedJointComp = setting.rigidToConnect.Ex_ConnectTo (c.attachedRigidbody);
@@ -48,7 +48,7 @@ public class I_Connecter : IC_Base {
                     })
             );
         } else {
-            data.DestroyEvents (2);
+            data.DestroyAllEvents (2);
         }
     }
 

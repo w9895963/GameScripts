@@ -14,6 +14,15 @@ public class C_Hide : MonoBehaviour {
         transform.position = defaultPosition;
         this.Destroy ();
     }
+
+
+    private void OnEnable () {
+        Hide ();
+    }
+
+    private void OnDisable () {
+        Show ();
+    }
 }
 
 
@@ -21,14 +30,11 @@ public class C_Hide : MonoBehaviour {
 public static class _Extension_C_Hide {
     public static C_Hide Ex_Hide (this GameObject gameObject, Object callBy = null) {
         C_Hide comp = gameObject.AddComponent<C_Hide> ();
-        comp.Hide ();
         comp.createBy = callBy;
         return comp;
     }
     public static void Ex_Show (this GameObject gameObject) {
         C_Hide comp = gameObject.GetComponent<C_Hide> ();
-        if (comp != null) {
-            comp.Show ();
-        }
+        comp.Destroy ();
     }
 }

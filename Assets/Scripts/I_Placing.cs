@@ -5,52 +5,44 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public class I_Placing : IC_Base {
-    public bool autoQuit = true;
-    public Rigidbody2D targetBody;
-    public Events events = new Events ();
-    public List<Object> elist = new List<Object> (0);
-    [SerializeField, ReadOnly] private Vector2 targetPosition;
+    [System.Serializable] public class Setting {
+        public Rigidbody2D targetBody;
+        [ReadOnly] public Vector2 targetPosition;
+        public int dataSlot = 0;
+    }
+    public Setting setting = new Setting ();
 
 
 
     void Update () {
-        Fn._.DrawLineOnScreen (Gb.MainCharactor.transform.position, targetPosition, 0.01f);
+        Fn._.DrawLineOnScreen (Gb.MainCharactor.transform.position, setting.targetPosition, 0.01f);
     }
     public override void EnableAction () {
-        events.inEvent.Invoke ();
-        Gb.CanvasTopLayer.enabled = true;
+
+        data.CallIfEmpty (0,
+            () => Fn._.AddPointerEvent (PointerEventType.onMove, (d) => {
+                setting.targetPosition = d.position_Screen.ScreenToWold ();
+                data.shareData.Add (setting.dataSlot, setting.targetPosition);
+            })
+        );
 
 
+        data.CallIfEmpty (1,
+            () => Fn._.AddPointerEvent (PointerEventType.onClick, (d) => {
+                enabled = false;
+            })
+        );
 
-        var e = Fn._.AddPointerEvent (PointerEventType.onMove, (d) => {
-            targetPosition = d.position_Screen.ScreenToWold ();
-        });
-
-        elist.Add (0, e);
-
-        var e1 = Fn._.AddPointerEvent (PointerEventType.onClick, (d) => {
-            enabled = false;
-        });
-        elist.Add (1, e1);
 
 
     }
     public override void DisableAction () {
-        elist[0].Destroy ();
-        Gb.CanvasTopLayer.enabled = false;
+        data.DestroyAllEvents ();
 
 
 
 
-        events.outEvent.Invoke ();
     }
 
 
-    //* Class Definition
-
-    [System.Serializable]
-    public class Events {
-        public UnityEvent outEvent = new UnityEvent ();
-        public UnityEvent inEvent = new UnityEvent ();
-    };
 }
