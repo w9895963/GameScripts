@@ -154,8 +154,8 @@ public class IC_Base : MonoBehaviour {
 
 
         [System.Serializable] public class Action {
-            public IC_Base[] setEnable = new IC_Base[1];
-            public IC_Base[] setDisable = new IC_Base[1];
+            public IC_Base[] setEnable = new IC_Base[0];
+            public IC_Base[] setDisable = new IC_Base[0];
             public Events other = new Events ();
             [System.Serializable]
             public class Events {
@@ -228,9 +228,11 @@ public class IC_Base : MonoBehaviour {
 
 
 
-            if (behaviour.Next.Length > actionIndex & behaviour.Next[actionIndex] != null) {
-                behaviour.Next[actionIndex].enabled = true;
-                behaviour.Next[actionIndex].data.callBy = this;
+            if (behaviour.Next.Length > actionIndex) {
+                if (behaviour.Next[actionIndex] != null) {
+                    behaviour.Next[actionIndex].enabled = true;
+                    behaviour.Next[actionIndex].data.callBy = this;
+                }
             }
 
 

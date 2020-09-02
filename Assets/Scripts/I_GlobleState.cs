@@ -1,86 +1,72 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class I_GlobleState : IC_Base {
 
-    public static string currentState;
+    public static List<string> currentState = new List<string> ();
     public string CurrentState;
+    public int workingSlot = 0;
     public static List<I_GlobleState> allInstance = new List<I_GlobleState> ();
     public List<string> allStates = new List<string> ();
-    public string enableWithStateName;
-    public bool enableWithState = false;
-    public string setStatename;
-    public bool setCurrentState = false;
+    public Action action = Action.none;
+    public enum Action { none, setState, enableWithState }
+    public string stateName;
+
+
+    private void Awake () {
+        data.actionIndex = 0;
+        if (currentState.Count <= workingSlot) {
+            currentState.Add (workingSlot, default);
+        }
+        AddStateObject ();
+        ShowAllName ();
+    }
     public override void OnEnable_ () {
-        if (setCurrentState) {
-            ChangeState (setStatename);
+        if (action == Action.setState) {
+            ChangeState (stateName);
         }
-
     }
 
-    public override void OnDisable_ () {
-
-    }
-
-    private void Reset () {
-        AddState ();
-        ShowAllName ();
-    }
-
-
-
-    private void OnDestroy () {
-        allInstance.Remove (this);
-    }
-    private void OnValidate () {
-        if (enabled) {
-            if (setCurrentState) {
-                ChangeState (setStatename);
-            }
-        }
-        AddState ();
-        ShowAllName ();
-    }
 
 
 
     //* Private Method
-    private void AddState () {
+    private void AddStateObject () {
         if (!allInstance.Contains (this)) {
             allInstance.Add (this);
         }
     }
     private void ShowAllName () {
         allInstance.RemoveAll ((x) => x == null);
-        allStates.Clear ();
         allInstance.ForEach ((x) => {
-            if (!allStates.Contains (x.enableWithStateName) & x.enableWithStateName != "") {
-                allStates.Add (x.enableWithStateName);
-            }
-            if (!allStates.Contains (x.setStatename) & x.setStatename != "") {
-                allStates.Add (x.setStatename);
-            }
+            x.allStates = allInstance.Select ((y) => y.stateName).ToList ();
+            x.allStates.RemoveAll ((y) => y == "");
+
+            x.CurrentState = currentState[workingSlot];
         });
 
-        CurrentState = currentState;
+
     }
 
     public void ChangeState (string name) {
         allInstance.RemoveAll ((x) => x == null);
-        if (currentState != name & name != "") {
-            currentState = name;
-            allInstance.ForEach ((s) => {
-                if (s.enableWithState) {
-                    if (s.enableWithStateName == currentState) {
-                        s.enabled = true;
-                    } else {
-                        s.enabled = false;
-                    }
-                }
+        string curr = currentState[workingSlot];
+        if (curr != name & name != "") {
+            curr = name;
+            var lists = allInstance.FindAll ((x) => x.action == Action.enableWithState);
+            Debug.Log (lists.Count);
+
+            lists.FindAll ((x) => x.stateName == curr).ForEach ((x) => {
+                x.enabled = true;
             });
+            lists.FindAll ((x) => x.stateName != curr).ForEach ((x) => {
+                x.enabled = false;
+            });
+
         }
 
-        CurrentState = currentState;
+        CurrentState = curr;
     }
 }

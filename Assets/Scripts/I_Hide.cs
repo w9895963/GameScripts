@@ -1,22 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
 
-public class I_InPack : IC_Base {
-    public GameObject targetObject;
-
-
-
+public class I_Hide : IC_Base {
+    public GameObject target;
     public override void OnEnable_ () {
         data.actionIndex = 0;
 
-        Gb.Backpack.PutinStorage (this);
+        target.Ex_Hide ();
     }
     public override void OnDisable_ () {
-
+        target.Ex_Show ();
 
     }
-
 }
