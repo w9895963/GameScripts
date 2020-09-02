@@ -129,7 +129,7 @@ public class I_Grab : IC_Base {
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
-                    behaviour.actionIndex = 0;
+                    data.actionIndex = 0;
                     StopGrab ();
                 });
             data.tempInstance.AddIfEmpty (1, ev1);

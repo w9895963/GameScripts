@@ -4,28 +4,46 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class I_Input : IC_Base {
-    public Collider2D triggerBox;
-
-    public InputType inputType = new InputType ();
+    [System.Serializable] public class Setting {
+        public bool useTriggerBox = true;
+        public Collider2D triggerBox;
+        public InputType inputType = new InputType ();
+    }
+    public Setting setting = new Setting ();
 
 
 
 
     public override void OnEnable_ () {
-        if (triggerBox) {
-            if (inputType.click) {
-                EventTrigger eventTrigger = triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
-                    Exit ();
-                });
-                data.tempInstance.AddIfEmpty (0, eventTrigger);
-            }
-
-            if (inputType.down) {
-                data.tempInstance.Add (() =>
-                    triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerDown, (d) => {
+        data.actionIndex = -1;
+        Collider2D triggerBox = setting.triggerBox;
+        if (setting.useTriggerBox) {
+            if (triggerBox) {
+                if (setting.inputType.click) {
+                    EventTrigger eventTrigger = triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
                         Exit ();
-                    })
-                );
+                    });
+                    data.tempInstance.AddIfEmpty (0, eventTrigger);
+                }
+
+                if (setting.inputType.down) {
+                    data.tempInstance.Add (() =>
+                        triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerDown, (d) => {
+                            Exit ();
+                        })
+                    );
+                }
+            }
+        } else {
+            if (setting.inputType.click) {
+                data.tempInstance.Add (Fn._.AddPointerEvent (PointerEventType.onClick, (d) => {
+                    Exit ();
+                }));
+            }
+            if (setting.inputType.down) {
+                data.tempInstance.Add (Fn._.AddPointerEvent (PointerEventType.onPressDown, (d) => {
+                    Exit ();
+                }));
             }
         }
     }
@@ -35,7 +53,7 @@ public class I_Input : IC_Base {
 
 
     private void Exit () {
-        behaviour.actionIndex = 0;
+        data.actionIndex = 0;
         enabled = false;
     }
 

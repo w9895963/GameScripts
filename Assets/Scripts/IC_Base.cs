@@ -16,6 +16,7 @@ public class IC_Base : MonoBehaviour {
         [ReadOnly] public IC_Base callBy;
         public DataStore shareData = new DataStore ();
         public TempObjects tempInstance = new TempObjects ();
+        public int actionIndex = -1;
 
 
         //* Class Definition
@@ -28,14 +29,18 @@ public class IC_Base : MonoBehaviour {
             //* Public Method
             public DataInstance Get (string name, ShareDataType? type = null) {
                 DataInstance item = list.Find ((x) => x.name == name);
-                switch (type) {
-                    default : return null;
-                    case ShareDataType.Mix:
-                            return (item.type != ShareDataType.Mix) ? null : item;
-                    case ShareDataType.Vector2:
-                            return (item.type != ShareDataType.Vector2) ? null : item;
-                    case ShareDataType.Object:
-                            return (item.type != ShareDataType.Object) ? null : item;
+                if (item != null) {
+                    switch (type) {
+                        default : return null;
+                        case ShareDataType.Mix:
+                                return (item.type != ShareDataType.Mix) ? null : item;
+                        case ShareDataType.Vector2:
+                                return (item.type != ShareDataType.Vector2) ? null : item;
+                        case ShareDataType.Object:
+                                return (item.type != ShareDataType.Object) ? null : item;
+                    }
+                } else {
+                    return null;
                 }
             }
 
@@ -141,12 +146,10 @@ public class IC_Base : MonoBehaviour {
     }
 
     [System.Serializable] public class Behaviours {
-        public IC_Base[] Next = new IC_Base[1];
+        public IC_Base[] Next = new IC_Base[0];
         public Action[] onFinish = new Action[1];
         public Action onStart = new Action ();
         public List<IC_Base> synchronization = new List<IC_Base> ();
-        public Component[] dataConnect = new Component[0];
-        public int actionIndex = 0;
 
 
 
@@ -162,42 +165,37 @@ public class IC_Base : MonoBehaviour {
 
         }
 
-        public T[] GetConnects<T> () where T : Component {
-            List<T> list = new List<T> ();
-            dataConnect.ForEach ((x) => {
-                if (x.GetType () == typeof (T)) {
-
-                    list.Add ((T) x);
-                }
-            });
-
-            return list.Distinct ().ToList ().ToArray ();
-        }
     }
 
     public enum ShareDataType { Vector2, Object, Mix }
 
 
 
-
     //***********************
     public void OnEnable () {
-        BeforeEnable ();
-        OnEnable_ ();
+        Fn._.OrderRun (() => {
+            CallBeforeEnableAction ();
+            OnEnable_ ();
+        });
+
     }
+
 
 
     public void OnDisable () {
-        OnDisable_ ();
-        AfterDisable ();
-        data.tempInstance.Destroy ();
+        Fn._.OrderRun (() => {
+            OnDisable_ ();
+            data.tempInstance.Destroy ();
+            CallAfterDisableAction ();
+        });
     }
+
 
 
     public virtual void OnDisable_ () { }
     public virtual void OnEnable_ () { }
 
-    private void BeforeEnable () {
+    public void CallBeforeEnableAction () {
 
 
         data.shareData.UpdateShareDateInterface ();
@@ -224,9 +222,11 @@ public class IC_Base : MonoBehaviour {
         });
 
     }
-    private void AfterDisable () {
-        int actionIndex = behaviour.actionIndex;
+    public void CallAfterDisableAction () {
+        int actionIndex = data.actionIndex;
         if (actionIndex >= 0) {
+
+
 
             if (behaviour.Next.Length > actionIndex & behaviour.Next[actionIndex] != null) {
                 behaviour.Next[actionIndex].enabled = true;
@@ -237,20 +237,7 @@ public class IC_Base : MonoBehaviour {
 
             if (behaviour.onFinish.Length > actionIndex) {
 
-                Call (behaviour.onFinish[actionIndex]);
-            }
-
-
-
-
-            behaviour.synchronization.ForEach ((comp) => {
-                if (comp) {
-                    comp.enabled = false;
-                    comp.data.callBy = this;
-                };
-            });
-
-            void Call (Behaviours.Action di) {
+                Behaviours.Action di = behaviour.onFinish[actionIndex];
                 di.setDisable.ForEach ((comp) => {
                     if (comp) {
                         comp.enabled = false;
@@ -264,7 +251,19 @@ public class IC_Base : MonoBehaviour {
                     };
                 });
                 di.other.unityEvent.Invoke ();
+
             }
+
+
+
+
+            behaviour.synchronization.ForEach ((comp) => {
+                if (comp) {
+                    comp.enabled = false;
+                    comp.data.callBy = this;
+                };
+            });
+
         }
     }
 

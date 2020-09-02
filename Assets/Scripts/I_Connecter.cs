@@ -42,7 +42,7 @@ public class I_Connecter : IC_Base {
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),
                     onTriggerStay: (c) => {
                         vars.fixedJointComp = setting.rigidToConnect.Ex_ConnectTo (c.attachedRigidbody);
-                        behaviour.actionIndex = 0;
+                        data.actionIndex = 0;
                         this.enabled = false;
                         LazyConectSetup (false);
                     })

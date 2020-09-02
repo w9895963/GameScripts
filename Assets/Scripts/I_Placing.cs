@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 
 public class I_Placing : IC_Base {
     [System.Serializable] public class Setting {
-        public Rigidbody2D targetBody;
         public string ShareDataName = "PointerPosition";
         [ReadOnly] public Vector2 targetPosition;
         public EndCondition endCondition = new EndCondition ();

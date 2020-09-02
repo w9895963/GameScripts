@@ -117,7 +117,7 @@ public static class ExtensionMethod {
         trigger.triggers.Add (entry);
         return trigger;
     }
-    public static EventTrigger Ex_AddInputToTrigger (this GameObject gameobject,
+    public static EventTrigger Ex_AddInputToTrigger (this GameObject gameobject,    
         EventTriggerType type,
         UnityAction<BaseEventData> action) {
         //////////////////////////////////////
