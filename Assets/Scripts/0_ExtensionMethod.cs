@@ -206,6 +206,11 @@ public static class ExtensionMethod {
             GameObject.Destroy (obj);
         }
     }
+    public static void Destroy (this Object[] objects) {
+        foreach (var obj in objects) {
+            GameObject.Destroy (obj);
+        }
+    }
     public static void SetEnabled (this List<MonoBehaviour> component, bool enable) {
         foreach (var comp in component) {
             if (comp) {

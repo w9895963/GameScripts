@@ -24,11 +24,11 @@ public class I_Connecter : IC_Base {
 
 
     //**************************
-    public override void EnableAction () {
+    public override void OnEnable_ () {
         LazyConectSetup (true);
     }
 
-    public override void DisableAction () {
+    public override void OnDisable_ () {
         LazyConectSetup (false);
     }
 
@@ -38,17 +38,17 @@ public class I_Connecter : IC_Base {
     //*Private
     private void LazyConectSetup (bool enabled) {
         if (enabled) {
-            data.CallIfEmpty (2, () =>
+            data.tempInstance.AddIfEmpty (2, () =>
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),
                     onTriggerStay: (c) => {
                         vars.fixedJointComp = setting.rigidToConnect.Ex_ConnectTo (c.attachedRigidbody);
-                        data.actionIndex=0;
+                        behaviour.actionIndex = 0;
                         this.enabled = false;
                         LazyConectSetup (false);
                     })
             );
         } else {
-            data.DestroyAllEvents (2);
+            data.tempInstance.Destroy (2);
         }
     }
 

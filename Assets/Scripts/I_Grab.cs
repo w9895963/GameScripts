@@ -50,11 +50,11 @@ public class I_Grab : IC_Base {
 
 
     //********************
-    public override void EnableAction () {
+    public override void OnEnable_ () {
         StartGrab ();
     }
 
-    public override void DisableAction () {
+    public override void OnDisable_ () {
         StopGrab ();
     }
     private void FixedUpdate () {
@@ -125,16 +125,16 @@ public class I_Grab : IC_Base {
                     Vector2 vector = d2.delta.ScreenToWold () - Vector2.zero.ScreenToWold ();
                     variables.targetPoint += vector;
                 });
-            data.CallIfEmpty (0, ev1);
+            data.tempInstance.AddIfEmpty (0, ev1);
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
-                    data.actionIndex=0;
+                    behaviour.actionIndex = 0;
                     StopGrab ();
                 });
-            data.CallIfEmpty (1, ev1);
+            data.tempInstance.AddIfEmpty (1, ev1);
         } else {
-            data.DestroyAllEvents (0, 1);
+            data.tempInstance.Destroy (0, 1);
         }
 
     }

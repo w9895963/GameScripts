@@ -94,9 +94,12 @@ public class M_PlayerMove : MonoBehaviour {
 
 
         forceComp.Destroy ();
-        forceComp = this.Ex_AddTargetForce (position, force,
-            speedForceCurve : speedForceCurve, curveMaxSpeed : maxSpeed,
-            singleDimension : gravity.Rotate (90));
+        forceComp = gameObject.Ex_AddTargetForce (position, force,
+            speedForceCurve : speedForceCurve,
+            curveMaxSpeed : maxSpeed,
+            singleDimension : gravity.Rotate (90),
+            createBy : this
+        );
 
 
         Destroy (onArriveComp);

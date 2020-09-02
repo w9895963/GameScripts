@@ -180,7 +180,7 @@ public static class _Extension_FS_PointForce {
             AnimationCurve speedForceCurve = null,
             Vector2 singleDimension = default,
             float curveMaxSpeed = 1f,
-            Component createBy=null
+            Component createBy = null
 
         ) =>
 
@@ -193,30 +193,8 @@ public static class _Extension_FS_PointForce {
             speedForceCurve,
             curveMaxSpeed,
             singleDimension,
-            createBy);
-    public static C1_TargetForce Ex_AddTargetForce (this Component comp,
-            Vector2 targetPosition,
-            float force,
-            Vector2 applyPosition = default,
-            AnimationCurve forceDistanceCurve = null,
-            float curveMaxDistance = 1f,
-            AnimationCurve speedForceCurve = null,
-            Vector2 singleDimension = default,
-            float curveMaxSpeed = 1f,
-            Component createBy=null
-
-        ) =>
-
-        C1_TargetForce.AddTargetForce (comp.gameObject,
-            targetPosition,
-            force,
-            applyPosition,
-            forceDistanceCurve,
-            curveMaxDistance,
-            speedForceCurve,
-            curveMaxSpeed,
-            singleDimension,
-            createBy);
+            createBy
+        );
 
 
 

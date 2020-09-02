@@ -9,12 +9,12 @@ public class I_InPack : IC_Base {
 
 
 
-    public override void EnableAction () {
+    public override void OnEnable_ () {
 
         targetObject.Ex_Hide ();
         Gb.Backpack.PutinStorage (this);
     }
-    public override void DisableAction () {
+    public override void OnDisable_ () {
 
         targetObject.Ex_Show ();
 

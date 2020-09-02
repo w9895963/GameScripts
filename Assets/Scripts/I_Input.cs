@@ -11,18 +11,17 @@ public class I_Input : IC_Base {
 
 
 
-    public override void EnableAction () {
+    public override void OnEnable_ () {
         if (triggerBox) {
             if (inputType.click) {
-                data.CallIfEmpty (0, () =>
-                    triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
-                        Exit ();
-                    })
-                );
+                EventTrigger eventTrigger = triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
+                    Exit ();
+                });
+                data.tempInstance.AddIfEmpty (0, eventTrigger);
             }
 
             if (inputType.down) {
-                data.CallIfEmpty (1, () =>
+                data.tempInstance.Add (() =>
                     triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerDown, (d) => {
                         Exit ();
                     })
@@ -30,15 +29,13 @@ public class I_Input : IC_Base {
             }
         }
     }
-    public override void DisableAction () {
-        data.DestroyAllEvents (0, 1);
-    }
+    public override void OnDisable_ () { }
 
 
 
 
     private void Exit () {
-       data.actionIndex=0;
+        behaviour.actionIndex = 0;
         enabled = false;
     }
 
