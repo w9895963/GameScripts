@@ -9,20 +9,21 @@ public class IC_Base : MonoBehaviour {
         behaviour = new Behaviours ();
     }
     //*********************Property
-    public Data data = new Data ();
-    [ContextMenuItem ("清空", "EmptyBehavior")]
-    public Behaviours behaviour = new Behaviours ();
+    [HideInInspector] public Data data = new Data ();
+
+    [HideInInspector] public Behaviours behaviour = new Behaviours ();
     [System.Serializable] public class Data {
-        [ReadOnly] public IC_Base callBy;
-        public DataStore shareData = new DataStore ();
+        public IC_Base callBy;
+        public ShareData shareData = new ShareData ();
         public TempObjects tempInstance = new TempObjects ();
         public int actionIndex = -1;
 
 
         //* Class Definition
-        [System.Serializable] public class DataStore {
-            [SerializeField, ReadOnly] private List<DataStore.DataInstance> Data;
-            private static List<DataInstance> list = new List<DataInstance> ();
+        [System.Serializable] public class ShareData {
+            [SerializeField, ReadOnly] private List<ShareData.DataInstance> Data;
+            public List<IC_Base> shareWith = new List<IC_Base> ();
+            private List<DataInstance> list = new List<DataInstance> ();
 
 
 
@@ -45,29 +46,37 @@ public class IC_Base : MonoBehaviour {
             }
 
             public void Add (string name, Vector2? ve2 = null, Object obj = null) {
-                list.RemoveAll ((x) => x.name == name);
-                DataInstance item = new DataInstance ();
-                item.name = name;
-                int count = 0;
-                if (ve2 != null) {
-                    item.vector2Data = (Vector2) ve2;
-                    count += 1;
-                    item.type = ShareDataType.Vector2;
-                }
-                if (obj != null) {
-                    item.objectData = obj;
-                    count += 1;
-                    item.type = ShareDataType.Object;
-                }
-                if (count > 1) {
-                    item.type = ShareDataType.Mix;
-                }
+                var l = shareWith.Select ((x) => x.data.shareData.list).ToList ();
+                l.Add (list);
+                l.ForEach ((list) => {
+                    list.RemoveAll ((x) => x.name == name);
+                    DataInstance item = new DataInstance ();
+                    item.name = name;
+                    int count = 0;
+                    if (ve2 != null) {
+                        item.vector2Data = (Vector2) ve2;
+                        count += 1;
+                        item.type = ShareDataType.Vector2;
+                    }
+                    if (obj != null) {
+                        item.objectData = obj;
+                        count += 1;
+                        item.type = ShareDataType.Object;
+                    }
+                    if (count > 1) {
+                        item.type = ShareDataType.Mix;
+                    }
 
-                list.Add (item);
+                    list.Add (item);
+                });
+
+
+
             }
             public void UpdateShareDateInterface () {
                 Data = list;
             }
+
 
 
             //* Class Definition
@@ -103,6 +112,7 @@ public class IC_Base : MonoBehaviour {
                     data.Add (new Data (func (), index));
                 }
                 UpdataInterface ();
+
             }
             public void AddIfEmpty (int index, Object obj) {
                 Data item = data.Find ((x) => x.index == index);
@@ -110,6 +120,7 @@ public class IC_Base : MonoBehaviour {
                     data.Add (new Data (obj, index));
                 }
                 UpdataInterface ();
+
             }
             public void Add (System.Func<Object> func) {
                 data.Add (new Data (func ()));
@@ -146,16 +157,16 @@ public class IC_Base : MonoBehaviour {
     }
 
     [System.Serializable] public class Behaviours {
-        public IC_Base[] Next = new IC_Base[0];
-        public Action[] onFinish = new Action[1];
+        public List<IC_Base> Next = new List<IC_Base> ();
+        public List<Action> onFinish = new List<Action> ();
         public Action onStart = new Action ();
         public List<IC_Base> synchronization = new List<IC_Base> ();
 
 
 
         [System.Serializable] public class Action {
-            public IC_Base[] setEnable = new IC_Base[0];
-            public IC_Base[] setDisable = new IC_Base[0];
+            public List<IC_Base> setEnable = new List<IC_Base> ();
+            public List<IC_Base> setDisable = new List<IC_Base> ();
             public Events other = new Events ();
             [System.Serializable]
             public class Events {
@@ -172,30 +183,36 @@ public class IC_Base : MonoBehaviour {
 
 
     //***********************
-    public void OnEnable () {
-        Fn._.OrderRun (() => {
-            CallBeforeEnableAction ();
-            OnEnable_ ();
-        });
 
+    public new bool enabled {
+        get => base.enabled;
+        set {
+            Fn._.OrderRun (() => {
+                if (base.enabled != value) {
+                    if (value == true) {
+                        RunOnEnable ();
+                        base.enabled = true;
+                    } else {
+                        RunOnDisable ();
+                        base.enabled = false;
+                    }
+                }
+            });
+
+        }
+    }
+    private void OnValidate () {
+        if (enabled) {
+            RunOnEnable ();
+        } else {
+            RunOnDisable ();
+        }
     }
 
 
 
-    public void OnDisable () {
-        Fn._.OrderRun (() => {
-            OnDisable_ ();
-            data.tempInstance.Destroy ();
-            CallAfterDisableAction ();
-        });
-    }
 
-
-
-    public virtual void OnDisable_ () { }
-    public virtual void OnEnable_ () { }
-
-    public void CallBeforeEnableAction () {
+    public void RunOnEnable () {
 
 
         data.shareData.UpdateShareDateInterface ();
@@ -222,13 +239,14 @@ public class IC_Base : MonoBehaviour {
         });
 
     }
-    public void CallAfterDisableAction () {
+    public void RunOnDisable () {
+        data.tempInstance.Destroy ();
         int actionIndex = data.actionIndex;
         if (actionIndex >= 0) {
 
 
 
-            if (behaviour.Next.Length > actionIndex) {
+            if (behaviour.Next.Count > actionIndex) {
                 if (behaviour.Next[actionIndex] != null) {
                     behaviour.Next[actionIndex].enabled = true;
                     behaviour.Next[actionIndex].data.callBy = this;
@@ -237,22 +255,24 @@ public class IC_Base : MonoBehaviour {
 
 
 
-            if (behaviour.onFinish.Length > actionIndex) {
+            if (behaviour.onFinish.Count > actionIndex) {
 
                 Behaviours.Action di = behaviour.onFinish[actionIndex];
-                di.setDisable.ForEach ((comp) => {
-                    if (comp) {
-                        comp.enabled = false;
-                        comp.data.callBy = this;
-                    };
-                });
-                di.setEnable.ForEach ((comp) => {
-                    if (comp) {
-                        comp.enabled = true;
-                        comp.data.callBy = this;
-                    };
-                });
-                di.other.unityEvent.Invoke ();
+                if (di != null) {
+                    di.setDisable.ForEach ((comp) => {
+                        if (comp) {
+                            comp.enabled = false;
+                            comp.data.callBy = this;
+                        };
+                    });
+                    di.setEnable.ForEach ((comp) => {
+                        if (comp) {
+                            comp.enabled = true;
+                            comp.data.callBy = this;
+                        };
+                    });
+                    di.other.unityEvent.Invoke ();
+                }
 
             }
 

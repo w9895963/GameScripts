@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class I_Hide : IC_Base {
     public GameObject target;
-    public override void OnEnable_ () {
+     void OnEnable () {
         data.actionIndex = 0;
 
         target.Ex_Hide ();
     }
-    public override void OnDisable_ () {
+     void OnDisable () {
         target.Ex_Show ();
 
     }

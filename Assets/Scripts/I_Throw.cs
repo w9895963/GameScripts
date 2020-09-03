@@ -14,7 +14,7 @@ public class I_Throw : IC_Base {
 
 
 
-    public override void OnEnable_ () {
+     void OnEnable () {
         data.actionIndex = 0;
         Vector2 manP = Gb.MainCharactor.transform.position;
         setting.rigidBody.position = manP;
@@ -36,7 +36,7 @@ public class I_Throw : IC_Base {
 
     }
 
-    public override void OnDisable_ () {
+     void OnDisable () {
 
     }
 }

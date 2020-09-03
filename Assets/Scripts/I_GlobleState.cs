@@ -23,7 +23,7 @@ public class I_GlobleState : IC_Base {
         AddStateObject ();
         ShowAllName ();
     }
-    public override void OnEnable_ () {
+     void OnEnable () {
         if (action == Action.setState) {
             ChangeState (stateName);
         }

@@ -9,12 +9,12 @@ public class I_InPack : IC_Base {
 
 
 
-    public override void OnEnable_ () {
+     void OnEnable () {
         data.actionIndex = 0;
 
         Gb.Backpack.PutinStorage (this);
     }
-    public override void OnDisable_ () {
+     void OnDisable () {
 
 
     }

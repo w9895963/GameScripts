@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class I_Input : IC_Base {
+public class I_Input : IC_SimpleInspector {
+    public enum Action { globle, triggerBox }
+
     [System.Serializable] public class Setting {
-        public bool useTriggerBox = true;
+        public Action target = Action.triggerBox;
         public Collider2D triggerBox;
         public InputType inputType = new InputType ();
+        [System.Serializable] public class InputType {
+            public bool click = true;
+            public bool down = false;
+        }
+
     }
     public Setting setting = new Setting ();
 
 
 
 
-    public override void OnEnable_ () {
+    public void OnEnable () {
         data.actionIndex = -1;
         Collider2D triggerBox = setting.triggerBox;
-        if (setting.useTriggerBox) {
+        if (setting.target == Action.triggerBox) {
             if (triggerBox) {
                 if (setting.inputType.click) {
                     EventTrigger eventTrigger = triggerBox.Ex_AddInputToTriggerOnece (EventTriggerType.PointerClick, (d) => {
@@ -34,7 +41,7 @@ public class I_Input : IC_Base {
                     );
                 }
             }
-        } else {
+        } else if (setting.target == Action.globle) {
             if (setting.inputType.click) {
                 data.tempInstance.Add (Fn._.AddPointerEvent (PointerEventType.onClick, (d) => {
                     Exit ();
@@ -47,9 +54,9 @@ public class I_Input : IC_Base {
             }
         }
     }
-    public override void OnDisable_ () { }
+    public void OnDisable () {
 
-
+    }
 
 
     private void Exit () {
@@ -57,11 +64,7 @@ public class I_Input : IC_Base {
         enabled = false;
     }
 
-    [System.Serializable]
-    public class InputType {
-        public bool click = true;
-        public bool down = true;
-    }
+
 
 
 }

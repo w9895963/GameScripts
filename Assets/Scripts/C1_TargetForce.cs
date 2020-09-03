@@ -10,7 +10,9 @@ public class C1_TargetForce : MonoBehaviour {
 
     [SerializeField] private Rigidbody2D rigidBody = null;
     [SerializeField] private bool ignoreMass = true;
-    [SerializeField] private Vector2 targetPosition = Vector2.zero;
+    public RefVector2 TargetPosition = new RefVector2 ();
+    public Vector2 targetPosition = Vector2.zero;
+    public RefFloat Force = new RefFloat ();
     [SerializeField] private float force = 40f;
     //* Plugin
     [SerializeField] private ForceCurve distanceForceCurve = new ForceCurve ();
@@ -27,6 +29,7 @@ public class C1_TargetForce : MonoBehaviour {
 
     // *Private Method
     private void Main () {
+        var targetPosition = TargetPosition.value;
         if (useObjectTarget.enable) targetPosition = useObjectTarget.target.transform.position;
 
 
@@ -38,7 +41,7 @@ public class C1_TargetForce : MonoBehaviour {
         if (distanceForceCurve.enable) {
             forceRate = distanceForceCurve.distanceCurve.Evaluate (disVector.magnitude / distanceForceCurve.maxDistance);
         }
-        forceAdd = disVector.normalized * force * forceRate;
+        forceAdd = disVector.normalized * Force.value * forceRate;
 
 
 
@@ -90,10 +93,10 @@ public class C1_TargetForce : MonoBehaviour {
 
     //*Public Method
     public void SetTarget (Vector2 position) {
-        targetPosition = position;
+        TargetPosition.value = position;
     }
     public void SetForce (float force) {
-        this.force = force;
+        this.Force.value = force;
     }
     public void SetForceDistanceCurve (AnimationCurve curve, float maxDistance) {
         distanceForceCurve.enable = true;
@@ -111,8 +114,8 @@ public class C1_TargetForce : MonoBehaviour {
 
 
         C1_TargetForce comp = gameObject.AddComponent<C1_TargetForce> ();
-        comp.targetPosition = targetPosition;
-        comp.force = force;
+        comp.TargetPosition.value = targetPosition;
+        comp.Force.value = force;
         if (applyPosition != Vector2.zero) {
             comp.forceAtpoint.enable = true;
             comp.forceAtpoint.localPosition = applyPosition;

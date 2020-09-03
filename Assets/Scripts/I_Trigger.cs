@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class I_Trigger : IC_Base {
@@ -15,16 +16,16 @@ public class I_Trigger : IC_Base {
 
     }
 
-    public override void OnEnable_ () {
+     void OnEnable () {
         data.actionIndex = -1;
         data.tempInstance.Add (() => {
             GameObject[] targets = setting.targets;
             return setting.trggerZone.Ex_AddCollierEvent (
                 targets, onTriggerEnter: (o) => {
-                    if (targets.Contain (o.gameObject)) {
+                    if (targets.Contains (o.gameObject)) {
                         data.actionIndex = setting.triggerEnter;
                         if (!setting.allwaysOn) enabled = false;
-                        else CallAfterDisableAction ();
+                        else RunOnDisable ();
                     }
                 }
             );
@@ -33,16 +34,16 @@ public class I_Trigger : IC_Base {
             GameObject[] targets = setting.targets;
             return setting.trggerZone.Ex_AddCollierEvent (
                 targets, OnTriggerExit: (o) => {
-                    if (targets.Contain (o.gameObject)) {
+                    if (targets.Contains (o.gameObject)) {
                         data.actionIndex = setting.triggerExit;
                         if (!setting.allwaysOn) enabled = false;
-                        else CallAfterDisableAction ();
+                        else RunOnDisable ();
                     }
                 }
             );
         });
     }
-    public override void OnDisable_ () {
+     void OnDisable () {
         data.tempInstance.Destroy ();
     }
 

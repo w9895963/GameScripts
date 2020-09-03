@@ -6,14 +6,14 @@ public class I_ConnectBreaker : IC_Base {
 
 
 
-    public override void OnEnable_ () {
+     void OnEnable () {
      
         GetComponents<FixedJoint2D> ().Destroy ();
         enabled = false;
     }
 
 
-    public override void OnDisable_ () {
+     void OnDisable () {
 
     }
 

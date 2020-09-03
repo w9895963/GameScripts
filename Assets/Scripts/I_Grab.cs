@@ -6,11 +6,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.U2D;
 
-public class I_Grab : IC_Base {
+public class I_Grab : IC_ThreeWayInspector {
     [System.Serializable]
     public class Setting {
         public Rigidbody2D rigidBody = null;
-        public float force = 80f;
+        public RefFloat force = new RefFloat ();
         public AnimationCurve forceDistanceCurve = Fn.Curve.ZeroOneCurve;
         public float curveMaxDistance = 0.3f;
         public Vector2 pointForcePosition = default;
@@ -18,30 +18,12 @@ public class I_Grab : IC_Base {
 
 
 
-        public DistanceToTarget maxDistance = new DistanceToTarget ();
-        public CharactorMove charactorMove = new CharactorMove ();
-        [System.Serializable]
-        public class DistanceToTarget {
-            public bool enable = false;
-            public GameObject target;
-            public float distance = 1f;
-        }
-
-        [System.Serializable]
-        public class CharactorMove {
-            public bool enable = false;
-            public M_PlayerMove playerMoveComp = null;
-            public float speed = 3f;
-            [ReadOnly] public float defaultSpeed;
-            [ReadOnly] public Object moveEvent;
-        }
     }
 
     [System.Serializable]
     public class Variables {
         public C1_TargetForce targetForceComp = null;
-        public bool onGrab = false;
-        public Vector2 targetPoint = Vector2.zero;
+        public RefVector2 targetPoint = new RefVector2 ();
     }
 
     //************
@@ -50,30 +32,24 @@ public class I_Grab : IC_Base {
 
 
     //********************
-    public override void OnEnable_ () {
+    void OnEnable () {
+        data.actionIndex = -1;
         StartGrab ();
     }
 
-    public override void OnDisable_ () {
-        StopGrab ();
+    void OnDisable () {
+        Cursor.visible = true;
+        variables.targetForceComp.Destroy ();
+
+
+        InputEventSet (false);
+        // StopGrab ();
     }
     private void FixedUpdate () {
+        Vector2 targetPoint = variables.targetPoint.value;
 
-        if (variables.onGrab) {
-            if (setting.maxDistance.enable) {
-                Vector2 position = (Vector2) setting.maxDistance.target.transform.position;
-                Vector2 dir = variables.targetPoint - position;
-                float value = Mathf.Min (dir.magnitude, setting.maxDistance.distance);
-                variables.targetPoint = position + dir.normalized * value;
-            }
+        Fn._.DrawPoint (targetPoint);
 
-
-
-
-            variables.targetForceComp.SetTarget (variables.targetPoint);
-            Fn._.DrawPoint (variables.targetPoint);
-
-        }
 
 
     }
@@ -83,39 +59,27 @@ public class I_Grab : IC_Base {
 
     //* Private Method
     private void StartGrab () {
-        variables.onGrab = true;
-        variables.targetPoint = setting.rigidBody.position;
-        if (setting.maxDistance.enable) {
-            Vector2 position = (Vector2) setting.maxDistance.target.transform.position;
-            variables.targetPoint = (setting.rigidBody.position - position).normalized * setting.maxDistance.distance + position;
-        }
+        variables.targetPoint.value = setting.rigidBody.position;
         Cursor.visible = false;
 
         if (!variables.targetForceComp) {
-            variables.targetForceComp = setting.rigidBody.gameObject.Ex_AddTargetForce (
-                variables.targetPoint,
-                setting.force,
-                setting.pointForcePosition,
-                forceDistanceCurve : setting.forceDistanceCurve,
-                curveMaxDistance : setting.curveMaxDistance,
-                createBy : this);
+            variables.targetForceComp =
+                setting.rigidBody.gameObject.Ex_AddTargetForce (
+                    variables.targetPoint.value,
+                    setting.force.value,
+                    setting.pointForcePosition,
+                    forceDistanceCurve : setting.forceDistanceCurve,
+                    curveMaxDistance : setting.curveMaxDistance,
+                    createBy : this
+                );
+            variables.targetForceComp.Force = setting.force;
+            variables.targetForceComp.TargetPosition = variables.targetPoint;
         }
 
 
-        SetupCharactorMoveEvent ();
         InputEventSet (true);
     }
-    private void StopGrab () {
-        variables.onGrab = false;
-        Cursor.visible = true;
-        variables.targetForceComp.Destroy ();
 
-
-        DestroyCharactorMoveEvent ();
-        InputEventSet (false);
-
-        this.enabled = false;
-    }
 
 
     private void InputEventSet (bool enabled) {
@@ -123,41 +87,18 @@ public class I_Grab : IC_Base {
             System.Func<Object> ev1 = () =>
                 this.Ex_AddMouseEvent (MouseEventType.onMove, (d2) => {
                     Vector2 vector = d2.delta.ScreenToWold () - Vector2.zero.ScreenToWold ();
-                    variables.targetPoint += vector;
+                    variables.targetPoint.value += vector;
                 });
             data.tempInstance.AddIfEmpty (0, ev1);
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
                     data.actionIndex = 0;
-                    StopGrab ();
+                    this.enabled = false;
                 });
             data.tempInstance.AddIfEmpty (1, ev1);
         } else {
             data.tempInstance.Destroy (0, 1);
-        }
-
-    }
-    private void SetupCharactorMoveEvent () {
-        if (setting.charactorMove.enable) {
-            if (setting.charactorMove.defaultSpeed == default) {
-                setting.charactorMove.defaultSpeed = setting.charactorMove.playerMoveComp.maxSpeed;
-            }
-            setting.charactorMove.moveEvent.Destroy ();
-            setting.charactorMove.moveEvent = this.Ex_AddMouseEvent (MouseEventType.onMove, (d) => {
-                setting.charactorMove.playerMoveComp.Move (d.delta, setting.charactorMove.speed, 0.1f);
-            });
-
-        }
-
-    }
-    private void DestroyCharactorMoveEvent () {
-        if (setting.charactorMove.moveEvent != null) {
-            if (setting.charactorMove.playerMoveComp != null) {
-                setting.charactorMove.playerMoveComp.maxSpeed = setting.charactorMove.defaultSpeed;
-                setting.charactorMove.defaultSpeed = default;
-            }
-            setting.charactorMove.moveEvent.Destroy ();
         }
 
     }

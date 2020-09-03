@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-public class I_Connecter : IC_Base {
+public class I_Connecter : IC_FullInspector {
 
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
@@ -24,11 +24,11 @@ public class I_Connecter : IC_Base {
 
 
     //**************************
-    public override void OnEnable_ () {
+    void OnEnable () {
         LazyConectSetup (true);
     }
 
-    public override void OnDisable_ () {
+    void OnDisable () {
         LazyConectSetup (false);
     }
 
@@ -37,6 +37,7 @@ public class I_Connecter : IC_Base {
 
     //*Private
     private void LazyConectSetup (bool enabled) {
+        data.actionIndex = -1;
         if (enabled) {
             data.tempInstance.AddIfEmpty (2, () =>
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),

@@ -28,7 +28,7 @@ public class I_Placing : IC_Base {
     void Update () {
         Fn._.DrawLineOnScreen (Gb.MainCharactor.transform.position, setting.targetPosition, 0.01f);
     }
-    public override void OnEnable_ () {
+     void OnEnable () {
 
 
         data.tempInstance.AddIfEmpty (0,
@@ -50,7 +50,7 @@ public class I_Placing : IC_Base {
 
 
     }
-    public override void OnDisable_ () {
+     void OnDisable () {
        
     }
 

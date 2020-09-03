@@ -274,7 +274,9 @@ public static class _Extension_Fn {
 
 
 
-   
-
 
 }
+
+[System.Serializable] public class RefVector2 { public Vector2 value = Vector2.zero; }
+
+[System.Serializable] public class RefFloat { public float value = 0; }

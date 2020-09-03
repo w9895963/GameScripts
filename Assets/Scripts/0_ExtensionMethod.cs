@@ -22,23 +22,6 @@ public static class ExtensionMethod {
 
 
 
-    public static T[] Add<T> (this T[] source, T newMember) {
-        List<T> list = new List<T> (source);
-        list.Add (newMember);
-        return list.ToArray ();
-    }
-    public static T[] Add<T> (this T[] source, int index, T newMember) {
-        List<T> list = new List<T> (source);
-        if (list.Count > index) {
-            list[index] = newMember;
-        } else {
-            T[] ts = new T[index + 1];
-            source.CopyTo (ts, 0);
-            ts[index] = newMember;
-            list = new List<T> (ts);
-        }
-        return list.ToArray ();
-    }
     public static void Add<T> (this List<T> source, int index, T newMember) {
         if (source.Count <= index) {
             for (int i = source.Count; i < index + 1; i++) {
@@ -47,9 +30,25 @@ public static class ExtensionMethod {
         }
         source[index] = newMember;
     }
-    public static bool Contain<T> (this T[] source, T menber) {
-        List<T> list = new List<T> (source);
-        return list.Contains (menber);
+    public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
+        if (source.Count <= index) {
+            source.Add (index, new T ());
+        }
+        return source;
+
+    }
+    public static void AddNotHas<T> (this List<T> source, T newMember) {
+        if (!source.Contains (newMember)) {
+            source.Add (newMember);
+        }
+
+    }
+    public static void AddNotHas<T> (this List<T> source, List<T> newMembers) {
+        newMembers.ForEach ((x) => {
+            if (!source.Contains (x)) {
+                source.Add (x);
+            }
+        });
     }
     public static bool Exist<T> (this T[] source, System.Predicate<T> match) {
         List<T> list = new List<T> (source);
@@ -61,6 +60,9 @@ public static class ExtensionMethod {
     }
     public static T[] ToArray<T> (this T source) {
         return new T[] { source };
+    }
+    public static List<T> ToList<T> (this T[] source) {
+        return new List<T> (source);
     }
     public static void ForEach<T> (this T[] source, System.Action<T> action) {
         foreach (var t in source) {
@@ -117,7 +119,7 @@ public static class ExtensionMethod {
         trigger.triggers.Add (entry);
         return trigger;
     }
-    public static EventTrigger Ex_AddInputToTrigger (this GameObject gameobject,    
+    public static EventTrigger Ex_AddInputToTrigger (this GameObject gameobject,
         EventTriggerType type,
         UnityAction<BaseEventData> action) {
         //////////////////////////////////////
