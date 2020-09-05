@@ -22,19 +22,18 @@ public class I_Placing : IC_Base {
     public Setting setting = new Setting ();
 
     private void Reset () {
-       
+
     }
 
     void Update () {
         Fn._.DrawLineOnScreen (Gb.MainCharactor.transform.position, setting.targetPosition, 0.01f);
     }
-     void OnEnable () {
+    void OnEnable () {
 
 
         data.tempInstance.AddIfEmpty (0,
             () => Fn._.AddPointerEvent (PointerEventType.onMove, (d) => {
                 setting.targetPosition = d.position_Screen.ScreenToWold ();
-                data.shareData.Add (setting.ShareDataName, setting.targetPosition);
             })
         );
 
@@ -50,8 +49,8 @@ public class I_Placing : IC_Base {
 
 
     }
-     void OnDisable () {
-       
+    void OnDisable () {
+
     }
 
 

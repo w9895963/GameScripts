@@ -37,13 +37,11 @@ public class I_Connecter : IC_FullInspector {
 
     //*Private
     private void LazyConectSetup (bool enabled) {
-        data.actionIndex = -1;
         if (enabled) {
             data.tempInstance.AddIfEmpty (2, () =>
                 setting.triggers.Ex_AddCollierEvent (setting.connectTargets.ToArray (),
                     onTriggerStay: (c) => {
                         vars.fixedJointComp = setting.rigidToConnect.Ex_ConnectTo (c.attachedRigidbody);
-                        data.actionIndex = 0;
                         this.enabled = false;
                         LazyConectSetup (false);
                     })

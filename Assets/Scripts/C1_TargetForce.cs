@@ -13,7 +13,6 @@ public class C1_TargetForce : MonoBehaviour {
     public RefVector2 TargetPosition = new RefVector2 ();
     public Vector2 targetPosition = Vector2.zero;
     public RefFloat Force = new RefFloat ();
-    [SerializeField] private float force = 40f;
     //* Plugin
     [SerializeField] private ForceCurve distanceForceCurve = new ForceCurve ();
     [SerializeField] private C_Force.SpeedForceCurve speedForceCurve = new C_Force.SpeedForceCurve ();

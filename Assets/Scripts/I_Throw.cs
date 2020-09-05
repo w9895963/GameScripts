@@ -14,13 +14,10 @@ public class I_Throw : IC_Base {
 
 
 
-     void OnEnable () {
-        data.actionIndex = 0;
+    void OnEnable () {
         Vector2 manP = Gb.MainCharactor.transform.position;
         setting.rigidBody.position = manP;
         Vector2 position = Pointer.current.position.ReadValue ().ScreenToWold ();
-        var v = data.shareData.Get (setting.dataname, ShareDataType.Vector2);
-        if (v != null) position = v.vector2Data;
 
         Vector2 force = (position - manP).normalized * setting.force;
 
@@ -36,7 +33,7 @@ public class I_Throw : IC_Base {
 
     }
 
-     void OnDisable () {
+    void OnDisable () {
 
     }
 }

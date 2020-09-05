@@ -16,7 +16,6 @@ public class I_GlobleState : IC_Base {
 
 
     private void Awake () {
-        data.actionIndex = 0;
         if (currentState.Count <= workingSlot) {
             currentState.Add (workingSlot, default);
         }

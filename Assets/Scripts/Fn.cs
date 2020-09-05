@@ -277,6 +277,13 @@ public static class _Extension_Fn {
 
 }
 
-[System.Serializable] public class RefVector2 { public Vector2 value = Vector2.zero; }
+[System.Serializable] public class RefVector2 {
+    public Vector2 value;
 
-[System.Serializable] public class RefFloat { public float value = 0; }
+    public RefVector2 (Vector2 vector = default) { value = vector; }
+}
+
+[System.Serializable] public class RefFloat {
+    public float value;
+    public RefFloat (float value = 0) { this.value = value; }
+}

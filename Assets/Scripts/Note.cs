@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Note : MonoBehaviour {
-    [Multiline (1)] public string note;
+    public GameObject objt;
+    public Vector3 p;
+
+    private void OnValidate () {
+        if (objt) objt.transform.position = p;
+    }
 
 }

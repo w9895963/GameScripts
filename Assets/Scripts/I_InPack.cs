@@ -10,7 +10,6 @@ public class I_InPack : IC_Base {
 
 
      void OnEnable () {
-        data.actionIndex = 0;
 
         Gb.Backpack.PutinStorage (this);
     }

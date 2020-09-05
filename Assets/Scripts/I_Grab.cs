@@ -6,26 +6,43 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.U2D;
 
-public class I_Grab : IC_ThreeWayInspector {
-    [System.Serializable]
-    public class Setting {
+public class I_Grab : IC_FullInspector {
+
+    [System.Serializable] public class Variables {
+        public Vector2 targetPoint = new Vector2 ();
+        public RefVector2 targetPointOut = new RefVector2 ();
+    }
+
+    [System.Serializable] public class Setting {
         public Rigidbody2D rigidBody = null;
-        public RefFloat force = new RefFloat ();
+        public RefFloat force = new RefFloat (80);
         public AnimationCurve forceDistanceCurve = Fn.Curve.ZeroOneCurve;
         public float curveMaxDistance = 0.3f;
         public Vector2 pointForcePosition = default;
+        public float tagetMoveScale = 1;
+
+
+        [System.Serializable] public class UnStable {
+            public bool enable = false;
+            public float scale = 1;
+            public float scaleWithDistance = 1;
+
+
+        }
+
+        [System.Serializable] public class ShareDate {
+            public bool enable = false;
+            public IC_Base shareTo;
+            public string dataName;
+
+        }
+        public UnStable unStabale = new UnStable ();
+        public ShareDate shareDate = new ShareDate ();
 
 
 
 
     }
-
-    [System.Serializable]
-    public class Variables {
-        public C1_TargetForce targetForceComp = null;
-        public RefVector2 targetPoint = new RefVector2 ();
-    }
-
     //************
     public Setting setting = new Setting ();
     [ReadOnly] public Variables variables = new Variables ();
@@ -33,24 +50,18 @@ public class I_Grab : IC_ThreeWayInspector {
 
     //********************
     void OnEnable () {
-        data.actionIndex = -1;
         StartGrab ();
     }
 
-    void OnDisable () {
-        Cursor.visible = true;
-        variables.targetForceComp.Destroy ();
-
-
-        InputEventSet (false);
-        // StopGrab ();
-    }
-    private void FixedUpdate () {
-        Vector2 targetPoint = variables.targetPoint.value;
+    private void Update () {
+        Vector2 targetPoint = variables.targetPoint;
+        Setting.UnStable un = setting.unStabale;
+        float scale = un.enable ? un.scale : 0;
+        float distance = (setting.rigidBody.position - targetPoint).magnitude * un.scaleWithDistance;
+        Vector2 vector2 = targetPoint + Random.insideUnitCircle * scale * distance;
+        variables.targetPointOut.value = vector2;
 
         Fn._.DrawPoint (targetPoint);
-
-
 
     }
 
@@ -59,48 +70,50 @@ public class I_Grab : IC_ThreeWayInspector {
 
     //* Private Method
     private void StartGrab () {
-        variables.targetPoint.value = setting.rigidBody.position;
+        variables.targetPoint = setting.rigidBody.position;
         Cursor.visible = false;
-
-        if (!variables.targetForceComp) {
-            variables.targetForceComp =
-                setting.rigidBody.gameObject.Ex_AddTargetForce (
-                    variables.targetPoint.value,
-                    setting.force.value,
-                    setting.pointForcePosition,
-                    forceDistanceCurve : setting.forceDistanceCurve,
-                    curveMaxDistance : setting.curveMaxDistance,
-                    createBy : this
-                );
-            variables.targetForceComp.Force = setting.force;
-            variables.targetForceComp.TargetPosition = variables.targetPoint;
+        Object objAdd = null;
+        if (!data.tempInstance.Has (2)) {
+            var obj = setting.rigidBody.gameObject.Ex_AddTargetForce (
+                variables.targetPoint,
+                setting.force.value,
+                setting.pointForcePosition,
+                forceDistanceCurve : setting.forceDistanceCurve,
+                curveMaxDistance : setting.curveMaxDistance,
+                createBy : this
+            );
+            obj.Force = setting.force;
+            obj.TargetPosition = variables.targetPointOut;
+            objAdd = obj;
         }
-
-
-        InputEventSet (true);
-    }
+        data.tempInstance.AddIfEmpty (2, objAdd);
 
 
 
-    private void InputEventSet (bool enabled) {
-        if (enabled) {
+        InputEventSet ();
+
+        void InputEventSet () {
+            var s = setting;
+
             System.Func<Object> ev1 = () =>
                 this.Ex_AddMouseEvent (MouseEventType.onMove, (d2) => {
                     Vector2 vector = d2.delta.ScreenToWold () - Vector2.zero.ScreenToWold ();
-                    variables.targetPoint.value += vector;
+                    variables.targetPoint += vector * s.tagetMoveScale;
                 });
             data.tempInstance.AddIfEmpty (0, ev1);
 
             ev1 = () =>
                 this.Ex_AddPointerEventOnece (PointerEventType.onClick, (d2) => {
-                    data.actionIndex = 0;
+                    Cursor.visible = true;
                     this.enabled = false;
+                    RunFinishedAction (0);
                 });
             data.tempInstance.AddIfEmpty (1, ev1);
-        } else {
-            data.tempInstance.Destroy (0, 1);
-        }
 
+
+
+
+        }
     }
 
 

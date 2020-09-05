@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class IG_GroupCore : MonoBehaviour {
+public class IG_GroupCore : IC_Base {
     [HideInInspector] public Property property = new Property ();
     [System.Serializable] public class Property {
         public string currentState;

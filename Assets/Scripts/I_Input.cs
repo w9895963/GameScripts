@@ -22,7 +22,6 @@ public class I_Input : IC_SimpleInspector {
 
 
     public void OnEnable () {
-        data.actionIndex = -1;
         Collider2D triggerBox = setting.triggerBox;
         if (setting.target == Action.triggerBox) {
             if (triggerBox) {
@@ -54,17 +53,9 @@ public class I_Input : IC_SimpleInspector {
             }
         }
     }
-    public void OnDisable () {
-
-    }
-
 
     private void Exit () {
-        data.actionIndex = 0;
         enabled = false;
+        RunFinishedAction (0);
     }
-
-
-
-
 }

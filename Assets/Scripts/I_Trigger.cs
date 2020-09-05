@@ -16,14 +16,12 @@ public class I_Trigger : IC_Base {
 
     }
 
-     void OnEnable () {
-        data.actionIndex = -1;
+    void OnEnable () {
         data.tempInstance.Add (() => {
             GameObject[] targets = setting.targets;
             return setting.trggerZone.Ex_AddCollierEvent (
                 targets, onTriggerEnter: (o) => {
                     if (targets.Contains (o.gameObject)) {
-                        data.actionIndex = setting.triggerEnter;
                         if (!setting.allwaysOn) enabled = false;
                         else RunOnDisable ();
                     }
@@ -35,7 +33,6 @@ public class I_Trigger : IC_Base {
             return setting.trggerZone.Ex_AddCollierEvent (
                 targets, OnTriggerExit: (o) => {
                     if (targets.Contains (o.gameObject)) {
-                        data.actionIndex = setting.triggerExit;
                         if (!setting.allwaysOn) enabled = false;
                         else RunOnDisable ();
                     }
@@ -43,7 +40,7 @@ public class I_Trigger : IC_Base {
             );
         });
     }
-     void OnDisable () {
+    void OnDisable () {
         data.tempInstance.Destroy ();
     }
 

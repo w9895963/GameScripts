@@ -13,14 +13,16 @@ public class IC_FullInspector : IC_Base {
     [SerializeField] private new Behaviours Behaviours = new Behaviours ();
 
     public void OnValidate () {
-        data = Data;
-        behaviour = Behaviours;
-    }
-
-    public void UnpdateInspector () {
         Data = data;
         Behaviours = behaviour;
     }
+
+    public void UnpdateInspector () {
+        Debug.Log (000);
+        Data = data;
+        Data.shareData = data.shareData;
+    }
+
 
 
 }
