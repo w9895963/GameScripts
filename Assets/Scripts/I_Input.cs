@@ -27,12 +27,10 @@ public class I_Input : MonoBehaviour {
     }
     //********************
     public List<Object> tempObject = new List<Object> ();
-    private Image toplayerImage;
 
     //************************
 
     void OnEnable () {
-        toplayerImage = Gb.CanvasTopLayer;
         Collider2D triggerBox = setting.triggerBox;
         if (setting.action == Action.triggerBox) {
             if (triggerBox) {
@@ -51,26 +49,11 @@ public class I_Input : MonoBehaviour {
                     );
                 }
             }
-        } else if (setting.action == Action.globle) {
-
-            toplayerImage.enabled = true;
-            GameObject CanvasTopLayer = toplayerImage.gameObject;
-            if (setting.inputType.click) {
-                tempObject.Add (CanvasTopLayer.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
-                    SuccessInput ();
-                }));
-            }
-            if (setting.inputType.down) {
-                tempObject.Add (CanvasTopLayer.Ex_AddInputToTrigger (EventTriggerType.PointerDown, (d) => {
-                    SuccessInput ();
-                }));
-            }
         }
     }
 
     private void OnDisable () {
         tempObject.Destroy ();
-        if (toplayerImage) toplayerImage.enabled = false;
 
     }
 

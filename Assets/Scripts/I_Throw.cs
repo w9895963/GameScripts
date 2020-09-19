@@ -15,7 +15,7 @@ public class I_Throw : IC_Base {
 
 
     void OnEnable () {
-        Vector2 manP = Gb.MainCharactor.transform.position;
+        Vector2 manP = Gb._.mainCharactor.transform.position;
         setting.rigidBody.position = manP;
         Vector2 position = Pointer.current.position.ReadValue ().ScreenToWold ();
 

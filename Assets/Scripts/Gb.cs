@@ -5,41 +5,11 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class Gb : MonoBehaviour {
-    public enum Behaviour { update, download }
+    //*-----------------------Inspector
     public Behaviour behaviour = Behaviour.update;
+    [SerializeField] public Data upload = new Data ();
+    //*-----------------------Static
     public static Data _ = new Data ();
-    [SerializeField] public Data data = new Data ();
-    [System.Serializable] public class Data {
-        public Backpack backpack = new Backpack ();
-        public Render render = new Render ();
-        [System.Serializable] public class Render {
-            public Camera indicateCamera;
-        }
-
-        [System.Serializable] public class Pointer {
-            public Collider2D movingZone;
-        }
-
-        [System.Serializable] public class Backpack {
-            public M_BackPack obj;
-            public GameObject icon;
-
-        }
-
-    }
-    public M_PlayerManager mainCharactor;
-    public static M_PlayerManager MainCharactor;
-
-
-    public Text screenLog;
-    public static Text ScreenLog;
-
-
-
-    public Image canvasBackGround;
-    public static Image CanvasBackGround;
-    public Image canvasTopLayer;
-    public static Image CanvasTopLayer;
 
 
 
@@ -57,8 +27,8 @@ public class Gb : MonoBehaviour {
                 ApplyData ();
             }
         } else {
-            if (data != _) {
-                data = _;
+            if (upload != _) {
+                upload = _;
             }
         }
 
@@ -68,18 +38,30 @@ public class Gb : MonoBehaviour {
     //* Private Method
     private void ApplyData () {
 
-        MainCharactor = mainCharactor ? mainCharactor : MainCharactor;
-        ScreenLog = screenLog ? screenLog : ScreenLog;
-        CanvasBackGround = canvasBackGround ? canvasBackGround : CanvasBackGround;
-        CanvasTopLayer = canvasTopLayer ? canvasTopLayer : CanvasTopLayer;
-
-
-        if (data.backpack.obj) _.backpack.obj = data.backpack.obj;
-        if (data.backpack.icon) _.backpack.icon = data.backpack.icon;
-        if (data.render.indicateCamera) _.render.indicateCamera = data.render.indicateCamera;
+        if (upload.backpack.obj) _.backpack.obj = upload.backpack.obj;
+        if (upload.cursor) _.cursor = upload.cursor;
+        if (upload.backpack.icon) _.backpack.icon = upload.backpack.icon;
+        if (upload.render.indicateCamera) _.render.indicateCamera = upload.render.indicateCamera;
 
     }
+    //* Class Definition
+    public enum Behaviour { update, download }
 
+    [System.Serializable] public class Data {
+        public M_Cursor cursor;
+        public M_PlayerManager mainCharactor;
+        public Backpack backpack = new Backpack ();
+        public Render render = new Render ();
+        [System.Serializable] public class Render {
+            public Camera indicateCamera;
+        }
 
+        [System.Serializable] public class Backpack {
+            public M_BackPack obj;
+            public GameObject icon;
+
+        }
+
+    }
 
 }

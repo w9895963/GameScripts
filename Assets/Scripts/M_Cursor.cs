@@ -82,7 +82,7 @@ public class M_Cursor : MonoBehaviour {
 
 
     //* Public Method
-    public StateCs _State {
+    public StateCs State {
         set {
             state = value;
             animator.SetInteger ("State", (int) value);

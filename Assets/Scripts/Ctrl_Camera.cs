@@ -9,10 +9,10 @@ public class Ctrl_Camera : MonoBehaviour {
         public C1_Follow.Setting setting = new C1_Follow.Setting ();
 
     }
-    //*----------------------
     public Follow follow = new Follow ();
-    //*-----------------------
     [SerializeField, ReadOnly] private List<Object> temps = new List<Object> ();
+
+    //*---------------
     private void OnEnable () {
         if (follow.enabled) {
             temps.Add (

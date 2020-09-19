@@ -12,7 +12,7 @@ public class Gb_Action : MonoBehaviour {
     }
 
     public void _Gravity_Reverse () {
-        Gb.MainCharactor.ReverseGravity ();
+        Gb._.mainCharactor.ReverseGravity ();
     }
 
 

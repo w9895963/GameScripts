@@ -9,7 +9,9 @@ public class M_PlayerManager : MonoBehaviour {
     public Collider2D GrabBox = null;
 
 
+    private void Awake () {
 
+    }
     private void Reset () {
         moveComp = moveComp?moveComp : GetComponent<M_PlayerMove> ();
         gravityComp = gravityComp?gravityComp : GetComponent<M_Gravity> ();
@@ -31,3 +33,4 @@ public class M_PlayerManager : MonoBehaviour {
 
 
 }
+
