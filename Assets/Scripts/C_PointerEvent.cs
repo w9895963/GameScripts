@@ -14,7 +14,7 @@ public class C_PointerEvent : MonoBehaviour {
     public Events events = new Events ();
     public PointerData data = new PointerData ();
     public float pointerDownTime = 0;
-    public float clickAllowTime = 0.1f;
+    public float clickAllowTime = 0.3f;
     public Component createBy = null;
 
 
@@ -34,7 +34,7 @@ public class C_PointerEvent : MonoBehaviour {
                 events.onPressDown.Invoke (data);
             } else {
 
-                if (p != pressBeginPosition) {
+                if (p != pressBeginPosition & Time.unscaledTime - pointerDownTime >= clickAllowTime) {
                     if (onDrag == false) {
                         onDrag = true;
                         events.onDragBegin.Invoke (data);
@@ -64,7 +64,13 @@ public class C_PointerEvent : MonoBehaviour {
             }
         }
 
+
         if (p != lastPointerPosition & !pressDown & lastPointerPositionSetup) {
+            events.onMoveNotDrag.Invoke (data);
+        }
+
+
+        if (p != lastPointerPosition & lastPointerPositionSetup) {
             events.onMove.Invoke (data);
         }
 
@@ -103,6 +109,9 @@ public class C_PointerEvent : MonoBehaviour {
             case PointerEventType.onDrag:
                 events.onDrag.AddListener (action);
                 break;
+            case PointerEventType.onMoveNotDrag:
+                events.onMoveNotDrag.AddListener (action);
+                break;
             case PointerEventType.onMove:
                 events.onMove.AddListener (action);
                 break;
@@ -120,6 +129,7 @@ public class C_PointerEvent : MonoBehaviour {
         public UnityEvent<PointerData> onDragEnd = new UnityEvent<PointerData> ();
         public UnityEvent<PointerData> onDrag = new UnityEvent<PointerData> ();
         public UnityEvent<PointerData> onClick = new UnityEvent<PointerData> ();
+        public UnityEvent<PointerData> onMoveNotDrag = new UnityEvent<PointerData> ();
         public UnityEvent<PointerData> onMove = new UnityEvent<PointerData> ();
     }
 }
@@ -134,6 +144,7 @@ public enum PointerEventType {
     onDragEnd,
     onDrag,
     onClick,
+    onMoveNotDrag,
     onMove
 }
 

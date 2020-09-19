@@ -61,11 +61,6 @@ public class Fn : Object {
 
 
 
-    public static void WaitToCall (float time, UnityAction call) {
-        GameObject obj = new GameObject ();
-        Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
-        timer.WaitToCall (time, call);
-    }
 
 
     public static void AddOneTimeListener (UnityEvent[] eventList, UnityAction atn) {
@@ -262,17 +257,18 @@ public static class _Extension_Fn {
         if (color != default) point.GetComponent<SpriteRenderer> ().color = color;
         return point;
     }
-
-
-
-
-    public static void Destroy (this Fn fn, Object[] objects) {
+    public static void Destroy (this Fn fn, params Object[] objects) {
         foreach (var obj in objects) {
             if (obj != null) GameObject.Destroy (obj);
         }
     }
 
-
+    public static GameObject WaitToCall (this Fn fn, float time, UnityAction call) {
+        GameObject obj = new GameObject ("Timer");
+        Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
+        timer.WaitToCall (time, call);
+        return obj;
+    }
 
 
 }

@@ -5,17 +5,35 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class Gb : MonoBehaviour {
+    public enum Behaviour { update, download }
+    public Behaviour behaviour = Behaviour.update;
+    public static Data _ = new Data ();
+    [SerializeField] public Data data = new Data ();
+    [System.Serializable] public class Data {
+        public Backpack backpack = new Backpack ();
+        public Render render = new Render ();
+        [System.Serializable] public class Render {
+            public Camera indicateCamera;
+        }
+
+        [System.Serializable] public class Pointer {
+            public Collider2D movingZone;
+        }
+
+        [System.Serializable] public class Backpack {
+            public M_BackPack obj;
+            public GameObject icon;
+
+        }
+
+    }
     public M_PlayerManager mainCharactor;
     public static M_PlayerManager MainCharactor;
 
-    public Camera helperCamera;
-    public static Camera HelperCamera;
 
     public Text screenLog;
     public static Text ScreenLog;
 
-    public M_BackPack backpack;
-    public static M_BackPack Backpack;
 
 
     public Image canvasBackGround;
@@ -25,41 +43,43 @@ public class Gb : MonoBehaviour {
 
 
 
-    public GameObject backpackButton;
-    public static GameObject BackpackButton;
-
-    public static C_StateMachine<PlayMode> PlayModeManager = new C_StateMachine<PlayMode> ();
-
-
 
     private void Awake () {
-        ApplyData ();
-    }
-
-    private void Start () {
-        PlayModeManager.SetState (PlayMode.noramal);
-        PlayModeManager.InvokeEnterEvent (PlayMode.noramal);
-    }
-
-    private void Reset () {
-        mainCharactor = GetComponent<M_PlayerManager> ();
-        backpack = GetComponent<M_BackPack> ();
+        if (behaviour == Behaviour.update) {
+            ApplyData ();
+        }
     }
 
 
-    //*Private
+    private void OnValidate () {
+        if (behaviour == Behaviour.update) {
+            if (!UnityEditor.EditorApplication.isPlaying) {
+                ApplyData ();
+            }
+        } else {
+            if (data != _) {
+                data = _;
+            }
+        }
+
+    }
+
+
+    //* Private Method
     private void ApplyData () {
-        HelperCamera = helperCamera ? helperCamera : HelperCamera;
+
         MainCharactor = mainCharactor ? mainCharactor : MainCharactor;
         ScreenLog = screenLog ? screenLog : ScreenLog;
-        Backpack = backpack ? backpack : Backpack;
         CanvasBackGround = canvasBackGround ? canvasBackGround : CanvasBackGround;
         CanvasTopLayer = canvasTopLayer ? canvasTopLayer : CanvasTopLayer;
-        BackpackButton = backpackButton ? backpackButton : BackpackButton;
+
+
+        if (data.backpack.obj) _.backpack.obj = data.backpack.obj;
+        if (data.backpack.icon) _.backpack.icon = data.backpack.icon;
+        if (data.render.indicateCamera) _.render.indicateCamera = data.render.indicateCamera;
+
     }
 
-    public enum PlayMode {
-        noramal
-    }
+
 
 }

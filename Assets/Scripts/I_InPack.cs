@@ -9,11 +9,12 @@ public class I_InPack : IC_Base {
 
 
 
-     void OnEnable () {
+    void OnEnable () {
 
-        Gb.Backpack.PutinStorage (this);
+        // Gb.Backpack.PutinStorage (this);
+        Gb._.backpack.obj.PutinStorage (this);
     }
-     void OnDisable () {
+    void OnDisable () {
 
 
     }

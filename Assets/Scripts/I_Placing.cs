@@ -32,7 +32,7 @@ public class I_Placing : IC_Base {
 
 
         data.tempInstance.AddIfEmpty (0,
-            () => Fn._.AddPointerEvent (PointerEventType.onMove, (d) => {
+            () => Fn._.AddPointerEvent (PointerEventType.onMoveNotDrag, (d) => {
                 setting.targetPosition = d.position_Screen.ScreenToWold ();
             })
         );

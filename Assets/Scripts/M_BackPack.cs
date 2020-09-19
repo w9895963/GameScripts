@@ -10,7 +10,7 @@ public class M_BackPack : MonoBehaviour {
 
     private void OnEnable () {
         iconEvent.Destroy ();
-        iconEvent = Gb.BackpackButton.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
+        iconEvent = Gb._.backpack.icon.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
             PutoutStorage (0);
         });
     }

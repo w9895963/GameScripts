@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class C_StateMachine<T> {
+public class C_StateMachine<T> where T : System.Enum {
     private List<StateObj> states = new List<StateObj> ();
     private StateObj currentState;
 

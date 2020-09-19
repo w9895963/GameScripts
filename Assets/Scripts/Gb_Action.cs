@@ -7,7 +7,8 @@ public class Gb_Action : MonoBehaviour {
 
 
     public void _SetHelperCameraEnable (bool enable) {
-        Gb.HelperCamera.enabled = enable;
+        // Gb.HelperCamera.enabled = enable;
+        Gb._.render.indicateCamera.enabled = enable;
     }
 
     public void _Gravity_Reverse () {

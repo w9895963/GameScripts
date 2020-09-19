@@ -77,22 +77,22 @@ public class C_ColliderEvent : MonoBehaviour {
         } else {
             switch (typ) {
                 case EventType.OnCollisionEnter:
-                    Fn.WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
+                    Fn._.WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
                     break;
                 case EventType.OnCollisionStay:
-                    Fn.WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
+                    Fn._.WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
                     break;
                 case EventType.OnCollisionExit:
-                    Fn.WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
+                    Fn._.WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
                     break;
                 case EventType.OnTriggerEnter:
-                    Fn.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
+                    Fn._.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
                     break;
                 case EventType.OnTriggerStay:
-                    Fn.WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
+                    Fn._.WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
                     break;
                 case EventType.OnTriggerExit:
-                    Fn.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
+                    Fn._.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
                     break;
             }
         }

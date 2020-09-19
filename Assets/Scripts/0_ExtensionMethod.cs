@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Globle;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -82,6 +83,9 @@ public static class ExtensionMethod {
     public static Vector2 ScreenToWold (this Vector2 vector) {
         return Camera.main.ScreenToWorldPoint (vector);
     }
+    public static Vector2 WoldToScreen (this Vector2 vector) {
+        return Camera.main.WorldToScreenPoint (vector);
+    }
     public static Vector2 Rotate (this Vector2 vector, float angle) {
         return Quaternion.AngleAxis (angle, Vector3.forward) * vector;
     }
@@ -104,6 +108,9 @@ public static class ExtensionMethod {
     }
     public static float Clamp (this float f, float min, float max) {
         return Mathf.Clamp (f, min, max);
+    }
+    public static Vector2 ToVector2 (this float fl) {
+        return new Vector2 (fl, fl);
     }
 
 
@@ -220,9 +227,9 @@ public static class ExtensionMethod {
             }
         }
     }
-    public static T[] GetComponents<T> (this GameObject[] source) {
+    public static T[] GetComponents<T> (this GameObject[] gameObject) {
         List<T> list = new List<T> ();
-        source.ForEach ((o) => {
+        gameObject.ForEach ((o) => {
             T t = o.GetComponent<T> ();
             if (t != null) {
                 list.Add (t);
@@ -230,15 +237,22 @@ public static class ExtensionMethod {
         });
         return list.ToArray ();
     }
-    public static T[] GetComponents<T> (this List<GameObject> source) {
+    public static T[] GetComponents<T> (this List<GameObject> gameObjectList) {
         List<T> list = new List<T> ();
-        source.ForEach ((o) => {
+        gameObjectList.ForEach ((o) => {
             T t = o.GetComponent<T> ();
             if (t != null) {
                 list.Add (t);
             }
         });
         return list.ToArray ();
+    }
+
+    public static GameObject AddGameObject (this GameObject gameObject, string name) {
+        GameObject obj = new GameObject (name);
+        obj.transform.parent = gameObject.transform;
+        return obj;
+
     }
 
 
@@ -264,6 +278,21 @@ public static class ExtensionMethod {
     }
 
 
+    public static GameObjectMethod _ (this GameObject gameObject) {
+        return new GameObjectMethod (gameObject);
+    }
 
 
+
+
+}
+
+
+namespace Globle {
+    public class GameObjectMethod {
+        public GameObject gameObject;
+        public GameObjectMethod (GameObject gameObject) {
+            this.gameObject = gameObject;
+        }
+    }
 }
