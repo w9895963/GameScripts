@@ -10,7 +10,6 @@ public class Ctrl_Camera : MonoBehaviour {
 
     }
     //*----------------------
-    public Preset preset = new Preset ();
     public Follow follow = new Follow ();
     //*-----------------------
     [SerializeField, ReadOnly] private List<Object> temps = new List<Object> ();
