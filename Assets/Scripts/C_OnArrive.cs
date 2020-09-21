@@ -106,7 +106,7 @@ public class C_OnArrive : MonoBehaviour {
 
 
 }
-public static class _Extension_M_OnArrive {
+public static class Extension_M_OnArrive {
     public static C_OnArrive OnArrive (this Fn fn, GameObject gameObject,
         Vector2 position, Vector2 distanceDirection = default,
         float distance = 0.01f, bool autoDestroy = true,

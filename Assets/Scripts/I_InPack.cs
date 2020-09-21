@@ -10,9 +10,9 @@ public class I_InPack : IC_Base {
 
 
     void OnEnable () {
+        M_BackPack backpack = FindObjectOfType<M_BackPack> ();
 
-        // Gb.Backpack.PutinStorage (this);
-        Gb._.backpack.obj.PutinStorage (this);
+        backpack.PutinStorage (this);
     }
     void OnDisable () {
 

@@ -23,7 +23,7 @@ public class C_OrderRun {
 
 
 
-public static class _Extension_C_OrderRun {
+public static class Extension_C_OrderRun {
     public static void OrderRun (this Fn fn, UnityAction action) {
         C_OrderRun.OrderRun (action);
     }

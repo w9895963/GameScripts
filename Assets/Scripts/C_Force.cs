@@ -104,7 +104,7 @@ public class C_Force : MonoBehaviour {
 }
 
 
-public static class _Extension_C_Force {
+public static class Extension_C_Force {
     public static C_Force Ex_AddForce (this Component component,
             Vector2 force,
             float maxSpeed,

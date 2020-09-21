@@ -158,7 +158,7 @@ public class PointerData {
 }
 
 
-public static class _Extention_M_PointerEvent {
+public static class Extension_M_PointerEvent {
     public static GameObject Ex_AddPointerEvent (this Component component,
         PointerEventType type,
         UnityAction<PointerData> action) {

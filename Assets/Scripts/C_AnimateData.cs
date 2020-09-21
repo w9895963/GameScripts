@@ -109,7 +109,7 @@ public class C_AnimateData : MonoBehaviour {
 }
 
 
-public static class _Extiontion_C_AnimateData {
+public static class Extension_C_AnimateData {
     public static GameObject Ex_AnimateFloat (this Component obj,
             float floatStart, float floatEnd, float time, AnimationCurve curve = null,
             UnityAction<float> onAnimate = null,

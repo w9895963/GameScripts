@@ -26,7 +26,7 @@ public class I_Placing : IC_Base {
     }
 
     void Update () {
-        Fn._.DrawLineOnScreen (Gb._.mainCharactor.transform.position, setting.targetPosition, 0.01f);
+        Fn._.DrawLine (FindObjectOfType<M_PlayerManager> ().transform.position, setting.targetPosition, 0.01f);
     }
     void OnEnable () {
 

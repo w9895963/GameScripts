@@ -89,7 +89,7 @@ public class C_MoveTo : MonoBehaviour {
 }
 
 
-public static class _Extiontion_C_MoveTo {
+public static class Extension_C_MoveTo {
     public static void Ex_Moveto (this GameObject gameObject, Vector2 targetPosition,
             float time = 0, UnityAction callback = null, AnimationCurve moveCurve = default) =>
 

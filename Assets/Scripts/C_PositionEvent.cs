@@ -1,84 +1,114 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Globle;
+using Global;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class C_PositionEvent : MonoBehaviour {
     [System.Serializable] public class Setting {
-        public UpdateMethod updateMethod = UpdateMethod.Update;
-        public UnityEvent<PositionEventData> onPositionChanged = new UnityEvent<PositionEventData> ();
-
+        public UpdateMethod updateMethod = UpdateMethod.FixedUpdate;
+        public UnityEvent<PositionEventData> moving = new UnityEvent<PositionEventData> ();
+        public UnityEvent<PositionEventData> stay = new UnityEvent<PositionEventData> ();
+        public UnityEvent<PositionEventData> startMove = new UnityEvent<PositionEventData> ();
+        public UnityEvent<PositionEventData> endMove = new UnityEvent<PositionEventData> ();
     }
+
     public Setting setting = new Setting ();
 
     //*----------------------
-    private Vector3? lastLateUpdatePosition;
-    private Vector3? lastUpdatePosition;
-    private Vector3? lastFixedUpdatePosition;
+    private Vector3? lastPosition;
+    private bool moving;
 
+    //*---------------------------
     void Start () {
-        lastLateUpdatePosition = transform.position;
-        lastUpdatePosition = transform.position;
-        lastFixedUpdatePosition = transform.position;
+        lastPosition = transform.position;
     }
 
     void Update () {
         if (setting.updateMethod == UpdateMethod.Update) {
-            if (lastUpdatePosition != transform.position) {
-                setting.onPositionChanged.Invoke (new PositionEventData (transform.position, lastUpdatePosition));
-            }
-
-            lastUpdatePosition = transform.position;
+            MainUpdate ();
         }
     }
-    private void FixedUpdate () {
+
+    void FixedUpdate () {
         if (setting.updateMethod == UpdateMethod.FixedUpdate) {
-            if (lastFixedUpdatePosition != transform.position) {
-                setting.onPositionChanged.Invoke (new PositionEventData (transform.position, lastFixedUpdatePosition));
-            }
-
-            lastFixedUpdatePosition = transform.position;
+            MainUpdate ();
         }
     }
 
-    private void LateUpdate () {
-
+    void LateUpdate () {
         if (setting.updateMethod == UpdateMethod.LateUpdate) {
-            if (lastLateUpdatePosition != transform.position) {
-                setting.onPositionChanged.Invoke (new PositionEventData (transform.position, lastLateUpdatePosition));
-            }
-
-            lastLateUpdatePosition = transform.position;
+            MainUpdate ();
         }
     }
 
 
+
+    //* Private Method
+    private void MainUpdate () {
+        Vector3 position = transform.position;
+        Setting s = setting;
+
+        PositionEventData evData = PositionEventData.Create ((d) => {
+            d.position = position;
+            d.lastPosition = lastPosition;
+            d.UpdateMethod = s.updateMethod;
+            d.deltaTime = (s.updateMethod == UpdateMethod.FixedUpdate) ? Time.fixedDeltaTime : Time.deltaTime;
+        });
+
+        if (lastPosition != position) {
+            evData.Moving = true;
+            if (moving == false) {
+                s.startMove.Invoke (evData);
+            }
+            moving = true;
+            s.moving.Invoke (evData);
+        } else {
+            evData.Moving = false;
+            if (moving == true) {
+                s.endMove.Invoke (evData);
+            }
+            moving = false;
+            s.stay.Invoke (evData);
+        }
+
+        lastPosition = position;
+    }
 
 
 }
 
 
-public static class _Extionsiotn_C_GameObjectEvent {
-    public static C_PositionEvent Ex_AddPositionEvent (this GameObject gameObject,
-        UpdateMethod updateMethod,
-        UnityAction<PositionEventData> action
+public static class Extension_C_GameObjectEvent {
+    public static C_PositionEvent AddPositionEvent (this GameObjectExMethod source,
+        UnityAction<C_PositionEvent.Setting> setting = default
     ) { //--------------------------
-        C_PositionEvent comp = gameObject.AddComponent<C_PositionEvent> ();
-        comp.setting.onPositionChanged.AddListener (action);
-        comp.setting.updateMethod = updateMethod;
+        C_PositionEvent comp = source.gameObject.AddComponent<C_PositionEvent> ();
+        setting (comp.setting);
 
         return comp;
     }
 }
 
-namespace Globle {
+namespace Global {
     public enum UpdateMethod { Update, LateUpdate, FixedUpdate }
 
 
     public class PositionEventData {
         public Vector3 position;
         public Vector3? lastPosition;
+        public float deltaTime;
+        public bool Moving;
+        public UpdateMethod UpdateMethod = default;
+
+        public PositionEventData (UnityAction<PositionEventData> action) {
+
+        }
+        public static PositionEventData Create (UnityAction<PositionEventData> action) {
+            PositionEventData ins = new PositionEventData ();
+            action (ins);
+            return ins;
+        }
 
         public PositionEventData (
             Vector3 position,
@@ -87,6 +117,8 @@ namespace Globle {
             this.position = position;
             this.lastPosition = lastPosition;
         }
+
+        public PositionEventData () { }
     }
 
 }

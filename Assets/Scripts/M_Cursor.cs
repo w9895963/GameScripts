@@ -93,3 +93,13 @@ public class M_Cursor : MonoBehaviour {
 
 
 }
+
+
+namespace Global {
+    public static class CursorCtrl {
+        public static void ShowSystemCursor (bool enabled) {
+            UnityEngine.Cursor.visible = enabled;
+        }
+    }
+
+}

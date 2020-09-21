@@ -16,8 +16,9 @@ public class Ctrl_Camera : MonoBehaviour {
     private void OnEnable () {
         if (follow.enabled) {
             temps.Add (
-                gameObject._ ().Follow (follow.setting)
+                gameObject._ExMethod ().Follow (follow.setting)
             );
+
 
 
         }
@@ -38,8 +39,10 @@ public class Ctrl_Camera : MonoBehaviour {
 
 }
 
-namespace Globle {
+namespace Global {
     public static class CameraCtrl {
-
+        public static void ShowSystemCursor (bool enabled) {
+            UnityEngine.Cursor.visible = enabled;
+        }
     }
 }

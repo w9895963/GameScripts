@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using Global;
 
 public class C1_TargetForce : MonoBehaviour {
 
@@ -172,7 +173,7 @@ public class C1_TargetForce : MonoBehaviour {
 }
 
 
-public static class _Extension_FS_PointForce {
+public static class Extension_FS_PointForce {
     public static C1_TargetForce Ex_AddTargetForce (this GameObject gameObject,
             Vector2 targetPosition,
             float force,

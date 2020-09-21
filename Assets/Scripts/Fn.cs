@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Global;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -58,7 +60,6 @@ public class Fn : Object {
         l.Remove (obj);
         return l.ToArray ();
     }
-
 
 
 
@@ -179,9 +180,10 @@ public class Fn : Object {
     public class Curve {
         public float inputMax = 1;
         public float inputMin = 0;
-        public float outputMax = 10;
+        public float outputMax = 1;
         public float outputMin = 0;
         public AnimationCurve curve = ZeroOneCurve;
+
 
         public static AnimationCurve ZeroOneCurve {
             get {
@@ -202,8 +204,18 @@ public class Fn : Object {
 
         public float Evaluate (float index) {
             float i = (index - inputMin) / (inputMax - inputMin);
-            // pr
             return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
+        }
+        public static float Evaluate (float index, float inputMin, float inputMax,
+            float outputMin, float outputMax, AnimationCurve curve = null
+        ) {
+            Curve cur = new Curve ();
+            if (curve != null) cur.curve = curve;
+            cur.inputMax = inputMax;
+            cur.inputMin = inputMin;
+            cur.outputMin = outputMin;
+            cur.outputMax = outputMax;
+            return cur.Evaluate (index);
         }
     }
 
@@ -211,7 +223,8 @@ public class Fn : Object {
 
 
 }
-public static class _Extension_Fn {
+public static class Extension_Fn {
+
     //*Event Trigger
     public static EventTrigger.Entry AddEventToTrigger (this Fn fn, GameObject obj, EventTriggerType type, UnityAction<BaseEventData> action) {
         EventTrigger eventTrigger = obj.GetComponent<EventTrigger> ();
@@ -229,20 +242,24 @@ public static class _Extension_Fn {
         trigger.triggers.Remove (entry);
     }
 
-    public static GameObject DrawLineOnScreen (this Fn fn, Vector2 start, Vector2 end, float time = 0.03f) {
-        GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
-        GameObject lineNew = GameObject.Instantiate (line);
-        if (time >= 0) lineNew.Ex_AutoDestroy (time);
-        lineNew.transform.position = start;
+    public static GameObject DrawLine (this Fn fn, Vector2 start, Vector2 end, float time = 0.03f) {
+        if ((start - end).magnitude > 0.1f) {
+            GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
+            GameObject lineNew = GameObject.Instantiate (line);
+            if (time >= 0) lineNew.Ex_AutoDestroy (time);
+            lineNew.transform.position = start;
 
-        SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
-        Spline spline = shape.spline;
+            SpriteShapeController shape = lineNew.GetComponent<SpriteShapeController> ();
+            Spline spline = shape.spline;
 
-        spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
-        spline.SetHeight (0, 0.2f);
-        spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
-        spline.SetHeight (1, 0.2f);
-        return lineNew;
+            spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
+            spline.SetHeight (0, 0.2f);
+            spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
+            spline.SetHeight (1, 0.2f);
+            return lineNew;
+        } else {
+            return null;
+        }
     }
     public static GameObject DrawPoint (this Fn fn, Vector2 position,
         float sizePixel = 6f, float stayTime = 0.03f, Color color = default) {
@@ -271,15 +288,21 @@ public static class _Extension_Fn {
     }
 
 
+
+
 }
 
-[System.Serializable] public class RefVector2 {
-    public Vector2 value;
 
-    public RefVector2 (Vector2 vector = default) { value = vector; }
-}
+namespace Global {
+    [System.Serializable] public class RefVector2 {
+        public Vector2 value;
 
-[System.Serializable] public class RefFloat {
-    public float value;
-    public RefFloat (float value = 0) { this.value = value; }
+        public RefVector2 (Vector2 vector = default) { value = vector; }
+    }
+
+    [System.Serializable] public class RefFloat {
+        public float value;
+        public RefFloat (float value = 0) { this.value = value; }
+    }
+
 }

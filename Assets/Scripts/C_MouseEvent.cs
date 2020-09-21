@@ -147,7 +147,7 @@ public class MouseData {
 }
 
 
-public static class _Extention_M_MouseEvent {
+public static class Extension_M_MouseEvent {
     public static GameObject Ex_AddMouseEvent (this Component component,
         MouseEventType type,
         UnityAction<MouseData> action) {

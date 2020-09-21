@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Globle;
+using Global;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -22,7 +22,7 @@ public static class ExtensionMethod {
 
 
 
-
+    //*Array & List
     public static void Add<T> (this List<T> source, int index, T newMember) {
         if (source.Count <= index) {
             for (int i = source.Count; i < index + 1; i++) {
@@ -31,6 +31,12 @@ public static class ExtensionMethod {
         }
         source[index] = newMember;
     }
+    public static T[] RemoveAll<T> (this T[] source, System.Predicate<T> match) {
+        List<T> lists = source.ToList ();
+        lists.RemoveAll (match);
+        return lists.ToArray ();
+    }
+
     public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
         if (source.Count <= index) {
             source.Add (index, new T ());
@@ -72,7 +78,7 @@ public static class ExtensionMethod {
     }
 
 
-
+    //* Vector2
 
     public static Vector2 ProjectOnPlane (this Vector2 vector, Vector2 normal) {
         return (Vector2) Vector3.ProjectOnPlane (vector, normal);
@@ -89,8 +95,32 @@ public static class ExtensionMethod {
     public static Vector2 Rotate (this Vector2 vector, float angle) {
         return Quaternion.AngleAxis (angle, Vector3.forward) * vector;
     }
+    public static Vector2 Reverse (this Vector2 vector) {
+        return vector * -1;
+    }
+
+    //*Vector2?
+    public static Vector2 ToVector2 (this Vector2? vector) {
+        return vector == null?Vector2.zero: (Vector2) vector;
+    }
+    public static bool NotNull (this Vector2? vector) {
+        return vector == null?false : true;
+    }
+    public static bool IsNull (this Vector2? vector) {
+        return vector == null?true : false;
+    }
+
+    //*Vector3
+    public static Vector2 ToVector2 (this Vector3 vector) {
+        return (Vector2) vector;
+    }
+    public static Vector2 ToVector2 (this Vector3? vector) {
+        return vector != null?(Vector2) vector : Vector2.zero;
+    }
 
 
+
+    //*Float
     public static float Min (this float f, float compareWith) {
         return f < compareWith ? f : compareWith;
     }
@@ -134,57 +164,6 @@ public static class ExtensionMethod {
         EventTrigger.Entry entry = new EventTrigger.Entry ();
         entry.eventID = type;
         entry.callback.AddListener (action);
-        trigger.triggers.Add (entry);
-        return trigger;
-    }
-
-    public static EventTrigger Ex_AddInputToTriggerOnece (this Collider2D collider,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action) {
-
-
-
-        EventTrigger trigger = collider.gameObject.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener ((d) => {
-            action (d);
-            GameObject.Destroy (trigger);
-        });
-        trigger.triggers.Add (entry);
-        return trigger;
-    }
-    public static EventTrigger Ex_AddInputToTriggerOnece (this Component comp,
-        GameObject gameobject,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action) {
-
-
-
-        EventTrigger trigger = gameobject.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener ((d) => {
-            action (d);
-            GameObject.Destroy (trigger);
-        });
-        trigger.triggers.Add (entry);
-        return trigger;
-    }
-    public static EventTrigger Ex_AddInputToTriggerOnece (this Component comp,
-        Collider2D targetCollider,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action) {
-
-
-
-        EventTrigger trigger = targetCollider.gameObject.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener ((d) => {
-            action (d);
-            GameObject.Destroy (trigger);
-        });
         trigger.triggers.Add (entry);
         return trigger;
     }
@@ -248,7 +227,7 @@ public static class ExtensionMethod {
         return list.ToArray ();
     }
 
-    public static GameObject AddGameObject (this GameObject gameObject, string name) {
+    public static GameObject AddChildren (this GameObject gameObject, string name) {
         GameObject obj = new GameObject (name);
         obj.transform.parent = gameObject.transform;
         return obj;
@@ -258,6 +237,10 @@ public static class ExtensionMethod {
 
     public static void Set2dPosition (this Transform transform, Vector2 position) {
         transform.position = new Vector3 (position.x, position.y, transform.position.z);
+    }
+    public static void Set2dPosition (this GameObject gameObject, Vector2? p) {
+        Vector2 position = p.ToVector2 ();
+        gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
     }
     public static void SetTransparent (this SpriteRenderer render, float alpha) {
         Color color = render.color;
@@ -277,22 +260,53 @@ public static class ExtensionMethod {
         return fixedJointComp;
     }
 
-
-    public static GameObjectMethod _ (this GameObject gameObject) {
-        return new GameObjectMethod (gameObject);
+    //*--------------------------------------------------------
+    public static GameObjectExMethod _ExMethod (this GameObject gameObject) {
+        return new GameObjectExMethod (gameObject);
     }
 
 
 
+    public static Collider2dExMethod _ExMethod (this Collider2D collider) {
+        return new Collider2dExMethod (collider);
+    }
 
 }
 
-
-namespace Globle {
-    public class GameObjectMethod {
+namespace Global {
+    public class GameObjectExMethod {
         public GameObject gameObject;
-        public GameObjectMethod (GameObject gameObject) {
+        public GameObjectExMethod (GameObject gameObject) {
             this.gameObject = gameObject;
         }
     }
+
+    public class Collider2dExMethod {
+        private Collider2D source;
+        public Collider2dExMethod (Collider2D collider) {
+            source = collider;
+        }
+        //*--------------------------
+        public Vector2? ClosestPointToLine (Vector2 position, Vector2 direction) {
+            Vector2? result = null;
+            int sourceLayer = source.gameObject.layer;
+            source.gameObject.layer = Layer.tempLayer.Index;
+
+
+            RaycastHit2D hit;
+            hit = Physics2D.Raycast (position, direction, Mathf.Infinity, Layer.tempLayer.Mask);
+            if (hit != default) {
+                result = hit.point;
+            } else {
+                hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, Layer.tempLayer.Mask);
+                if (hit != default) {
+                    result = hit.point;
+                }
+            }
+
+            source.gameObject.layer = sourceLayer;
+            return result;
+        }
+    }
+
 }

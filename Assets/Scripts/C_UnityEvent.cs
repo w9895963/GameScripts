@@ -13,7 +13,7 @@ public class C_UnityDefaultEvent : MonoBehaviour {
 }
 
 
-public static class _Extension_C_UnityEvent {
+public static class Extension_C_UnityEvent {
     public static C_UnityDefaultEvent Ex_AddDestroyEvent (this GameObject obj, UnityAction onDestroy) {
         C_UnityDefaultEvent comp = obj.AddComponent<C_UnityDefaultEvent> ();
         comp.onDestroy.AddListener (onDestroy);

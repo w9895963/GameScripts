@@ -13,7 +13,7 @@ public class M_CursorEvent : MonoBehaviour {
     }
     private void OnEnable () {
         if (trigger) {
-            M_Cursor cursorCtrl = Gb._.cursor;
+            M_Cursor cursorCtrl = FindObjectOfType<M_Cursor> ();
             EventTrigger eve;
             eve = trigger.Ex_AddInputToTrigger (EventTriggerType.PointerEnter, (d) => {
                 cursorCtrl.State = cursorState;

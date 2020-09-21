@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,7 +11,8 @@ public class M_BackPack : MonoBehaviour {
 
     private void OnEnable () {
         iconEvent.Destroy ();
-        iconEvent = Gb._.backpack.icon.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
+        GameObject backpackIcon = Fn._.FindGlobalObject (GlobalObject.BackpackIcon);
+        iconEvent = backpackIcon.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
             PutoutStorage (0);
         });
     }

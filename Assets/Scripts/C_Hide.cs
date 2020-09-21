@@ -27,7 +27,7 @@ public class C_Hide : MonoBehaviour {
 
 
 
-public static class _Extension_C_Hide {
+public static class Extension_C_Hide {
     public static C_Hide Ex_Hide (this GameObject gameObject, Object callBy = null) {
         C_Hide comp = gameObject.AddComponent<C_Hide> ();
         comp.createBy = callBy;

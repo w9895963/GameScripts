@@ -176,7 +176,7 @@ public class C_ColliderEvent : MonoBehaviour {
 }
 
 
-public static class _Extension_C_ColliderEvent {
+public static class Extension_C_ColliderEvent {
     public static C_ColliderEvent Ex_AddCollierEvent (this Collider2D collider,
             GameObject[] targetObjects = null,
             UnityAction<Collider2D> onTriggerEnter = null,

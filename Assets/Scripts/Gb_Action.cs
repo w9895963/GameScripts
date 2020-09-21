@@ -7,12 +7,11 @@ public class Gb_Action : MonoBehaviour {
 
 
     public void _SetHelperCameraEnable (bool enable) {
-        // Gb.HelperCamera.enabled = enable;
-        Gb._.render.indicateCamera.enabled = enable;
+        Fn._.FindGlobalObject (Global.GlobalObject.IndicatorCamera).GetComponent<Camera> ().enabled = enable;
     }
 
     public void _Gravity_Reverse () {
-        Gb._.mainCharactor.ReverseGravity ();
+        FindObjectOfType<M_PlayerManager> ().ReverseGravity ();
     }
 
 

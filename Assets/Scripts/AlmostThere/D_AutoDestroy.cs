@@ -36,7 +36,7 @@ public class D_AutoDestroy : MonoBehaviour {
 }
 
 
-public static class _Extension_D_AutoDestroy {
+public static class Extension_D_AutoDestroy {
     public static D_AutoDestroy AutoDestroy (this Fn fn, GameObject gameObject, float time) =>
         D_AutoDestroy.AutoDestroy (gameObject, time);
     public static D_AutoDestroy Ex_AutoDestroy (this GameObject gameObject, float time) =>
