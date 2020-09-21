@@ -54,7 +54,7 @@ public class C_Force : MonoBehaviour {
     [System.Serializable]
     public class SpeedForceCurve {
         public bool enable = false;
-        public AnimationCurve curve = Fn.Curve.OneZeroCurve;
+        public AnimationCurve curve = Global.Curve.OneZeroCurve;
         public float maxSpeed = 5f;
 
         public void Set (bool enable, AnimationCurve curve = default, float maxSpeed = 0) {

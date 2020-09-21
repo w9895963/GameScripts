@@ -163,7 +163,7 @@ public class C1_TargetForce : MonoBehaviour {
     [System.Serializable]
     public class ForceCurve {
         public bool enable = false;
-        public AnimationCurve distanceCurve = Fn.Curve.ZeroOneCurve;
+        public AnimationCurve distanceCurve = Global.Curve.ZeroOneCurve;
         public float maxDistance = 1f;
     }
 

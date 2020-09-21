@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEngine;
 using static ExtensionMethod;
 
@@ -10,7 +11,7 @@ public class FS_SoftSpeedLimit : MonoBehaviour {
     [SerializeField]
     private bool ignoreMass = true;
     [SerializeField]
-    private Fn.Curve SpeedToResistForceCurve = new Fn.Curve ();
+    private Curve SpeedToResistForceCurve = new Curve ();
     [SerializeField, ReadOnly]
     private Vector2 forceAdd;
     [SerializeField, ReadOnly]

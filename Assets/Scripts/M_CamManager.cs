@@ -100,7 +100,7 @@ public class M_CamManager : MonoBehaviour {
     [System.Serializable]
     public class MoveToProp {
         public float time = 0;
-        public AnimationCurve moveCurve = Fn.Curve.ZeroOneCurve;
+        public AnimationCurve moveCurve = Global.Curve.ZeroOneCurve;
         [ReadOnly] public Vector2 target = default;
         public Test test = new Test ();
         [System.Serializable]
@@ -127,7 +127,7 @@ public class M_CamManager : MonoBehaviour {
         public float size;
         public Test test = new Test ();
         public float animationTime = 0;
-        public AnimationCurve curve = Fn.Curve.ZeroOneCurve;
+        public AnimationCurve curve = Global.Curve.ZeroOneCurve;
         [System.Serializable]
         public class Test {
             public bool testZoom = false;

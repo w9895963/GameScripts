@@ -7,7 +7,7 @@ public class C_MoveTo : MonoBehaviour {
     public Vector2 targetPosition;
     public float time;
     public UnityAction callback;
-    public AnimationCurve moveCurve = Fn.Curve.ZeroOneCurve;
+    public AnimationCurve moveCurve = Global.Curve.ZeroOneCurve;
     [ReadOnly] public float timebegin;
     [ReadOnly] public Vector2 beginPosition;
     [SerializeField, ReadOnly] private Object createBy;

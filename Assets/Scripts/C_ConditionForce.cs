@@ -137,7 +137,7 @@ public class C_ConditionForce : MonoBehaviour {
     public class Curve {
         public bool enable = false;
         public float indexMax = 1;
-        public AnimationCurve curve = Fn.Curve.OneOneCurve;
+        public AnimationCurve curve = Global.Curve.OneOneCurve;
     }
 
     [System.Serializable]

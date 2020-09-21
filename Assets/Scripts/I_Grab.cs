@@ -17,7 +17,7 @@ public class I_Grab : IC_SmallCore {
     [System.Serializable] public class Setting {
         public Rigidbody2D rigidBody = null;
         public RefFloat force = new RefFloat (80);
-        public AnimationCurve forceDistanceCurve = Fn.Curve.ZeroOneCurve;
+        public AnimationCurve forceDistanceCurve = Global.Curve.ZeroOneCurve;
         public float curveMaxDistance = 0.3f;
         public Vector2 pointForcePosition = default;
         public float tagetMoveScale = 1;

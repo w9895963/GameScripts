@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using Global;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class Test : MonoBehaviour {
-    public GameObject obj;
+    public Object obj;
     void Start () {
 
     }
@@ -12,14 +13,8 @@ public class Test : MonoBehaviour {
     void Update () {
 
 
-        RaycastHit2D raycastHit2D = Physics2D.Raycast (
-            obj.Get2dPosition (),
-            Vector2.up,
-            Mathf.Infinity,
-            LayerMask.GetMask (Layer.tempLayer.Name)
-        );
-        Fn._.DrawPoint (raycastHit2D.point);
-        // Fn._.DrawPoint (re[1].point);
-        // Fn._.DrawLine (re[0].point, re[0].normal.normalized * re[0].distance);
+    }
+    private void OnValidate () {
+        Debug.Log (obj);
     }
 }

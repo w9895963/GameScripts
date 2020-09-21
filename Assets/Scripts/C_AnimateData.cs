@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class C_AnimateData : MonoBehaviour {
     public float time;
-    public AnimationCurve curve = Fn.Curve.ZeroOneCurve;
+    public AnimationCurve curve = Global.Curve.ZeroOneCurve;
     public UnityAction<float> onFloatAnimationEnd;
     public UnityAction<float> onFloatAnimation;
     public UnityAction<Vector2> onVector2AnimationEnd;

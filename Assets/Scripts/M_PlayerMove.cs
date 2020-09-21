@@ -12,7 +12,7 @@ public class M_PlayerMove : MonoBehaviour {
     [Header ("Setting")]
     public float force = 60f;
     public float maxSpeed = 6f;
-    public AnimationCurve speedForceCurve = Fn.Curve.OneOneCurve;
+    public AnimationCurve speedForceCurve = Global.Curve.OneOneCurve;
     public float arriveDistance = 0.5f;
     public Input input = new Input ();
     public Test test = new Test ();

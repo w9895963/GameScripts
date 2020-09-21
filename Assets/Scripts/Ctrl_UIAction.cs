@@ -11,6 +11,11 @@ public class Ctrl_UIAction : MonoBehaviour {
     public void _Scence_Load (string name) {
         SceneManager.LoadScene (name);
     }
+    public void _Scence_Load (int index) {
+        if (SceneManager.GetActiveScene ().buildIndex != index) {
+            SceneManager.LoadScene (index);
+        }
+    }
 
 
 
