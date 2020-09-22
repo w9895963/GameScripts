@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using Global;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -77,22 +78,22 @@ public class C_ColliderEvent : MonoBehaviour {
         } else {
             switch (typ) {
                 case EventType.OnCollisionEnter:
-                    Fn._.WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
                     break;
                 case EventType.OnCollisionStay:
-                    Fn._.WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
                     break;
                 case EventType.OnCollisionExit:
-                    Fn._.WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
                     break;
                 case EventType.OnTriggerEnter:
-                    Fn._.WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
                     break;
                 case EventType.OnTriggerStay:
-                    Fn._.WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
                     break;
                 case EventType.OnTriggerExit:
-                    Fn._.WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
+                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
                     break;
             }
         }
@@ -164,6 +165,19 @@ public class C_ColliderEvent : MonoBehaviour {
         public GameObject gameObject;
     }
 
+
+    public class Profile {
+        public C_ColliderEvent source;
+        public Profile (C_ColliderEvent source) {
+            this.source = source;
+        }
+
+        public List<GameObject> objectFilter { get => source.objectFilter; }
+        public float delay { set => source.delay = value; }
+        public Events events { get => source.events; }
+
+    }
+
     public enum EventType {
         OnTriggerEnter,
         OnTriggerStay,
@@ -197,5 +211,16 @@ public static class Extension_C_ColliderEvent {
             OnCollisionStay,
             OnCollisionExit
         );
+
+    public static C_ColliderEvent AddCollierEvent (this Collider2dExMethod ex,
+        UnityAction<C_ColliderEvent.Profile> setup
+    ) {
+        C_ColliderEvent comp = ex.source.gameObject.AddComponent<C_ColliderEvent> ();
+        var pf = new C_ColliderEvent.Profile (comp);
+        setup (pf);
+
+
+        return comp;
+    }
 
 }

@@ -5,32 +5,48 @@ using Global;
 using UnityEngine;
 
 public class M_GlobalObject : MonoBehaviour {
-    public GlobalObject instanceName = default;
+    public GlobalObject.Type instanceName = default;
 
 
 }
 
-public static class Extention_M_Instance {
-
-
-    public static GameObject FindGlobalObject (this Fn fn, GlobalObject instance) {
-        List<GameObject> gameObjects = FindAllInstance ();
-        return gameObjects.Find ((x) => x.GetComponent<M_GlobalObject> ().instanceName == instance);
-    }
-
-
-    //* Private Method
-    private static List<GameObject> FindAllInstance () {
-        return GameObject.FindObjectsOfType<M_GlobalObject> ().ToList ()
-            .Select ((x) => x.gameObject).ToList ();
-    }
-}
 
 namespace Global {
-    public enum GlobalObject {
-        None,
-        BackpackIcon,
-        IndicatorCamera,
+
+    public static class GlobalObject {
+        public static GameObject IndicatorCamera { get => Get (Type.IndicatorCamera); }
+        public static GameObject BackpackIcon { get => Get (Type.BackpackIcon); }
+        public static M_PlayerManager MainCharactor { get => GameObject.FindObjectOfType<M_PlayerManager> (); }
+        public static GameObject TempObject {
+            get {
+                GameObject temp = GameObject.Find ("TempGameObject");
+                if (temp == null) {
+                    temp = new GameObject ("TempGameObject");
+                }
+                return temp;
+            }
+        }
+
+
+
+
+        public static GameObject Get (Type type) {
+            List<GameObject> gameObjects = GetAll ();
+            return gameObjects.Find ((x) => x.GetComponent<M_GlobalObject> ().instanceName == type);
+        }
+
+
+        private static List<GameObject> GetAll () {
+            return GameObject.FindObjectsOfType<M_GlobalObject> ().ToList ()
+                .Select ((x) => x.gameObject).ToList ();
+        }
+
+        public enum Type {
+            Null,
+            BackpackIcon,
+            IndicatorCamera,
+        }
+
     }
 
 }

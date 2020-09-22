@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class M_Cursor : MonoBehaviour {
-    public enum StateCs { normal, grab, walk }
+    public enum StateCs { normal, grab, walk, manipulate }
 
     [SerializeField, ReadOnly] private StateCs state = StateCs.normal;
     //*----------------------Inspector
@@ -39,17 +39,17 @@ public class M_Cursor : MonoBehaviour {
         Cursor.visible = !hideSystemCursor;
 
 
-        Object pointerEventObj = Fn._.AddPointerEvent (PointerEventType.onMove, (d) => {
+        Object pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onMove, (d) => {
             gameObject.GetComponent<RectTransform> ().position = d.position_Screen;
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Fn._.AddPointerEvent (PointerEventType.onPressDown, (d) => {
+        pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onPressDown, (d) => {
             animator.SetBool ("Click", true);
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Fn._.AddPointerEvent (PointerEventType.onPressUp, (d) => {
+        pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onPressUp, (d) => {
             animator.SetBool ("Click", false);
         });
         events.Add (pointerEventObj);

@@ -28,7 +28,9 @@ public class IM_GrabObject : IC_Base {
                 grabcomp.enabled = true;
             }
             void ClickOnDrag () {
-                Fn._.Destroy (inputComp, inputComp2, grabcomp);
+                inputComp.Destroy ();
+                inputComp2.Destroy ();
+                grabcomp.Destroy ();
                 NormalStateEnd ();
             }
         }

@@ -170,7 +170,7 @@ public static class Extension_M_PointerEvent {
         comp.AddEvent (type, action);
         return obj;
     }
-    public static GameObject AddPointerEvent (this Fn fn,
+    public static GameObject AddPointerEvent (this Global.Funtion fn,
         PointerEventType type,
         UnityAction<PointerData> action) {
 

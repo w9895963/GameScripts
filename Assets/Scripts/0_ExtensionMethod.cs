@@ -181,18 +181,20 @@ public static class ExtensionMethod {
     public static void Destroy (this Component component) {
         GameObject.Destroy (component);
     }
-    public static void Destroy (this List<Object> objects, params int[] indexs) {
-        foreach (var i in indexs) {
-            if (objects.Count > i) {
-                GameObject.Destroy (objects[i]);
-                objects[i] = null;
-            }
-        }
-    }
     public static void Destroy (this List<Object> objects) {
         foreach (var obj in objects) {
             GameObject.Destroy (obj);
         }
+        objects.RemoveRange (0, objects.Count);
+    }
+    public static void Add (this List<Object> source, int index, Object item) {
+        if (source.Count <= index) {
+            for (int i = source.Count; i < index + 1; i++) {
+                source.Add (default);
+            }
+        }
+        GameObject.Destroy (source[index]);
+        source[index] = item;
     }
     public static void Destroy (this Object[] objects) {
         foreach (var obj in objects) {
@@ -261,30 +263,36 @@ public static class ExtensionMethod {
     }
 
     //*--------------------------------------------------------
-    public static GameObjectExMethod _ExMethod (this GameObject gameObject) {
-        return new GameObjectExMethod (gameObject);
+    public static GameObjectExMethod _ExMethod (this GameObject gameObject, Object callBy) {
+        return new GameObjectExMethod (gameObject, callBy);
     }
 
 
 
-    public static Collider2dExMethod _ExMethod (this Collider2D collider) {
-        return new Collider2dExMethod (collider);
+    public static Collider2dExMethod _Ex (this Collider2D collider, Object callBy) {
+        return new Collider2dExMethod (collider, callBy);
     }
+
+
 
 }
 
 namespace Global {
     public class GameObjectExMethod {
         public GameObject gameObject;
-        public GameObjectExMethod (GameObject gameObject) {
+        public Object callby;
+        public GameObjectExMethod (GameObject gameObject, Object callBy) {
             this.gameObject = gameObject;
+            this.callby = callBy;
         }
     }
 
     public class Collider2dExMethod {
-        private Collider2D source;
-        public Collider2dExMethod (Collider2D collider) {
+        public Collider2D source;
+        public Object callby;
+        public Collider2dExMethod (Collider2D collider, Object callby) {
             source = collider;
+            this.callby = callby;
         }
         //*--------------------------
         public Vector2? ClosestPointToLine (Vector2 position, Vector2 direction) {
@@ -308,5 +316,8 @@ namespace Global {
             return result;
         }
     }
+
+
+
 
 }

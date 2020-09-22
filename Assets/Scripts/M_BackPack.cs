@@ -11,7 +11,7 @@ public class M_BackPack : MonoBehaviour {
 
     private void OnEnable () {
         iconEvent.Destroy ();
-        GameObject backpackIcon = Fn._.FindGlobalObject (GlobalObject.BackpackIcon);
+        GameObject backpackIcon = GlobalObject.Get (GlobalObject.Type.BackpackIcon);
         iconEvent = backpackIcon.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
             PutoutStorage (0);
         });

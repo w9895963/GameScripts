@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,6 +18,8 @@ public class Ctrl_UIAction : MonoBehaviour {
         }
     }
 
-
+    public void _SetHelperCameraEnable (bool enable) {
+        GlobalObject.IndicatorCamera.GetComponent<Camera> ().enabled = enable;
+    }
 
 }

@@ -67,7 +67,7 @@ public class I_Grab : IC_SmallCore {
         Vector2 vector2 = targetPoint + Random.insideUnitCircle * scale * distance;
         middleData.targetPointOut.value = vector2;
 
-        Fn._.DrawPoint (targetPoint);
+       Global.Funtion.Fn(this).DrawPoint (targetPoint);
 
     }
 

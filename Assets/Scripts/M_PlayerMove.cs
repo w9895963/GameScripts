@@ -103,7 +103,7 @@ public class M_PlayerMove : MonoBehaviour {
 
 
         Destroy (onArriveComp);
-        onArriveComp = Fn._.OnArrive (rigidBody.gameObject, point, moveVector, arriveDistance, callBack : Stop);
+        onArriveComp =Global.Funtion.Fn(this).OnArrive (rigidBody.gameObject, point, moveVector, arriveDistance, callBack : Stop);
         return point;
     }
     public void Move (Vector2 direction, float maxSpeed = -1f, float duration = -1f) {

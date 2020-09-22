@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,7 +8,7 @@ public class Gb_Action : MonoBehaviour {
 
 
     public void _SetHelperCameraEnable (bool enable) {
-        Fn._.FindGlobalObject (Global.GlobalObject.IndicatorCamera).GetComponent<Camera> ().enabled = enable;
+        GlobalObject.Get (Global.GlobalObject.Type.IndicatorCamera).GetComponent<Camera> ().enabled = enable;
     }
 
     public void _Gravity_Reverse () {

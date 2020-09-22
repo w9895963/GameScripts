@@ -82,7 +82,7 @@ public class C1_Follow : MonoBehaviour {
 
     private void OnEnable () {
         Object tempObj;
-        tempObj = setting.target._ExMethod ().AddPositionEvent ((x) => {
+        tempObj = setting.target._ExMethod (this).AddPositionEvent ((x) => {
             x.updateMethod = setting.updateMethod;
             x.moving.AddListener ((d) => {
                 moving = d.Moving;
@@ -117,7 +117,7 @@ public class C1_Follow : MonoBehaviour {
             Vector2? result = null;
 
             if (direction != default) {
-                Vector2? point = targetColl._ExMethod ().ClosestPointToLine (
+                Vector2? point = targetColl._Ex (this).ClosestPointToLine (
                     nextP, direction
                 );
                 if (point.NotNull ())

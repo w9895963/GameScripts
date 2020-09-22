@@ -36,18 +36,3 @@ public class M_PlayerManager : MonoBehaviour {
 
 
 
-namespace Global {
-    public static class MainCharactorCtrl {
-        public static DataClass data = new DataClass ();
-        public class DataClass {
-            public Vector2 Position {
-                get => GameObject.FindObjectOfType<M_PlayerManager> ().transform.position.ToVector2 ();
-            }
-            public Vector2 Gravity {
-                get => GameObject.FindObjectOfType<M_PlayerManager> ().GetComponent<M_Gravity> ().GetGravity ();
-            }
-        }
-    }
-
-    
-}

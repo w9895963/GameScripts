@@ -56,7 +56,7 @@ public class M_Rotate : MonoBehaviour {
         gravity = importGravity.GetGravity ();
         gravityChangedTime = Time.time;
 
-        standDirection = Fn.RotateClock (Vector2.up, -transform.rotation.eulerAngles.z);
+        standDirection = Vector2.up.Rotate (-transform.rotation.eulerAngles.z);
         angleToRotate = Vector2.SignedAngle (standDirection, -gravity);
         gravityChanged = true;
     }

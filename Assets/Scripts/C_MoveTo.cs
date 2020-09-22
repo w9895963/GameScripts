@@ -1,99 +1,97 @@
-﻿    using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿    using System.Collections.Generic;
+    using System.Collections;
+    using Global;
+    using UnityEngine.Events;
+    using UnityEngine;
 
-public class C_MoveTo : MonoBehaviour {
-    public Vector2 targetPosition;
-    public float time;
-    public UnityAction callback;
-    public AnimationCurve moveCurve = Global.Curve.ZeroOneCurve;
-    [ReadOnly] public float timebegin;
-    [ReadOnly] public Vector2 beginPosition;
-    [SerializeField, ReadOnly] private Object createBy;
-    [SerializeField, ReadOnly] private bool arrived = true;
-    public Test test = new Test ();
-
-    private void FixedUpdate () {
-        if (!arrived) {
-            float delTime = Time.time - timebegin;
-            Vector2 setP = transform.position;
-            if (delTime < time) {
-                setP = (targetPosition - beginPosition) * moveCurve.Evaluate (delTime / time) + beginPosition;
-            } else {
-                setP = targetPosition;
-            }
-            transform.Set2dPosition (setP);
-            if (setP == targetPosition) {
-                arrived = true;
-                callback?.Invoke ();
+    public class C_MoveTo : MonoBehaviour {
+        [System.Serializable] public class Setting {
+            public Vector2 targetPosition;
+            public float time;
+            public AnimationCurve moveCurve = Global.Curve.ZeroOneCurve;
+            public Events events = new Events ();
+            [System.Serializable] public class Events {
+                public UnityEvent onArrived = new UnityEvent ();
+                public UnityEvent onMoving = new UnityEvent ();
+                public UnityEvent onStart = new UnityEvent ();
             }
         }
-    }
+        public Setting setting = new Setting ();
+        [ReadOnly] public float timebegin;
+        [ReadOnly] public Vector2 beginPosition;
+        [ReadOnly] public Object createBy;
+        [SerializeField, ReadOnly] private bool arrived = true;
+        public Test test = new Test ();
 
+        private void FixedUpdate () {
+            if (!arrived) {
+                float delTime = Time.time - timebegin;
+                Vector2 setP = transform.position;
+                if (delTime < setting.time) {
+                    setP = (setting.targetPosition - beginPosition) * setting.moveCurve.Evaluate (delTime / setting.time) + beginPosition;
+                } else {
+                    setP = setting.targetPosition;
+                }
+                transform.Set2dPosition (setP);
 
+                setting.events.onMoving.Invoke ();
+                if (setP == setting.targetPosition) {
+                    arrived = true;
+                    setting.events.onArrived.Invoke ();
+                }
 
-#if UNITY_EDITOR
-    private void OnValidate () {
-        if (test.move) {
+            }
+        }
+
+        private void OnEnable () {
             test.move = false;
             timebegin = Time.time;
             beginPosition = transform.position;
             arrived = false;
+            setting.events.onStart.Invoke ();
         }
-    }
+
+
+
+
+#if UNITY_EDITOR
+        private void OnValidate () {
+            if (test.move) {
+                test.move = false;
+                timebegin = Time.time;
+                beginPosition = transform.position;
+                arrived = false;
+            }
+        }
 #endif
 
 
 
 
-    //*Public
-    public void Moveto (Vector2 targetPosition, float time = 0, UnityAction callback = null) {
-        timebegin = Time.time;
-        this.beginPosition = this.transform.position;
-        this.targetPosition = targetPosition;
-        this.time = time;
-        this.callback = callback;
-        this.arrived = false;
-        if (time == 0) {
-            transform.Set2dPosition (targetPosition);
-            if (callback != null) callback ();
-        }
-    }
-    public static void MoveTo (GameObject gameObject, Vector2 targetPosition,
-        float time = 0, UnityAction callback = null, AnimationCurve moveCurve = default,
-        Object createby = null) {
-
-
-        Fn._.Destroy (gameObject.GetComponents<C_MoveTo> ());
-        C_MoveTo moveComp = gameObject.AddComponent<C_MoveTo> ();
-        if (moveCurve != default) {
-            moveComp.moveCurve = moveCurve;
+        //*Property
+        [System.Serializable]
+        public class Test {
+            public bool move = false;
         }
 
-        moveComp.createBy = createby;
-        moveComp.Moveto (targetPosition, time, () => {
-            if (callback != null) callback ();
-            moveComp.Destroy ();
-        });
 
     }
 
 
+    public static class Extension_C_MoveTo {
 
-    //*Property
-    [System.Serializable]
-    public class Test {
-        public bool move = false;
+        public static C_MoveTo MoveTo (this GameObjectExMethod source, UnityAction<C_MoveTo.Setting> setup) {
+            C_MoveTo comp = source.gameObject.AddComponent<C_MoveTo> ();
+            comp.enabled = false;
+
+            C_MoveTo.Setting setting = new C_MoveTo.Setting ();
+            setup (setting);
+            comp.setting = setting;
+            comp.createBy = source.callby;
+
+            comp.enabled = true;
+            return comp;
+
+        }
+
     }
-}
-
-
-public static class Extension_C_MoveTo {
-    public static void Ex_Moveto (this GameObject gameObject, Vector2 targetPosition,
-            float time = 0, UnityAction callback = null, AnimationCurve moveCurve = default) =>
-
-
-        C_MoveTo.MoveTo (gameObject, targetPosition, time, callback, moveCurve, gameObject);
-
-}
