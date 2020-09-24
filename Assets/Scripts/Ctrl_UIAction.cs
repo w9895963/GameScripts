@@ -22,4 +22,6 @@ public class Ctrl_UIAction : MonoBehaviour {
         GlobalObject.IndicatorCamera.GetComponent<Camera> ().enabled = enable;
     }
 
+    public void _CUrsor_VisibleSystemCursor (bool enabled) => CursorCtrl.ShowSystemCursor (enabled);
+
 }

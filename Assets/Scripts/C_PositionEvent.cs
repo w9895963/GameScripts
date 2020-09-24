@@ -7,9 +7,10 @@ using UnityEngine.Events;
 public class C_PositionEvent : MonoBehaviour {
     [System.Serializable] public class Setting {
         public UpdateMethod updateMethod = UpdateMethod.FixedUpdate;
-        public UnityEvent<PositionEventData> moving = new UnityEvent<PositionEventData> ();
+        public UnityEvent<PositionEventData> update = new UnityEvent<PositionEventData> ();
         public UnityEvent<PositionEventData> stay = new UnityEvent<PositionEventData> ();
         public UnityEvent<PositionEventData> startMove = new UnityEvent<PositionEventData> ();
+        public UnityEvent<PositionEventData> moving = new UnityEvent<PositionEventData> ();
         public UnityEvent<PositionEventData> endMove = new UnityEvent<PositionEventData> ();
     }
 

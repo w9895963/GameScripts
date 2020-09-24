@@ -23,6 +23,7 @@ public static class ExtensionMethod {
 
 
     //*Array & List
+
     public static void Add<T> (this List<T> source, int index, T newMember) {
         if (source.Count <= index) {
             for (int i = source.Count; i < index + 1; i++) {
@@ -76,7 +77,22 @@ public static class ExtensionMethod {
             action (t);
         }
     }
-
+    //* ------------List< Object >
+    public static void Destroy (this List<Object> objects) {
+        foreach (var obj in objects) {
+            GameObject.Destroy (obj);
+        }
+        objects.RemoveRange (0, objects.Count);
+    }
+    public static void Add (this List<Object> source, int index, Object item) {
+        if (source.Count <= index) {
+            for (int i = source.Count; i < index + 1; i++) {
+                source.Add (default);
+            }
+        }
+        GameObject.Destroy (source[index]);
+        source[index] = item;
+    }
 
     //* Vector2
 
@@ -98,6 +114,10 @@ public static class ExtensionMethod {
     public static Vector2 Reverse (this Vector2 vector) {
         return vector * -1;
     }
+    public static Vector3 ToVector3 (this Vector2 vector, float z = 0) {
+        return new Vector3 (vector.x, vector.y, z);
+    }
+
 
     //*Vector2?
     public static Vector2 ToVector2 (this Vector2? vector) {
@@ -130,6 +150,9 @@ public static class ExtensionMethod {
         l.Sort ();
         return l[0];
     }
+    public static float Max (this float f, float compareWith) {
+        return f > compareWith ? f : compareWith;
+    }
     public static float Sign (this float f) {
         return Mathf.Sign (f);
     }
@@ -138,6 +161,12 @@ public static class ExtensionMethod {
     }
     public static float Clamp (this float f, float min, float max) {
         return Mathf.Clamp (f, min, max);
+    }
+    public static float ClampMin (this float f, float min) {
+        return f > min?f : min;
+    }
+    public static float ClampMax (this float f, float max) {
+        return f < max?f : max;
     }
     public static Vector2 ToVector2 (this float fl) {
         return new Vector2 (fl, fl);
@@ -181,21 +210,7 @@ public static class ExtensionMethod {
     public static void Destroy (this Component component) {
         GameObject.Destroy (component);
     }
-    public static void Destroy (this List<Object> objects) {
-        foreach (var obj in objects) {
-            GameObject.Destroy (obj);
-        }
-        objects.RemoveRange (0, objects.Count);
-    }
-    public static void Add (this List<Object> source, int index, Object item) {
-        if (source.Count <= index) {
-            for (int i = source.Count; i < index + 1; i++) {
-                source.Add (default);
-            }
-        }
-        GameObject.Destroy (source[index]);
-        source[index] = item;
-    }
+
     public static void Destroy (this Object[] objects) {
         foreach (var obj in objects) {
             GameObject.Destroy (obj);
@@ -263,7 +278,7 @@ public static class ExtensionMethod {
     }
 
     //*--------------------------------------------------------
-    public static GameObjectExMethod _ExMethod (this GameObject gameObject, Object callBy) {
+    public static GameObjectExMethod _Ex (this GameObject gameObject, Object callBy) {
         return new GameObjectExMethod (gameObject, callBy);
     }
 
@@ -271,6 +286,9 @@ public static class ExtensionMethod {
 
     public static Collider2dExMethod _Ex (this Collider2D collider, Object callBy) {
         return new Collider2dExMethod (collider, callBy);
+    }
+    public static Rigid2dExMethod _Ex (this Rigidbody2D rigidbody, Object callBy) {
+        return new Rigid2dExMethod (rigidbody, callBy);
     }
 
 
@@ -315,6 +333,16 @@ namespace Global {
             source.gameObject.layer = sourceLayer;
             return result;
         }
+    }
+    public class Rigid2dExMethod {
+        public Rigidbody2D rigidbody;
+        public Object callby;
+        public Rigid2dExMethod (Rigidbody2D rigidbody, Object callby) {
+            this.rigidbody = rigidbody;
+            this.callby = callby;
+        }
+        //*--------------------------
+      
     }
 
 

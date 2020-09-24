@@ -15,5 +15,6 @@ public class Test : MonoBehaviour {
 
     }
     private void OnValidate () {
+        if (obj) Debug.Log (obj);
     }
 }

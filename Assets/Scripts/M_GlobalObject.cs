@@ -17,6 +17,7 @@ namespace Global {
         public static GameObject IndicatorCamera { get => Get (Type.IndicatorCamera); }
         public static GameObject BackpackIcon { get => Get (Type.BackpackIcon); }
         public static M_PlayerManager MainCharactor { get => GameObject.FindObjectOfType<M_PlayerManager> (); }
+        public static GameObject Camera { get => UnityEngine.Camera.main.gameObject; }
         public static GameObject TempObject {
             get {
                 GameObject temp = GameObject.Find ("TempGameObject");

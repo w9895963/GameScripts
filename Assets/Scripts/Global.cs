@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Global {
@@ -28,13 +29,18 @@ namespace Global {
         public float inputMin = 0;
         public float outputMax = 1;
         public float outputMin = 0;
-        public AnimationCurve curve = ZeroOneCurve;
-        public static AnimationCurve Default = ZeroOneCurve;
+        public AnimationCurve curve = ZeroOne;
+        public static AnimationCurve Default = ZeroOne;
 
 
-        public static AnimationCurve ZeroOneCurve {
+        public static AnimationCurve ZeroOne {
             get {
                 return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
+            }
+        }
+        public static AnimationCurve ZeroOneCurveSmooth03 {
+            get {
+                return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0.3f), new Keyframe (1, 1, 0, 0, 0.3f, 0));
             }
         }
         public static AnimationCurve OneZeroCurve {
@@ -45,6 +51,11 @@ namespace Global {
         public static AnimationCurve OneOneCurve {
             get {
                 return new AnimationCurve (new Keyframe (0, 1), new Keyframe (1, 1));
+            }
+        }
+        public static AnimationCurve ZeroZero {
+            get {
+                return new AnimationCurve (new Keyframe (0, 0), new Keyframe (1, 0));
             }
         }
 
@@ -66,6 +77,68 @@ namespace Global {
         }
     }
 
+    [System.Serializable] public class Path {
+        [System.Serializable] public class CurveSetting {
+            public Vector2 start = Vector2.zero;
+            public Vector2 end = Vector2.right;
+            public int sampleNum = 8;
+            public float maxAngle = 60;
+            public AnimationCurve curve = Curve.ZeroOne;
+            public AnimationCurve curveVertical = Curve.ZeroZero;
+            public List<Vector3> plist = new List<Vector3> ();
+        }
+
+        public List<Vector2> GenPathFromSetting (CurveSetting setting) {
+            CurveSetting s = setting;
+            s.plist = new List<Vector3> ();
+            for (int i = 0; i <= s.sampleNum; i++) {
+                float rate = 1f / s.sampleNum * i;
+                Vector2 p = GetPosition (rate, s);
+                s.plist.Add (p.ToVector3 (rate));
+            }
+
+            subdivision (s);
+
+            var dist = (s.end - s.start).magnitude;
+            Quaternion qu = Quaternion.FromToRotation (Vector3.right, (s.end - s.start).ToVector3 ());
+            return s.plist.Select ((x) => (qu * new Vector2 (x.x, x.y)).ToVector2 () * dist + s.start).ToList ();
+
+        }
+
+        private Vector2 GetPosition (float rate, CurveSetting curveSetting) {
+            CurveSetting s = curveSetting;
+            float x = s.curve.Evaluate (rate);
+            float y = s.curveVertical.Evaluate (rate);
+            Vector2 p = new Vector2 (x, y);
+            return p;
+        }
+        private void subdivision (CurveSetting curveSetting) {
+            bool sub = false;
+            CurveSetting s = curveSetting;
+            for (int i = 1; i < s.plist.Count - 1; i++) {
+                float angle = Vector2.Angle ((s.plist[i] - s.plist[i - 1]).ToVector2 (),
+                    (s.plist[i + 1] - s.plist[i]).ToVector2 ());
+                if (angle > s.maxAngle) {
+                    float rate;
+                    Vector2 p;
+                    rate = (s.plist[i].z + s.plist[i - 1].z) / 2f;
+                    p = GetPosition (rate, s);
+                    s.plist.Insert (i, p.ToVector3 (rate));
+                    rate = (s.plist[i + 2].z + s.plist[i + 1].z) / 2f;
+                    p = GetPosition (rate, s);
+                    s.plist.Insert (i + 2, p.ToVector3 (rate));
+                    sub = true;
+                    break;
+                }
+
+            }
+            if (sub) {
+                subdivision (s);
+            }
+        }
+
+    }
+
     [System.Serializable] public class RefVector2 {
         public Vector2 value;
 
@@ -76,6 +149,7 @@ namespace Global {
         public float value;
         public RefFloat (float value = 0) { this.value = value; }
     }
+   
 
 
     public class LayerRender {

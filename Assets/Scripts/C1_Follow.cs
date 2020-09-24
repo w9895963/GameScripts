@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using Global;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class C1_Follow : MonoBehaviour {
     [System.Serializable] public class Setting {
-        public UpdateMethod updateMethod = UpdateMethod.FixedUpdate;
         public GameObject target;
         //*------------------------------
         public Offset offset = new Offset ();
         public SnapToArea snapToArea = new SnapToArea ();
-        public ConstantVelosity constantVelosity = new ConstantVelosity ();
-        public DistanceConstraint distanceConstraint = new DistanceConstraint ();
+        public LazyMode lazyMode = new LazyMode ();
         //*--------------------------------
         [System.Serializable] public class SnapToArea {
             public bool enabled = false;
@@ -25,15 +24,11 @@ public class C1_Follow : MonoBehaviour {
             public Vector2 offset = default;
         }
 
-        [System.Serializable] public class ConstantVelosity {
-            public bool enabled = false;
-            public float velosity = 1f;
-
-        }
-
-        [System.Serializable] public class DistanceConstraint {
+        [System.Serializable] public class LazyMode {
             public bool enabled = false;
             public float maxDistance = 1f;
+            public float velosity = 1f;
+            public float outRangeVelosity = 1000f;
         }
 
 
@@ -41,49 +36,37 @@ public class C1_Follow : MonoBehaviour {
     public Setting setting = new Setting ();
 
     //*--------------------------
+    [ReadOnly] public Object callBy;
     private bool initial = false;
     [SerializeField, ReadOnly] private List<Object> temps = new List<Object> ();
-    private Vector2 targetObjectPosition;
-    private Vector2 targetPosition;
     private Vector2 targetP;
     private bool moving;
     private Vector2 nextP;
-    private Vector2 targetDelta;
-    private List<System.Action> orderRun = new List<System.Action> ();
-    private Vector2? lazyCurrP;
     private Vector2 lastP;
 
     //*--------------------
-    private void Start () {
-        targetP = setting.target.Get2dPosition ();
-    }
     private void FixedUpdate () {
-        var curr = lastP;
+
+        Vector2 curr = lastP;
         nextP = targetP;
         Offset (ref nextP);
         Snap (ref nextP);
-        Vector2 target = nextP;
-        ConstantVelosity (lastP, ref nextP);
-        if (setting.constantVelosity.enabled)
-            curr = nextP;
-        Lazy (curr, target, ref nextP);
+        LazyMode (curr, ref nextP);
     }
 
 
 
     private void LateUpdate () {
-        if (nextP != null) {
-            gameObject.Set2dPosition (nextP);
-        } else {
-            gameObject.Set2dPosition (targetP);
-        }
+        gameObject.Set2dPosition (nextP);
         lastP = gameObject.Get2dPosition ();
     }
 
     private void OnEnable () {
+        targetP = setting.target.Get2dPosition ();
+        nextP = gameObject.Get2dPosition ();
+        lastP = gameObject.Get2dPosition ();
         Object tempObj;
-        tempObj = setting.target._ExMethod (this).AddPositionEvent ((x) => {
-            x.updateMethod = setting.updateMethod;
+        tempObj = setting.target._Ex (this).AddPositionEvent ((x) => {
             x.moving.AddListener ((d) => {
                 moving = d.Moving;
                 targetP = d.position;
@@ -137,48 +120,45 @@ public class C1_Follow : MonoBehaviour {
             camP += setting.offset.offset;
         }
     }
-    private void ConstantVelosity (Vector2 lastP, ref Vector2 nextP) {
-        if (setting.constantVelosity.enabled) {
-            var s = setting.constantVelosity;
-            Vector2 target = nextP;
-            Vector2 currP = lastP;
-            Vector2 v = target - currP;
-            float dist = v.magnitude;
-            float nextMove = s.velosity * Time.fixedDeltaTime;
-            if (dist > nextMove) {
-                nextP = lastP + v.normalized * nextMove;
-            } else {
-                nextP = target;
-            }
-        }
-    }
-    private void Lazy (Vector2 lastP, Vector2 targetP, ref Vector2 nextP) {
-        if (setting.distanceConstraint.enabled) {
-            var s = setting.distanceConstraint;
-            Vector2 tarP = targetP;
+
+    private void LazyMode (Vector2 lastP, ref Vector2 nextP) {
+        if (setting.lazyMode.enabled) {
+            var s = setting.lazyMode;
+            Vector2 tarP = nextP;
             Vector2 currP = lastP;
             Vector2 v = tarP - currP;
             float dist = v.magnitude;
 
             if (dist > s.maxDistance) {
-                nextP = tarP - v.normalized * s.maxDistance;
+                float move = s.outRangeVelosity * Time.fixedDeltaTime;
+                dist = (dist - move).ClampMin (s.maxDistance - 0.01f);
+                nextP = tarP - v.normalized * dist;
+
             } else {
-                nextP = lastP;
+                var move = s.velosity * Time.fixedDeltaTime;
+                if (move > dist) {
+                    nextP = tarP;
+                } else {
+                    nextP = lastP + v.normalized * move;
+                }
             }
 
         }
     }
 
-    //* Public Method
-    public static C1_Follow Follow (GameObject gameObject, Setting setting) {
-        C1_Follow comp = gameObject.gameObject.AddComponent<C1_Follow> ();
-        comp.setting = setting;
-        comp.enabled = true;
-        return comp;
-    }
 }
 
 public static class _Extention_Static {
-    public static C1_Follow Follow (this GameObjectExMethod source, C1_Follow.Setting setting) =>
-        C1_Follow.Follow (source.gameObject, setting);
+    public static C1_Follow Follow (this GameObjectExMethod source,
+        System.Func<C1_Follow.Setting, C1_Follow.Setting> setup
+    ) {
+        C1_Follow comp = source.gameObject.gameObject.AddComponent<C1_Follow> ();
+        comp.setting = setup (comp.setting);
+        comp.callBy = source.callby;
+
+
+
+        comp.enabled = true;
+        return comp;
+    }
 }

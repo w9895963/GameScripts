@@ -15,7 +15,7 @@ public class C_AnimateData : MonoBehaviour {
     [System.Serializable] public class Optional {
         public bool useUnscaleTime = false;
         public bool useCurve = false;
-        public AnimationCurve curve = Curve.ZeroOneCurve;
+        public AnimationCurve curve = Curve.ZeroOne;
     }
     public Optional optional = new Optional ();
     [System.Serializable] public class Events {

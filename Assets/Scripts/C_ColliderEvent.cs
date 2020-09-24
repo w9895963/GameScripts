@@ -41,7 +41,13 @@ public class C_ColliderEvent : MonoBehaviour {
 
             bool filterTestPass = true;
 
-            filterTestPass = objectFilter.Contains (touchObj);
+
+            objectFilter.RemoveAll ((x) => x = null);
+
+            if (objectFilter.Count > 0)
+                filterTestPass = objectFilter.Contains (touchObj);
+            else
+                filterTestPass = true;
 
 
 

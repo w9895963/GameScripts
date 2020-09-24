@@ -6,9 +6,16 @@
 
     public class C_MoveTo : MonoBehaviour {
         [System.Serializable] public class Setting {
-            public Vector2 targetPosition;
-            public float time;
-            public AnimationCurve moveCurve = Global.Curve.ZeroOneCurve;
+            [System.Serializable] public class Require {
+                public Vector2 targetPosition;
+                public float time;
+            }
+            public Require require = new Require ();
+            [System.Serializable] public class Optional {
+                public float maxAccelerate = 50;
+                public AnimationCurve moveCurve = Global.Curve.ZeroOne;
+            }
+            public Optional optional = new Optional ();
             public Events events = new Events ();
             [System.Serializable] public class Events {
                 public UnityEvent onArrived = new UnityEvent ();
@@ -21,30 +28,60 @@
         [ReadOnly] public Vector2 beginPosition;
         [ReadOnly] public Object createBy;
         [SerializeField, ReadOnly] private bool arrived = true;
-        public Test test = new Test ();
+        private Vector2? lastPosition;
 
         private void FixedUpdate () {
             if (!arrived) {
-                float delTime = Time.time - timebegin;
-                Vector2 setP = transform.position;
-                if (delTime < setting.time) {
-                    setP = (setting.targetPosition - beginPosition) * setting.moveCurve.Evaluate (delTime / setting.time) + beginPosition;
-                } else {
-                    setP = setting.targetPosition;
-                }
-                transform.Set2dPosition (setP);
+                Setting s = setting;
+                float time = Time.time - timebegin;
+                Vector2 currP = gameObject.Get2dPosition ();
+                Vector2 lastP = lastPosition.NotNull () ? lastPosition.ToVector2 () : currP;
+                Vector2 targetPosition = s.require.targetPosition;
+                Vector2 v = targetPosition - beginPosition;
+                Vector2 normal = v.Rotate (90).normalized;
+                float dist = v.magnitude;
+                float range;
+                Vector2 CurrTarget;
 
-                setting.events.onMoving.Invoke ();
-                if (setP == setting.targetPosition) {
+                if (time < s.require.time) {
+                    range = s.optional.moveCurve.Evaluate (time / s.require.time);
+                    CurrTarget = v * range + beginPosition;
+                } else {
+                    range = 1;
+                    CurrTarget = s.require.targetPosition;
+                }
+
+
+
+
+                Vector2 lastV = currP - lastP;
+                Vector2 currV = CurrTarget - currP;
+                v = currV - lastV;
+                float max = s.optional.maxAccelerate * Time.fixedDeltaTime;
+                Vector2 nextP;
+                if (v.magnitude >= max) {
+                    currV = lastV + v * max / v.magnitude;
+                    nextP = currP + currV;
+                } else {
+                    nextP = CurrTarget;
+                }
+
+
+                gameObject.Set2dPosition (nextP);
+
+                currP = gameObject.Get2dPosition ();
+                lastPosition = gameObject.Get2dPosition ();
+
+                s.events.onMoving.Invoke ();
+                if (currP == s.require.targetPosition) {
                     arrived = true;
-                    setting.events.onArrived.Invoke ();
+                    s.events.onArrived.Invoke ();
                 }
 
             }
         }
 
         private void OnEnable () {
-            test.move = false;
             timebegin = Time.time;
             beginPosition = transform.position;
             arrived = false;
@@ -52,27 +89,6 @@
         }
 
 
-
-
-#if UNITY_EDITOR
-        private void OnValidate () {
-            if (test.move) {
-                test.move = false;
-                timebegin = Time.time;
-                beginPosition = transform.position;
-                arrived = false;
-            }
-        }
-#endif
-
-
-
-
-        //*Property
-        [System.Serializable]
-        public class Test {
-            public bool move = false;
-        }
 
 
     }

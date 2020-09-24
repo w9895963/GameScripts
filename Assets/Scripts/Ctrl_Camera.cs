@@ -5,26 +5,12 @@ using static Global.Funtion;
 using UnityEngine;
 
 public class Ctrl_Camera : MonoBehaviour {
-    [System.Serializable] public class Condition {
-        [System.Serializable] public class OnEnabled {
-            public bool enabled = false;
-        }
-        public OnEnabled onEnabled = new OnEnabled ();
-        [System.Serializable] public class Trigger {
-            public bool enabled = false;
-            public Collider2D collider;
-
-        }
-        public Trigger trigger = new Trigger ();
-
-    }
-    public Condition condition = new Condition ();
     [System.Serializable] public class Action {
         [System.Serializable] public class MoveTo {
             public bool enabled = false;
             public GameObject target;
             public float time = 1f;
-            public AnimationCurve curve = Curve.ZeroOneCurve;
+            public AnimationCurve curve = Curve.ZeroOne;
         }
         public MoveTo moveTo = new MoveTo ();
         [System.Serializable] public class Zoom {
@@ -34,54 +20,38 @@ public class Ctrl_Camera : MonoBehaviour {
             public AnimationCurve curve = Curve.Default;
         }
         public Zoom zoom = new Zoom ();
+        [System.Serializable] public class FollowPlayer {
+            public bool enabled = false;
+            public C1_Follow.Setting Setting = new C1_Follow.Setting ();
+        }
+
+        public FollowPlayer follow = new FollowPlayer ();
 
     }
     public Action action = new Action ();
 
-    [System.Serializable] public class Follow {
-        public bool enabled = false;
-        public C1_Follow.Setting setting = new C1_Follow.Setting ();
-
-    }
-
-    public Follow follow = new Follow ();
     [SerializeField, ReadOnly] private List<Object> temps = new List<Object> ();
+    private bool createInInspector = false;
 
     //*---------------
+
+    private void Awake () {
+        if (!createInInspector) {
+            enabled = false;
+        }
+
+    }
+    private void OnValidate () {
+        createInInspector = true;
+
+    }
     private void OnEnable () {
-        if (condition.trigger.enabled) {
-            temps.Add (condition.trigger.collider._Ex (this).AddCollierEvent ((s) => {
-                s.objectFilter.Add (GlobalObject.MainCharactor.gameObject);
-                s.events.onTriggerEnter.AddListener ((c) => {
-                    MainAction ();
-                });
-            }));
-
-
-
-        }
-
-        if (condition.onEnabled.enabled) {
-            MainAction ();
-        }
-    }
-
-
-
-    private void OnDisable () {
-        temps.Destroy ();
-    }
-
-
-
-    //* Private Method
-    private void MainAction () {
         if (action.moveTo.enabled) {
             C_MoveTo temp = null;
-            temp = Camera.main.gameObject._ExMethod (this).MoveTo ((s) => {
-                s.targetPosition = action.moveTo.target.Get2dPosition ();
-                s.time = action.moveTo.time;
-                s.moveCurve = action.moveTo.curve;
+            temp = Camera.main.gameObject._Ex (this).MoveTo ((s) => {
+                s.require.targetPosition = action.moveTo.target.Get2dPosition ();
+                s.require.time = action.moveTo.time;
+                s.optional.moveCurve = action.moveTo.curve;
                 s.events.onArrived.AddListener (() => {
                     temp.Destroy ();
                 });
@@ -101,20 +71,27 @@ public class Ctrl_Camera : MonoBehaviour {
                 set.optional.curve = action.zoom.curve;
                 var events = set.events;
                 events.onAnimation.AddListener ((f) => {
-                    Camera.main.orthographicSize = f;
+                    CameraCtrl.Size = f;
                 });
 
             }));
 
         }
+
+        if (action.follow.enabled) {
+            temps.Add (GlobalObject.Camera._Ex (this).Follow ((s) => {
+                return action.follow.Setting;
+
+            }));
+        }
     }
 
 
 
-    //* Public Method
-    public static void FollowCharactor () {
-
+    private void OnDisable () {
+        temps.Destroy ();
     }
+
 
 
 
@@ -122,8 +99,20 @@ public class Ctrl_Camera : MonoBehaviour {
 
 namespace Global {
     public static class CameraCtrl {
-        public static void ShowSystemCursor (bool enabled) {
-            UnityEngine.Cursor.visible = enabled;
+        public static void CommitAction (Ctrl_Camera.Action setting) {
+            Ctrl_Camera comp = GlobalObject.Camera.GetComponent<Ctrl_Camera> ();
+            // comp.enabled = false;
+            comp.action = setting;
+            comp.enabled = true;
         }
+
+
+        public static float Size {
+            set {
+                GlobalObject.Camera.GetComponent<Camera> ().orthographicSize = value;
+                GlobalObject.IndicatorCamera.GetComponent<Camera> ().orthographicSize = value;
+            }
+        }
+
     }
 }

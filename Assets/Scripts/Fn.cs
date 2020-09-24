@@ -38,6 +38,7 @@ public static class Extension_Fn {
         /////////////////////////////////////////////////////
         GameObject point = Resources.Load ("DebugFile/IndicatePoint", typeof (GameObject)) as GameObject;
         point = GameObject.Instantiate (point, (Vector3) position, Quaternion.Euler (0, 0, 0));
+        point.transform.parent = GlobalObject.TempObject.transform;
         if (stayTime > 0) point.Ex_AutoDestroy (stayTime);
         float heightUnit = Camera.main.orthographicSize * 2;
         float pixelUnit = Screen.height / heightUnit;
@@ -67,7 +68,7 @@ namespace Global {
         public Funtion (Object callBy) {
             this.callBy = callBy;
         }
-        public static Funtion Fn (Object callBy) {
+        public static Funtion Fn (Object callBy = null) {
             return new Funtion (callBy);
         }
 

@@ -13,7 +13,7 @@ public class FS_Grab : MonoBehaviour {
     [SerializeField] private bool pointForceMode = true;
     [SerializeField] private float force = 50;
     [SerializeField] private Vector2 curveMaxMin = new Vector2 (1, 0);
-    [SerializeField] private AnimationCurve forceCurve = Global.Curve.ZeroOneCurve;
+    [SerializeField] private AnimationCurve forceCurve = Global.Curve.ZeroOne;
     [SerializeField] private Events events = new Events ();
     [SerializeField] private EnableZone enableZone = new EnableZone ();
     [SerializeField, ReadOnly] private bool onDragging = false;

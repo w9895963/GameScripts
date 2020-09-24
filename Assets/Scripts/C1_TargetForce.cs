@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using Global;
 
 public class C1_TargetForce : MonoBehaviour {
 
     [SerializeField] private Rigidbody2D rigidBody = null;
     [SerializeField] private bool ignoreMass = true;
-    public RefVector2 TargetPosition = new RefVector2 ();
     public Vector2 targetPosition = Vector2.zero;
     public RefFloat Force = new RefFloat ();
     //* Plugin
     [SerializeField] private ForceCurve distanceForceCurve = new ForceCurve ();
-    [SerializeField] private C_Force.SpeedForceCurve speedForceCurve = new C_Force.SpeedForceCurve ();
+    [SerializeField] private C0_Force.SpeedForceCurve speedForceCurve = new C0_Force.SpeedForceCurve ();
     [SerializeField] private PointForce forceAtpoint = new PointForce ();
     [SerializeField] private UseObjectTarget useObjectTarget = new UseObjectTarget ();
     [SerializeField] private SingleDimension singleDimension = new SingleDimension ();
     [SerializeField, ReadOnly] private Vector2 forceAdd = Vector2.zero;
-    [SerializeField, ReadOnly] private C_Force forceComp = null;
+    [SerializeField, ReadOnly] private C0_Force forceComp = null;
     [ReadOnly] public Component createBy = null;
 
 
@@ -29,7 +28,6 @@ public class C1_TargetForce : MonoBehaviour {
 
     // *Private Method
     private void Main () {
-        var targetPosition = TargetPosition.value;
         if (useObjectTarget.enable) targetPosition = useObjectTarget.target.transform.position;
 
 
@@ -46,7 +44,9 @@ public class C1_TargetForce : MonoBehaviour {
 
 
         UpdataDate ();
-        forceComp.force = forceAdd;
+        forceComp.property.require.force = forceAdd.magnitude;
+        forceComp.property.require.direction = forceAdd.normalized;
+
     }
 
 
@@ -54,7 +54,7 @@ public class C1_TargetForce : MonoBehaviour {
         if (forceComp) {
             forceComp.SetPointForceMode (forceAtpoint.enable, forceAtpoint.localPosition);
             forceComp.SetSpeedForceCurve (speedForceCurve.enable, speedForceCurve.curve, speedForceCurve.maxSpeed);
-            forceComp.ignoreMass = ignoreMass;
+            forceComp.property.optional.ignoreMass = ignoreMass;
         }
 
     }
@@ -93,7 +93,7 @@ public class C1_TargetForce : MonoBehaviour {
 
     //*Public Method
     public void SetTarget (Vector2 position) {
-        TargetPosition.value = position;
+        targetPosition = position;
     }
     public void SetForce (float force) {
         this.Force.value = force;
@@ -114,7 +114,7 @@ public class C1_TargetForce : MonoBehaviour {
 
 
         C1_TargetForce comp = gameObject.AddComponent<C1_TargetForce> ();
-        comp.TargetPosition.value = targetPosition;
+        comp.targetPosition = targetPosition;
         comp.Force.value = force;
         if (applyPosition != Vector2.zero) {
             comp.forceAtpoint.enable = true;
@@ -163,7 +163,7 @@ public class C1_TargetForce : MonoBehaviour {
     [System.Serializable]
     public class ForceCurve {
         public bool enable = false;
-        public AnimationCurve distanceCurve = Global.Curve.ZeroOneCurve;
+        public AnimationCurve distanceCurve = Global.Curve.ZeroOne;
         public float maxDistance = 1f;
     }
 

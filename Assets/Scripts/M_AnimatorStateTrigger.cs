@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class B_AnimatorStateTrigger : StateMachineBehaviour {
+public class M_AnimatorStateTrigger : StateMachineBehaviour {
     override public void OnStateEnter (Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         Main (animator, stateInfo, (e) => e.OnStateEnter.Invoke ());
     }
