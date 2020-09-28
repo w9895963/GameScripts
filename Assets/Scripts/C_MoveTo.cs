@@ -5,90 +5,218 @@
     using UnityEngine;
 
     public class C_MoveTo : MonoBehaviour {
-        [System.Serializable] public class Setting {
+        public Behaviour behaviour = default;
+        public enum Behaviour { Simple, PID }
+
+        [System.Serializable] public class SimpleMove {
+
             [System.Serializable] public class Require {
                 public Vector2 targetPosition;
                 public float time;
             }
             public Require require = new Require ();
             [System.Serializable] public class Optional {
-                public float maxAccelerate = 50;
                 public AnimationCurve moveCurve = Global.Curve.ZeroOne;
             }
             public Optional optional = new Optional ();
             public Events events = new Events ();
-            [System.Serializable] public class Events {
-                public UnityEvent onArrived = new UnityEvent ();
-                public UnityEvent onMoving = new UnityEvent ();
-                public UnityEvent onStart = new UnityEvent ();
-            }
-        }
-        public Setting setting = new Setting ();
-        [ReadOnly] public float timebegin;
-        [ReadOnly] public Vector2 beginPosition;
-        [ReadOnly] public Object createBy;
-        [SerializeField, ReadOnly] private bool arrived = true;
-        private Vector2? lastPosition;
 
-        private void FixedUpdate () {
-            if (!arrived) {
-                Setting s = setting;
-                float time = Time.time - timebegin;
+            // * ---------------------------------- 
+            [SerializeField] private Variables vars = new Variables ();
+            [System.Serializable] public class Variables {
+                public float timebegin;
+                public Vector2 beginPosition;
+                public Object createBy;
+                public bool arrived = false;
+                public Vector2 lastPosition;
+            }
+            private GameObject gameObject;
+
+            // * ---------------------------------- 
+
+            public void UpdatePosition () {
+                float time = Time.time - vars.timebegin;
                 Vector2 currP = gameObject.Get2dPosition ();
-                Vector2 lastP = lastPosition.NotNull () ? lastPosition.ToVector2 () : currP;
-                Vector2 targetPosition = s.require.targetPosition;
-                Vector2 v = targetPosition - beginPosition;
+                Vector2 lastP = vars.lastPosition;
+                Vector2 targetPosition = require.targetPosition;
+                Vector2 v = targetPosition - vars.beginPosition;
                 Vector2 normal = v.Rotate (90).normalized;
                 float dist = v.magnitude;
+                Vector2 beginPosition = vars.beginPosition;
                 float range;
-                Vector2 CurrTarget;
+                Vector2 nextP;
 
-                if (time < s.require.time) {
-                    range = s.optional.moveCurve.Evaluate (time / s.require.time);
-                    CurrTarget = v * range + beginPosition;
+                if (time < require.time) {
+                    range = optional.moveCurve.Evaluate (time / require.time);
+                    nextP = v * range + beginPosition;
                 } else {
                     range = 1;
-                    CurrTarget = s.require.targetPosition;
-                }
-
-
-
-
-                Vector2 lastV = currP - lastP;
-                Vector2 currV = CurrTarget - currP;
-                v = currV - lastV;
-                float max = s.optional.maxAccelerate * Time.fixedDeltaTime;
-                Vector2 nextP;
-                if (v.magnitude >= max) {
-                    currV = lastV + v * max / v.magnitude;
-                    nextP = currP + currV;
-                } else {
-                    nextP = CurrTarget;
+                    nextP = require.targetPosition;
                 }
 
 
                 gameObject.Set2dPosition (nextP);
 
                 currP = gameObject.Get2dPosition ();
-                lastPosition = gameObject.Get2dPosition ();
+                vars.lastPosition = gameObject.Get2dPosition ();
 
-                s.events.onMoving.Invoke ();
-                if (currP == s.require.targetPosition) {
-                    arrived = true;
-                    s.events.onArrived.Invoke ();
+                events.onMoving.Invoke ();
+                if (currP == require.targetPosition) {
+                    vars.arrived = true;
+                    events.onArrived.Invoke ();
                 }
+            }
+
+
+            public void Initial (GameObject gameObject, Events events) {
+                this.gameObject = gameObject;
+                vars.timebegin = Time.time;
+                vars.beginPosition = gameObject.transform.position;
+                vars.arrived = false;
+                this.events = events;
+                this.events.onStart.Invoke ();
+            }
+        }
+        public SimpleMove simpleMove = new SimpleMove ();
+        // * ---------------------------------- 
+
+
+        public PIDMove pidMove = new PIDMove ();
+        [System.Serializable] public class PIDMove {
+            public Require require = new Require ();
+            [System.Serializable] public class Require {
+                public Vector2 targetPosition;
+                public float speed = 4f;
+            }
+            public Advance advance = new Advance ();
+            [System.Serializable] public class Advance {
+                public float P = 0.5f;
+                public float I = 0.1f;
+                public float curveMaxdistance = 1;
+                public AnimationCurve slowDownCurve = Curve.ZeroOneFastOut01;
+                public float minVelosity = 0.1f;
+            }
+            public Variables vars = new Variables ();
+            // * ---------------------------------- 
+            [System.Serializable] public class Variables {
+                public Vector2 compensateForce = Vector2.zero;
+                public bool moving;
+            }
+            private GameObject gameObject;
+            private Events events;
+
+
+            // * ---------------------------------- 
+            public void Initial (GameObject gameObject, Events events) {
+                this.gameObject = gameObject;
+                this.events = events;
+                this.events.onStart.Invoke ();
+            }
+
+            public void updateForce () {
+                Rigidbody2D rigidbody = gameObject.GetComponent<Rigidbody2D> ();
+                if (rigidbody == null) rigidbody = gameObject.AddComponent<Rigidbody2D> ();
+                float deltaTime = Time.fixedDeltaTime;
+                Vector2 position = rigidbody.position;
+
+                float rotation = rigidbody.rotation;
+                float rotationStep = 360 * deltaTime;
+
+
+                Vector2 targetPosition = require.targetPosition;
+                float speed = require.speed;
+
+                float p = advance.P;
+                float I = advance.I;
+                AnimationCurve slowDownCurve = advance.slowDownCurve;
+                float distance = advance.curveMaxdistance;
+                float minVelosity = advance.minVelosity;
+
+                Vector2 fixedForce = vars.compensateForce;
+                bool lastFrameMoving = vars.moving;
+
+
+                bool moving;
+                Vector2 forceAdd;
+
+
+                #region //*Main Body
+
+                Vector2 distVt = targetPosition - position;
+                float dist = distVt.magnitude;
+                Vector2 wantVlosity = slowDownCurve.Evaluate (dist, 0, distance, 0, speed) * distVt.normalized;
+                wantVlosity = wantVlosity.normalized * (wantVlosity.magnitude + minVelosity);
+                Vector2 velocity = rigidbody.velocity;
+                float frameMove = velocity.magnitude * deltaTime;
+                Vector2 error = wantVlosity - velocity;
+
+
+
+
+                if (frameMove >= dist) {
+                    moving = false;
+                } else {
+                    moving = true;
+                }
+
+                fixedForce += error * I * dist / deltaTime;
+                forceAdd = error / deltaTime + fixedForce;
+                rigidbody.AddForce (forceAdd);
+
+                if (!moving) {
+                    rigidbody.velocity = Vector2.zero;
+                    rigidbody.position = targetPosition;
+                }
+
+
+                if (!lastFrameMoving & moving) {
+                    events.onStart.Invoke ();
+                }
+                if (moving) {
+                    events.onMoving.Invoke ();
+                }
+                if (lastFrameMoving & !moving) {
+                    events.onArrived.Invoke ();
+                }
+
+
+                #endregion
+
+
+                vars.compensateForce = fixedForce;
+                vars.moving = moving;
+
 
             }
         }
 
-        private void OnEnable () {
-            timebegin = Time.time;
-            beginPosition = transform.position;
-            arrived = false;
-            setting.events.onStart.Invoke ();
+        //*-----------------------
+        public Events events = new Events ();
+        [System.Serializable] public class Events {
+            public UnityEvent onArrived = new UnityEvent ();
+            public UnityEvent onMoving = new UnityEvent ();
+            public UnityEvent onStart = new UnityEvent ();
+        }
+        //*------------------------
+        [ReadOnly] public Object createBy;
+
+
+        //*-----------------------------
+        private void FixedUpdate () {
+
+            if (behaviour == Behaviour.Simple) {
+                simpleMove.UpdatePosition ();
+            } else if (behaviour == Behaviour.PID) {
+                pidMove.updateForce ();
+            }
+
         }
 
 
+        private void OnEnable () {
+            simpleMove.Initial (gameObject, events);
+            pidMove.Initial (gameObject, events);
+        }
 
 
     }
@@ -96,13 +224,13 @@
 
     public static class Extension_C_MoveTo {
 
-        public static C_MoveTo MoveTo (this GameObjectExMethod source, UnityAction<C_MoveTo.Setting> setup) {
+        public static C_MoveTo MoveTo (this GameObjectExMethod source, UnityAction<C_MoveTo.SimpleMove> setup) {
             C_MoveTo comp = source.gameObject.AddComponent<C_MoveTo> ();
             comp.enabled = false;
 
-            C_MoveTo.Setting setting = new C_MoveTo.Setting ();
+            C_MoveTo.SimpleMove setting = new C_MoveTo.SimpleMove ();
             setup (setting);
-            comp.setting = setting;
+            comp.simpleMove = setting;
             comp.createBy = source.callby;
 
             comp.enabled = true;

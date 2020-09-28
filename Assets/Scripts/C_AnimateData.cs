@@ -33,7 +33,7 @@ public class C_AnimateData : MonoBehaviour {
     private void FixedUpdate () {
         float currTime = (optional.useUnscaleTime) ? Time.unscaledTime : Time.time;
         float timeEnd = timebegin + require.time;
-        if (optional.useCurve) currTime = optional.curve.Evaluate (currTime, timebegin, timeEnd, timebegin, timeEnd);
+        if (optional.useCurve) currTime = Curve.Evaluate (currTime, timebegin, timeEnd, timebegin, timeEnd, optional.curve);
         float delTime = currTime - timebegin;
 
 

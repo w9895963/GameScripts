@@ -15,7 +15,7 @@ public class C1_TargetForce : MonoBehaviour {
     public RefFloat Force = new RefFloat ();
     //* Plugin
     [SerializeField] private ForceCurve distanceForceCurve = new ForceCurve ();
-    [SerializeField] private C0_Force.SpeedForceCurve speedForceCurve = new C0_Force.SpeedForceCurve ();
+    [SerializeField] private C0_Force.Property.Optional.SpeedForceCurve speedForceCurve = new C0_Force.Property.Optional.SpeedForceCurve ();
     [SerializeField] private PointForce forceAtpoint = new PointForce ();
     [SerializeField] private UseObjectTarget useObjectTarget = new UseObjectTarget ();
     [SerializeField] private SingleDimension singleDimension = new SingleDimension ();
@@ -44,8 +44,7 @@ public class C1_TargetForce : MonoBehaviour {
 
 
         UpdataDate ();
-        forceComp.property.require.force = forceAdd.magnitude;
-        forceComp.property.require.direction = forceAdd.normalized;
+        forceComp.property.require.simpleForce.force = forceAdd;
 
     }
 

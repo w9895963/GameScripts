@@ -14,7 +14,7 @@ public static class Extension_Fn {
 
     //*Event Trigger
 
-    public static GameObject DrawLine (this Funtion fn, Vector2 start, Vector2 end, float time = 0.03f) {
+    public static GameObject DrawLine (this Funtion fn, Vector2 start, Vector2 end, float time = 0.03f, float size = 0.4f) {
         if ((start - end).magnitude > 0.1f) {
             GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
             GameObject lineNew = GameObject.Instantiate (line);
@@ -25,9 +25,9 @@ public static class Extension_Fn {
             Spline spline = shape.spline;
 
             spline.SetPosition (0, lineNew.transform.InverseTransformPoint (start));
-            spline.SetHeight (0, 0.2f);
+            spline.SetHeight (0, size);
             spline.SetPosition (1, lineNew.transform.InverseTransformPoint (end));
-            spline.SetHeight (1, 0.2f);
+            spline.SetHeight (1, size);
             return lineNew;
         } else {
             return null;

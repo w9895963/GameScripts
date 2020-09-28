@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Global;
 using UnityEngine;
+using UnityEngine.U2D;
 
 namespace Global {
     public static class Layer {
@@ -38,12 +40,17 @@ namespace Global {
                 return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0), new Keyframe (1, 1, 0, 0, 0, 0));
             }
         }
-        public static AnimationCurve ZeroOneCurveSmooth03 {
+        public static AnimationCurve ZeroOneFastOut01 {
+            get {
+                return new AnimationCurve (new Keyframe (0, 0, 0, 1.5f, 0, 0.4f), new Keyframe (1, 1, 0, 0, 0, 0));
+            }
+        }
+        public static AnimationCurve ZeroOneSmooth03 {
             get {
                 return new AnimationCurve (new Keyframe (0, 0, 0, 0, 0, 0.3f), new Keyframe (1, 1, 0, 0, 0.3f, 0));
             }
         }
-        public static AnimationCurve OneZeroCurve {
+        public static AnimationCurve OneZero {
             get {
                 return new AnimationCurve (new Keyframe (0, 1, 0, 0, 0, 0), new Keyframe (1, 0, 0, 0, 0, 0));
             }
@@ -67,13 +74,18 @@ namespace Global {
         public static float Evaluate (float index, float inputMin, float inputMax,
             float outputMin, float outputMax, AnimationCurve curve = null
         ) {
-            Curve cur = new Curve ();
-            if (curve != null) cur.curve = curve;
-            cur.inputMax = inputMax;
-            cur.inputMin = inputMin;
-            cur.outputMin = outputMin;
-            cur.outputMax = outputMax;
-            return cur.Evaluate (index);
+            if (curve != null) {
+                Curve cur = new Curve ();
+                cur.curve = curve;
+                cur.inputMax = inputMax;
+                cur.inputMin = inputMin;
+                cur.outputMin = outputMin;
+                cur.outputMax = outputMax;
+                return cur.Evaluate (index);
+            } else {
+                return (index.Clamp (inputMin, inputMax) - inputMin) / (inputMax - inputMin)
+                    * (outputMax - outputMin) + outputMin;
+            }
         }
     }
 
@@ -149,8 +161,6 @@ namespace Global {
         public float value;
         public RefFloat (float value = 0) { this.value = value; }
     }
-   
-
 
     public class LayerRender {
         public Vector3 cameraPosition;
@@ -240,6 +250,69 @@ namespace Global {
 
         }
 
+    }
+    public static class VisibalCurve {
+        private const string objectName = "VisibalCurve";
+        private const string ShapeProfilePath = "DebugFile/SimpleLine";
+        private const string LineTemplate = "DebugFile/LineTemplate";
+
+        public static void AddKey (int curveIndex, float index, float value, float angleLimit = 2) {
+            GameObject temp = GlobalObject.TempObject;
+            Vector2 point = new Vector2 (index * 10, value * 10);
+            var list = temp.GetComponentsInChildren<LineRenderer> ().ToList ();
+            list = list.FindAll ((x) => x.name == objectName);
+            LineRenderer comp = list[curveIndex];
+
+            int count = comp.positionCount;
+            bool angleTest = true;
+            if (count >= 3) {
+                Vector2 p1 = comp.GetPosition (count - 1);
+                Vector2 p0 = comp.GetPosition (count - 2);
+                var p2 = point;
+                float angle = Vector2.Angle (p1 - p0, p2 - p1);
+                if (angle < angleLimit) {
+                    angleTest = false;
+                }
+            }
+            if (angleTest) {
+                comp.positionCount = count + 1;
+                comp.SetPosition (count, point);
+            } else {
+                comp.SetPosition (count - 1, point);
+            }
+        }
+
+        public static void Create (Color color = new Color (), Vector2 position = default) {
+            GameObject temp = GlobalObject.TempObject;
+
+            GameObject obj = GameObject.Instantiate (Resources.Load (LineTemplate, typeof (GameObject)) as GameObject);
+            obj.name = objectName;
+            obj.transform.parent = temp.transform;
+            obj.transform.position = position;
+            LineRenderer line = obj.GetComponent<LineRenderer> ();
+            line.endColor = color;
+            line.startColor = color;
+
+
+
+
+        }
+
+    }
+
+}
+
+
+public static class Extension_AnimationCurve {
+    public static float Evaluate (this AnimationCurve curve, float index, float inputMin, float inputMax,
+        float outputMin, float outputMax) {
+        Curve cur = new Curve ();
+        cur.curve = curve;
+        cur.inputMax = inputMax;
+        cur.inputMin = inputMin;
+        cur.outputMin = outputMin;
+        cur.outputMax = outputMax;
+        return cur.Evaluate (index);
     }
 
 }

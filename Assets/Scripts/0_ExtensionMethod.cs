@@ -5,20 +5,6 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public static class ExtensionMethod {
-    public static float GetMax (this AnimationCurve curve) {
-        List<Keyframe> keyframes = new List<Keyframe> (curve.keys);
-        keyframes.Sort ((a, b) => a.value > b.value? - 1 : 1);
-        return keyframes[0].value;
-    }
-
-    public static float Evaluate (this AnimationCurve curve, float index,
-        float indexMin, float indexMax,
-        float valueMin, float valueMax) {
-
-
-        float indexNew = (index - indexMin) / (indexMax - indexMin);
-        return curve.Evaluate (indexNew) * (valueMax - valueMin) + valueMin;
-    }
 
 
 
@@ -31,19 +17,6 @@ public static class ExtensionMethod {
             }
         }
         source[index] = newMember;
-    }
-    public static T[] RemoveAll<T> (this T[] source, System.Predicate<T> match) {
-        List<T> lists = source.ToList ();
-        lists.RemoveAll (match);
-        return lists.ToArray ();
-    }
-
-    public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
-        if (source.Count <= index) {
-            source.Add (index, new T ());
-        }
-        return source;
-
     }
     public static void AddNotHas<T> (this List<T> source, T newMember) {
         if (!source.Contains (newMember)) {
@@ -58,6 +31,27 @@ public static class ExtensionMethod {
             }
         });
     }
+    public static T GetOrAdd<T> (this List<T> source, int index) where T : class, new () {
+        for (int i = source.Count; i <= index; i++) {
+            source.Add (new T ());
+        }
+        return source[index];
+    }
+
+    public static T[] RemoveAll<T> (this T[] source, System.Predicate<T> match) {
+        List<T> lists = source.ToList ();
+        lists.RemoveAll (match);
+        return lists.ToArray ();
+    }
+
+    public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
+        if (source.Count <= index) {
+            source.Add (index, new T ());
+        }
+        return source;
+
+    }
+
     public static bool Exist<T> (this T[] source, System.Predicate<T> match) {
         List<T> list = new List<T> (source);
         return list.Exists (match);
@@ -111,9 +105,31 @@ public static class ExtensionMethod {
     public static Vector2 Rotate (this Vector2 vector, float angle) {
         return Quaternion.AngleAxis (angle, Vector3.forward) * vector;
     }
-    public static Vector2 Reverse (this Vector2 vector) {
-        return vector * -1;
+    public static Vector2 Rotate (this Vector2 vector, Vector2 to) {
+        return to.normalized * vector.magnitude;
     }
+    public static Vector2 Rotate (this Vector2 vector, Vector2 from, Vector2 to) {
+        return Quaternion.FromToRotation (from, to) * vector;
+    }
+    public static Vector2 ClamMinOnDirection (this Vector2 vector, float min, Vector2 direction) {
+        Vector2 vectorH = vector.Project (direction);
+        Vector2 vectorV = vector.ProjectOnPlane (direction);
+        Vector2 vectorHnorm = vectorH.Rotate (direction, Vector2.right);
+        vectorHnorm.x = vectorHnorm.x.ClampMin (min);
+        vectorH = vectorHnorm.Rotate (Vector2.right, direction);
+        return vectorH + vectorV;
+    }
+    public static Vector2 ClamMax (this Vector2 vector, float max) {
+        if (vector.magnitude >= max) {
+            return vector.normalized * max;
+        } else {
+            return vector;
+        }
+    }
+    public static bool IsSameSide (this Vector2 vector, Vector2 to) {
+        return Vector2.Angle (vector, to) < 90;
+    }
+
     public static Vector3 ToVector3 (this Vector2 vector, float z = 0) {
         return new Vector3 (vector.x, vector.y, z);
     }
@@ -158,6 +174,9 @@ public static class ExtensionMethod {
     }
     public static float Abs (this float f) {
         return Mathf.Abs (f);
+    }
+    public static float Pow (this float f, float p) {
+        return Mathf.Pow (f, p);
     }
     public static float Clamp (this float f, float min, float max) {
         return Mathf.Clamp (f, min, max);
@@ -342,7 +361,7 @@ namespace Global {
             this.callby = callby;
         }
         //*--------------------------
-      
+
     }
 
 
