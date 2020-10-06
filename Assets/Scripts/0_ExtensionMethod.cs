@@ -271,8 +271,10 @@ public static class ExtensionMethod {
     }
 
 
-    public static void Set2dPosition (this Transform transform, Vector2 position) {
-        transform.position = new Vector3 (position.x, position.y, transform.position.z);
+
+    public static void Set2dPosition (this GameObject gameObject, Vector2 p) {
+        Vector2 position = p;
+        gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
     }
     public static void Set2dPosition (this GameObject gameObject, Vector2? p) {
         Vector2 position = p.ToVector2 ();

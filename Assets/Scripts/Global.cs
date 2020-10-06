@@ -7,11 +7,11 @@ using UnityEngine.U2D;
 
 namespace Global {
     public static class Layer {
-        public static NormalLayer tempLayer = new NormalLayer ("Temp");
+        public static LayerCs tempLayer = new LayerCs ("Temp");
 
-        public class NormalLayer {
+        public class LayerCs {
             private string name;
-            public NormalLayer (string name) {
+            public LayerCs (string name) {
                 this.name = name;
             }
             public string Name {
@@ -253,8 +253,7 @@ namespace Global {
     }
     public static class VisibalCurve {
         private const string objectName = "VisibalCurve";
-        private const string ShapeProfilePath = "DebugFile/SimpleLine";
-        private const string LineTemplate = "DebugFile/LineTemplate";
+        private const string lineTemplate = "DebugFile/LineTemplate";
 
         public static void AddKey (int curveIndex, float index, float value, float angleLimit = 2) {
             GameObject temp = GlobalObject.TempObject;
@@ -285,7 +284,7 @@ namespace Global {
         public static void Create (Color color = new Color (), Vector2 position = default) {
             GameObject temp = GlobalObject.TempObject;
 
-            GameObject obj = GameObject.Instantiate (Resources.Load (LineTemplate, typeof (GameObject)) as GameObject);
+            GameObject obj = GameObject.Instantiate (Resources.Load (lineTemplate, typeof (GameObject)) as GameObject);
             obj.name = objectName;
             obj.transform.parent = temp.transform;
             obj.transform.position = position;

@@ -4,7 +4,7 @@ using Global;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Gb_Action : MonoBehaviour {
+public class Gb_EventAction : MonoBehaviour {
 
 
     public void _SetHelperCameraEnable (bool enable) {

@@ -1,34 +1,95 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Global;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using static Global.Funtion;
 
 public class M_Cursor : MonoBehaviour {
     public enum StateCs { normal, grab, walk, manipulate }
 
     [SerializeField, ReadOnly] private StateCs state = StateCs.normal;
     //*----------------------Inspector
+    public float sensitivity = 1;
     public bool hideSystemCursor = true;
     [ReadOnly] public List<Object> events = new List<Object> ();
     //*-----------------------
-    public static M_Cursor cursorObj;
-    //*--------------------------
     private Animator animator;
     private float scale = 0;
-    private Sprite sprite;
+    private Sprite lastSprite;
+    public GameObject currentOverObject;
+    public List<GameObject> overobjects = new List<GameObject> ();
 
 
     //*------------------
-    private void Awake () {
-        if (cursorObj == null) cursorObj = this;
-    }
     private void Update () {
-        if (sprite != GetComponent<Image> ().sprite) {
+        Sprite currSprite = GetComponent<Image> ().sprite;
+        if (lastSprite != currSprite) {
             UpdateSize ();
         }
-        sprite = GetComponent<Image> ().sprite;
+        lastSprite = currSprite;
+
+
+
+        #region //*Custom Pointer
+        // Vector2 mouseDelta = Mouse.current.delta.ReadValue ();
+        // if (mouseDelta.x != 0 | mouseDelta.y != 0) {
+        //     transform.position += mouseDelta.ToVector3 () * sensitivity;
+        //     Vector2 p = transform.position;
+
+        //     gameObject.Set2dPosition (new Vector2 (p.x.Clamp (0, Screen.width), p.y.Clamp (0, Screen.height)));
+
+        // }
+
+        // PointerEventData pointerData = new PointerEventData (EventSystem.current);
+        // pointerData.position = gameObject.Get2dPosition ();
+
+
+        // List<RaycastResult> result = new List<RaycastResult> ();
+        // EventSystem.current.RaycastAll (pointerData, result);
+
+        // GameObject lastObj = currentOverObject;
+        // GameObject currObj = (result.Count > 0) ? result[0].gameObject : null;
+
+
+        // if (currObj != lastObj) {
+        //     if (currObj != null) {
+        //         List<GameObject> currOverList = currObj.GetComponentsInParent<Transform> ().ToList ()
+        //             .Select ((x) => x.gameObject).ToList ();
+        //         currOverList.ForEach ((x) => {
+        //             if (!overobjects.Contains (x)) {
+        //                 x.GetComponents<EventTrigger> ().ForEach ((y) => { y.OnPointerEnter (pointerData); });
+        //                 overobjects.Add (x);
+        //             }
+        //         });
+        //         overobjects.Except (currOverList).ToList ().ForEach ((x) => {
+        //             x.GetComponents<EventTrigger> ().ForEach ((y) => { y.OnPointerExit (pointerData); });
+        //             overobjects.Remove (x);
+        //         });
+        //     } else {
+        //         overobjects.FindAll (x => true).ForEach ((x) => {
+        //             x.GetComponents<EventTrigger> ().ForEach ((y) => {
+        //                 y.OnPointerExit (pointerData);
+        //             });
+        //             overobjects.Remove (x);
+        //         });
+
+        //     }
+        // }
+
+
+
+
+        // currentOverObject = currObj;
+        #endregion
+
+
+
+
     }
     private void OnEnable () {
         var image = GetComponent<Image> ();
@@ -38,18 +99,18 @@ public class M_Cursor : MonoBehaviour {
         image.raycastTarget = false;
         Cursor.visible = !hideSystemCursor;
 
-
-        Object pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onMove, (d) => {
+        Object pointerEventObj;
+        pointerEventObj = Fn (this).AddPointerEvent (PointerEventType.onMove, (d) => {
             gameObject.GetComponent<RectTransform> ().position = d.position_Screen;
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onPressDown, (d) => {
+        pointerEventObj = Fn (this).AddPointerEvent (PointerEventType.onPressDown, (d) => {
             animator.SetBool ("Click", true);
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj =Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onPressUp, (d) => {
+        pointerEventObj = Global.Funtion.Fn (this).AddPointerEvent (PointerEventType.onPressUp, (d) => {
             animator.SetBool ("Click", false);
         });
         events.Add (pointerEventObj);
@@ -89,7 +150,6 @@ public class M_Cursor : MonoBehaviour {
         }
         get => state;
     }
-
 
 
 }

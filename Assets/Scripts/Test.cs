@@ -5,16 +5,18 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 public class Test : MonoBehaviour {
-    public Object obj;
-    void Start () {
+    public UnityEngine.Object obj;
+
+    private void Awake () {
 
     }
 
-    void Update () {
-
-
-    }
     private void OnValidate () {
-        if (obj) Debug.Log (obj);
+        Debug.Log (obj);
+    }
+
+
+    private void FixedUpdate () {
+
     }
 }
