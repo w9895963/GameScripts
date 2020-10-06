@@ -6,25 +6,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 namespace Global {
-    public static class Layer {
-        public static LayerCs tempLayer = new LayerCs ("Temp");
-
-        public class LayerCs {
-            private string name;
-            public LayerCs (string name) {
-                this.name = name;
-            }
-            public string Name {
-                get => name;
-            }
-            public int Index {
-                get => LayerMask.NameToLayer (name);
-            }
-            public int Mask {
-                get => LayerMask.GetMask (name);
-            }
-        }
-    }
+  
 
     [System.Serializable] public class Curve {
         public float inputMax = 1;

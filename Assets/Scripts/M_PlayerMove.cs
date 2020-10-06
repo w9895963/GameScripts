@@ -103,7 +103,7 @@ public class M_PlayerMove : MonoBehaviour {
 
 
         Destroy (onArriveComp);
-        onArriveComp =Global.Funtion.Fn(this).OnArrive (rigidBody.gameObject, point, moveVector, arriveDistance, callBack : Stop);
+        onArriveComp = Global.Funtion.Fn (this).OnArrive (rigidBody.gameObject, point, moveVector, arriveDistance, callBack : Stop);
         return point;
     }
     public void Move (Vector2 direction, float maxSpeed = -1f, float duration = -1f) {
@@ -112,7 +112,7 @@ public class M_PlayerMove : MonoBehaviour {
         Vector2 moveVector = (direction).ProjectOnPlane (gravity);
 
         forceComp.Destroy ();
-        forceComp = this.Ex_AddForce (moveVector.normalized * force, this.maxSpeed, speedForceCurve);
+        forceComp = rigidBody._Ex (this).AddForce (moveVector.normalized * force, this.maxSpeed, speedForceCurve);
 
         if (duration > 0) forceComp.Destroy (duration);
     }

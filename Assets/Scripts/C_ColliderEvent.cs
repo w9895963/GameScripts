@@ -218,7 +218,7 @@ public static class Extension_C_ColliderEvent {
             OnCollisionExit
         );
 
-    public static C_ColliderEvent AddCollierEvent (this Collider2dExMethod ex,
+    public static C_ColliderEvent AddCollierEvent (this Collider2DExMethod ex,
         UnityAction<C_ColliderEvent.Profile> setup
     ) {
         C_ColliderEvent comp = ex.source.gameObject.AddComponent<C_ColliderEvent> ();

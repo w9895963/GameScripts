@@ -12,7 +12,7 @@ public class Gb_EventAction : MonoBehaviour {
     }
 
     public void _Gravity_Reverse () {
-        FindObjectOfType<M_PlayerManager> ().ReverseGravity ();
+        MainCharacter.ReverseGravity ();
     }
 
 

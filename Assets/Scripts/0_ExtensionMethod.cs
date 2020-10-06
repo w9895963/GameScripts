@@ -7,8 +7,9 @@ using UnityEngine.EventSystems;
 public static class ExtensionMethod {
 
 
+    #region //*Array & List
 
-    //*Array & List
+
 
     public static void Add<T> (this List<T> source, int index, T newMember) {
         if (source.Count <= index) {
@@ -71,22 +72,17 @@ public static class ExtensionMethod {
             action (t);
         }
     }
-    //* ------------List< Object >
-    public static void Destroy (this List<Object> objects) {
-        foreach (var obj in objects) {
-            GameObject.Destroy (obj);
-        }
-        objects.RemoveRange (0, objects.Count);
-    }
-    public static void Add (this List<Object> source, int index, Object item) {
-        if (source.Count <= index) {
-            for (int i = source.Count; i < index + 1; i++) {
-                source.Add (default);
-            }
-        }
-        GameObject.Destroy (source[index]);
-        source[index] = item;
-    }
+
+
+
+
+    #endregion //*endregion
+
+
+
+
+    #region //*Vector
+
 
     //* Vector2
 
@@ -154,9 +150,13 @@ public static class ExtensionMethod {
         return vector != null?(Vector2) vector : Vector2.zero;
     }
 
+    #endregion
 
 
-    //*Float
+    #region //*Float
+
+
+
     public static float Min (this float f, float compareWith) {
         return f < compareWith ? f : compareWith;
     }
@@ -191,7 +191,7 @@ public static class ExtensionMethod {
         return new Vector2 (fl, fl);
     }
 
-
+    #endregion
 
     public static EventTrigger Ex_AddInputToTrigger (this Collider2D collider,
         EventTriggerType type,
@@ -217,8 +217,15 @@ public static class ExtensionMethod {
     }
 
 
+    #region //*Unity Object
 
 
+    public static void Destroy (this List<Object> objects) {
+        foreach (var obj in objects) {
+            GameObject.Destroy (obj);
+        }
+        objects.RemoveRange (0, objects.Count);
+    }
     public static void Destroy (this Object obj, float timeWait = 0) {
         if (timeWait <= 0) {
             GameObject.Destroy (obj);
@@ -229,39 +236,13 @@ public static class ExtensionMethod {
     public static void Destroy (this Component component) {
         GameObject.Destroy (component);
     }
-
     public static void Destroy (this Object[] objects) {
         foreach (var obj in objects) {
             GameObject.Destroy (obj);
         }
     }
-    public static void SetEnabled (this List<MonoBehaviour> component, bool enable) {
-        foreach (var comp in component) {
-            if (comp) {
-                comp.enabled = enable;
-            }
-        }
-    }
-    public static T[] GetComponents<T> (this GameObject[] gameObject) {
-        List<T> list = new List<T> ();
-        gameObject.ForEach ((o) => {
-            T t = o.GetComponent<T> ();
-            if (t != null) {
-                list.Add (t);
-            }
-        });
-        return list.ToArray ();
-    }
-    public static T[] GetComponents<T> (this List<GameObject> gameObjectList) {
-        List<T> list = new List<T> ();
-        gameObjectList.ForEach ((o) => {
-            T t = o.GetComponent<T> ();
-            if (t != null) {
-                list.Add (t);
-            }
-        });
-        return list.ToArray ();
-    }
+
+
 
     public static GameObject AddChildren (this GameObject gameObject, string name) {
         GameObject obj = new GameObject (name);
@@ -276,97 +257,87 @@ public static class ExtensionMethod {
         Vector2 position = p;
         gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
     }
-    public static void Set2dPosition (this GameObject gameObject, Vector2? p) {
-        Vector2 position = p.ToVector2 ();
-        gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
-    }
-    public static void SetTransparent (this SpriteRenderer render, float alpha) {
-        Color color = render.color;
-        render.color = new Color (color.r, color.g, color.b, alpha);
-    }
+
     public static Vector2 Get2dPosition (this GameObject gameObject) {
         return (Vector2) gameObject.transform.position;
     }
-    public static FixedJoint2D Ex_ConnectTo (this Rigidbody2D rigid, Rigidbody2D to,
-        Vector2 fixedAnchor = default, Vector2 connectedAnchor = default
-    ) { //--------------------------------//
-        FixedJoint2D fixedJointComp = rigid.gameObject.AddComponent<FixedJoint2D> ();
-        fixedJointComp.connectedBody = to;
-        fixedJointComp.autoConfigureConnectedAnchor = false;
-        fixedJointComp.connectedAnchor = connectedAnchor;
-        fixedJointComp.anchor = fixedAnchor;
-        return fixedJointComp;
+
+    #endregion//*Endregion
+
+
+
+
+    #region //*Collider2dExMethod
+    public static Vector2? ClosestPointToLine (this Collider2DExMethod ex, Vector2 position, Vector2 direction) {
+        Vector2? result = null;
+        int sourceLayer = ex.source.gameObject.layer;
+        ex.source.gameObject.layer = Layer.tempLayer.Index;
+
+
+        RaycastHit2D hit;
+        hit = Physics2D.Raycast (position, direction, Mathf.Infinity, Layer.tempLayer.Mask);
+        if (hit != default) {
+            result = hit.point;
+        } else {
+            hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, Layer.tempLayer.Mask);
+            if (hit != default) {
+                result = hit.point;
+            }
+        }
+
+        ex.source.gameObject.layer = sourceLayer;
+        return result;
     }
 
-    //*--------------------------------------------------------
+    #endregion //*End
+
+
+
+    // * ---------------------------------- 
     public static GameObjectExMethod _Ex (this GameObject gameObject, Object callBy) {
         return new GameObjectExMethod (gameObject, callBy);
     }
-
-
-
-    public static Collider2dExMethod _Ex (this Collider2D collider, Object callBy) {
-        return new Collider2dExMethod (collider, callBy);
+    public static Collider2DExMethod _Ex (this Collider2D collider, Object callBy) {
+        return new Collider2DExMethod (collider, callBy);
     }
     public static Rigid2dExMethod _Ex (this Rigidbody2D rigidbody, Object callBy) {
         return new Rigid2dExMethod (rigidbody, callBy);
     }
 
+}
 
+public class GameObjectExMethod {
+    public GameObject gameObject;
+    public Object callby;
+    public GameObjectExMethod (GameObject gameObject, Object callBy) {
+        this.gameObject = gameObject;
+        this.callby = callBy;
+    }
+    // * ---------------------------------- 
 
 }
 
-namespace Global {
-    public class GameObjectExMethod {
-        public GameObject gameObject;
-        public Object callby;
-        public GameObjectExMethod (GameObject gameObject, Object callBy) {
-            this.gameObject = gameObject;
-            this.callby = callBy;
-        }
+public class Collider2DExMethod {
+    public Collider2D source;
+    public Object callby;
+    public Collider2DExMethod (Collider2D collider, Object callby) {
+        source = collider;
+        this.callby = callby;
     }
+    //*--------------------------
 
-    public class Collider2dExMethod {
-        public Collider2D source;
-        public Object callby;
-        public Collider2dExMethod (Collider2D collider, Object callby) {
-            source = collider;
-            this.callby = callby;
-        }
-        //*--------------------------
-        public Vector2? ClosestPointToLine (Vector2 position, Vector2 direction) {
-            Vector2? result = null;
-            int sourceLayer = source.gameObject.layer;
-            source.gameObject.layer = Layer.tempLayer.Index;
-
-
-            RaycastHit2D hit;
-            hit = Physics2D.Raycast (position, direction, Mathf.Infinity, Layer.tempLayer.Mask);
-            if (hit != default) {
-                result = hit.point;
-            } else {
-                hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, Layer.tempLayer.Mask);
-                if (hit != default) {
-                    result = hit.point;
-                }
-            }
-
-            source.gameObject.layer = sourceLayer;
-            return result;
-        }
+}
+public class Rigid2dExMethod {
+    public Rigidbody2D rigidbody;
+    public Object callby;
+    public Rigid2dExMethod (Rigidbody2D rigidbody, Object callby) {
+        this.rigidbody = rigidbody;
+        this.callby = callby;
     }
-    public class Rigid2dExMethod {
-        public Rigidbody2D rigidbody;
-        public Object callby;
-        public Rigid2dExMethod (Rigidbody2D rigidbody, Object callby) {
-            this.rigidbody = rigidbody;
-            this.callby = callby;
-        }
-        //*--------------------------
+    //*--------------------------
 
-    }
+}
 
-
-
+public class Classname {
 
 }

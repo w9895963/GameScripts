@@ -100,9 +100,7 @@ public class C1_Follow : MonoBehaviour {
             Vector2? result = null;
 
             if (direction != default) {
-                Vector2? point = targetColl._Ex (this).ClosestPointToLine (
-                    nextP, direction
-                );
+                Vector2? point = VectorHitPoint (targetColl.gameObject, nextP, direction);
                 if (point.NotNull ())
                     result = point.ToVector2 ();
             }
@@ -144,6 +142,27 @@ public class C1_Follow : MonoBehaviour {
             }
 
         }
+    }
+
+    public Vector2? VectorHitPoint (GameObject gameObject, Vector2 position, Vector2 direction) {
+        Vector2? result = null;
+        int sourceLayer = gameObject.layer;
+        gameObject.layer = Layer.tempLayer.Index;
+
+
+        RaycastHit2D hit;
+        hit = Physics2D.Raycast (position, direction, Mathf.Infinity, Layer.tempLayer.Mask);
+        if (hit != default) {
+            result = hit.point;
+        } else {
+            hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, Layer.tempLayer.Mask);
+            if (hit != default) {
+                result = hit.point;
+            }
+        }
+
+        gameObject.layer = sourceLayer;
+        return result;
     }
 
 }

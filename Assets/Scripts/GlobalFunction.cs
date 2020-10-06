@@ -18,6 +18,7 @@ public static class Extension_Fn {
         if ((start - end).magnitude > 0.1f) {
             GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
             GameObject lineNew = GameObject.Instantiate (line);
+            lineNew.transform.parent = GlobalObject.TempObject.transform;
             if (time >= 0) lineNew.Ex_AutoDestroy (time);
             lineNew.transform.position = start;
 

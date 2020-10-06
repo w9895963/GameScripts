@@ -15,7 +15,7 @@ public class C1_TargetForce : MonoBehaviour {
     public RefFloat Force = new RefFloat ();
     //* Plugin
     [SerializeField] private ForceCurve distanceForceCurve = new ForceCurve ();
-    [SerializeField] private C0_Force.Property.Optional.SpeedForceCurve speedForceCurve = new C0_Force.Property.Optional.SpeedForceCurve ();
+    [SerializeField] private C0_Force.Setting.Optional.SpeedForceCurve speedForceCurve = new C0_Force.Setting.Optional.SpeedForceCurve ();
     [SerializeField] private PointForce forceAtpoint = new PointForce ();
     [SerializeField] private UseObjectTarget useObjectTarget = new UseObjectTarget ();
     [SerializeField] private SingleDimension singleDimension = new SingleDimension ();
@@ -27,7 +27,21 @@ public class C1_TargetForce : MonoBehaviour {
 
 
     // *Private Method
-    private void Main () {
+
+
+    private void UpdataDate () {
+        if (forceComp) {
+            forceComp.setting.optional.speedForceCurve = speedForceCurve;
+            forceComp.setting.optional.ignoreMass = ignoreMass;
+        }
+
+    }
+    private void Setup () {
+        if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
+    }
+
+    //*Main
+    private void FixedUpdate () {
         if (useObjectTarget.enable) targetPosition = useObjectTarget.target.transform.position;
 
 
@@ -44,27 +58,8 @@ public class C1_TargetForce : MonoBehaviour {
 
 
         UpdataDate ();
-        forceComp.property.require.simpleForce.force = forceAdd;
-
-    }
-
-
-    private void UpdataDate () {
-        if (forceComp) {
-            forceComp.SetPointForceMode (forceAtpoint.enable, forceAtpoint.localPosition);
-            forceComp.SetSpeedForceCurve (speedForceCurve.enable, speedForceCurve.curve, speedForceCurve.maxSpeed);
-            forceComp.property.optional.ignoreMass = ignoreMass;
-        }
-
-    }
-    private void Setup () {
-        if (rigidBody == null) rigidBody = GetComponent<Rigidbody2D> ();
-        if (forceComp == null) forceComp = this.Ex_AddForce ();
-    }
-
-    //*Main
-    private void FixedUpdate () {
-        Main ();
+        forceComp.Destroy ();
+        forceComp = rigidBody._Ex (this).AddForce (forceAdd);
     }
 
     //*Event
