@@ -9,8 +9,6 @@ public static class ExtensionMethod {
 
     #region //*Array & List
 
-
-
     public static void Add<T> (this List<T> source, int index, T newMember) {
         if (source.Count <= index) {
             for (int i = source.Count; i < index + 1; i++) {
@@ -25,25 +23,9 @@ public static class ExtensionMethod {
         }
 
     }
-    public static void AddNotHas<T> (this List<T> source, List<T> newMembers) {
-        newMembers.ForEach ((x) => {
-            if (!source.Contains (x)) {
-                source.Add (x);
-            }
-        });
-    }
-    public static T GetOrAdd<T> (this List<T> source, int index) where T : class, new () {
-        for (int i = source.Count; i <= index; i++) {
-            source.Add (new T ());
-        }
-        return source[index];
-    }
 
-    public static T[] RemoveAll<T> (this T[] source, System.Predicate<T> match) {
-        List<T> lists = source.ToList ();
-        lists.RemoveAll (match);
-        return lists.ToArray ();
-    }
+
+
 
     public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
         if (source.Count <= index) {
@@ -53,14 +35,7 @@ public static class ExtensionMethod {
 
     }
 
-    public static bool Exist<T> (this T[] source, System.Predicate<T> match) {
-        List<T> list = new List<T> (source);
-        return list.Exists (match);
-    }
-    public static T Find<T> (this T[] source, System.Predicate<T> match) {
-        List<T> list = new List<T> (source);
-        return list.Find (match);
-    }
+
     public static T[] ToArray<T> (this T source) {
         return new T[] { source };
     }
@@ -148,6 +123,24 @@ public static class ExtensionMethod {
     }
     public static Vector2 ToVector2 (this Vector3? vector) {
         return vector != null?(Vector2) vector : Vector2.zero;
+    }
+
+    //* Vector List
+
+    public static bool IsSame (this List<Vector2> source, List<Vector2> list) {
+        bool result = true;
+        List<Vector2> l1 = new List<Vector2> (source);
+        List<Vector2> l2 = new List<Vector2> (list);
+        if (l1.Count != l2.Count) {
+            result = false;
+        } else {
+            l1.RemoveAll ((x) => list.Contains (x));
+            l2.RemoveAll ((x) => source.Contains (x));
+            if (l1.Count != 0 | l2.Count != 0) {
+                result = false;
+            }
+        }
+        return result;
     }
 
     #endregion
