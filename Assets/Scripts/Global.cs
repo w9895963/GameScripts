@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 namespace Global {
-  
+
 
     [System.Serializable] public class Curve {
         public float inputMax = 1;
@@ -236,13 +236,32 @@ namespace Global {
     public static class VisibalCurve {
         private const string objectName = "VisibalCurve";
         private const string lineTemplate = "DebugFile/LineTemplate";
+        private const string textureName = "PointData";
+        private const int pix = 8;
 
-        public static void AddKey (int curveIndex, float index, float value, float angleLimit = 2) {
+        public static void AddKey (int curveIndex, float index, float value,
+            Color color = default, Vector2 position = default, float angleLimit = 1
+        ) {
             GameObject temp = GlobalObject.TempObject;
-            Vector2 point = new Vector2 (index * 10, value * 10);
+            Vector2 point = new Vector2 (index, value);
             var list = temp.GetComponentsInChildren<LineRenderer> ().ToList ();
             list = list.FindAll ((x) => x.name == objectName);
+            if (list.Count <= curveIndex) {
+                for (int i = list.Count; i <= curveIndex; i++) {
+                    Create ();
+                }
+                list = temp.GetComponentsInChildren<LineRenderer> ().ToList ();
+                list = list.FindAll ((x) => x.name == objectName);
+            }
             LineRenderer comp = list[curveIndex];
+            if (color != default) {
+                comp.endColor = color;
+                comp.startColor = color;
+            }
+            if (position != comp.gameObject.Get2dPosition ()) {
+                comp.gameObject.SetPosition (position);
+            }
+
 
             int count = comp.positionCount;
             bool angleTest = true;
@@ -255,15 +274,30 @@ namespace Global {
                     angleTest = false;
                 }
             }
+            int indexP;
             if (angleTest) {
                 comp.positionCount = count + 1;
-                comp.SetPosition (count, point);
+                indexP = count;
             } else {
-                comp.SetPosition (count - 1, point);
+                indexP = count - 1;
             }
+            comp.SetPosition (indexP, point);
+            //*store point data to texture
+            PointToColorData (indexP, point, comp);
+
+
+        }
+        public static void PointToColorData (int pointI, Vector2 pointP, LineRenderer comp) {
+            Texture2D texture = comp.materials[0].GetTexture (textureName) as Texture2D;
+            if (texture == null) {
+                texture = new Texture2D (16, 16, TextureFormat.RGFloat, false);
+                comp.materials[0].SetTexture (textureName, texture);
+            }
+            MaterialFn.StoreDataToTexture (texture, pointI, pointP, TextureFormat.RGFloat,16);
+
         }
 
-        public static void Create (Color color = new Color (), Vector2 position = default) {
+        public static void Create (Color color = default, Vector2 position = default) {
             GameObject temp = GlobalObject.TempObject;
 
             GameObject obj = GameObject.Instantiate (Resources.Load (lineTemplate, typeof (GameObject)) as GameObject);
@@ -271,12 +305,46 @@ namespace Global {
             obj.transform.parent = temp.transform;
             obj.transform.position = position;
             LineRenderer line = obj.GetComponent<LineRenderer> ();
+            if (color == default) {
+                color = Color.white;
+            }
             line.endColor = color;
             line.startColor = color;
 
 
 
+        }
 
+    }
+
+
+    public static class MaterialFn {
+        public static void StoreDataToTexture (Texture2D texture, int index, Vector4 data,
+            TextureFormat formate, int pixelsUnit = 16
+        ) {
+            int width = texture.width;
+            int height = texture.height;
+            int edge = (int) Mathf.Ceil (Mathf.Sqrt (index + 1));
+            int needEdge = (int) Mathf.Ceil (edge / (float) pixelsUnit) * pixelsUnit;
+            if (texture.format != formate | width != needEdge) {
+                Color[] colors = texture.GetPixels ();
+                texture.Resize (needEdge, needEdge, formate, false);
+                texture.SetPixels (0, 0, width, width, colors);
+                texture.filterMode = FilterMode.Point;
+                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.Apply ();
+            }
+
+            int row = (int) Mathf.Floor (Mathf.Sqrt (index));
+            int subIndex = index - (int) Mathf.Pow (row, 2);
+            Vector2 coor;
+            if (subIndex <= row) {
+                coor = new Vector2 (subIndex, row);
+            } else {
+                coor = new Vector2 (row, 2 * row - subIndex);
+            }
+            texture.SetPixel ((int) coor.x, (int) coor.y, new Color (data.x, data.y, data.z, data.w));
+            texture.Apply ();
         }
 
     }

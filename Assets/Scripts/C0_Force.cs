@@ -27,23 +27,47 @@ public class C0_Force : MonoBehaviour {
                     this.maxSpeed = maxSpeed;
                 }
             }
+
+            public TargetDistanceScale targetDistanceScale = new TargetDistanceScale ();
+            [System.Serializable] public class TargetDistanceScale {
+                public bool enabled = false;
+                public Vector2 target;
+                public AnimationCurve curve = Curve.ZeroOne;
+                public float maxDistance = 1;
+                public float Scaler (Vector2 force, Vector2 position) {
+                    Vector2 distVt = target - position;
+                    float dist = distVt.magnitude;
+                    return curve.Evaluate (dist, 0, maxDistance, 0, 1);
+                }
+
+            }
+
+            public ForceCompensator forceCompensator = new ForceCompensator ();
+            [System.Serializable] public class ForceCompensator {
+                public bool enabled = false;
+                public float targetSpeed;
+
+            }
         }
         public Optional optional = new Optional ();
 
     }
 
-
+    public Vector2 force;
+    public Vector2 velosity;
     public Object createby;
+    public PID pid;
 
 
 
 
     // *MAIN
+
     private void FixedUpdate () {
         Rigidbody2D rigidBody = GetComponent<Rigidbody2D> ();
-        Vector2 forceAdd = Vector2.zero;
+        Vector2 position = rigidBody.position;
+        Vector2 forceAdd = setting.require.force;
 
-        forceAdd += setting.require.force;
 
 
 
@@ -52,14 +76,38 @@ public class C0_Force : MonoBehaviour {
             forceAdd *= s.curve.Evaluate (rigidBody.velocity.magnitude / s.maxSpeed);
         }
 
+        if (setting.optional.targetDistanceScale.enabled) {
+            forceAdd *= setting.optional.targetDistanceScale.Scaler (forceAdd, position);
+        }
 
 
-        if (setting.optional.ignoreMass) forceAdd *= rigidBody.mass;
+        if (setting.optional.ignoreMass)
+            forceAdd *= rigidBody.mass;
 
 
-
+        if (setting.optional.forceCompensator.enabled) {
+            if (pid == null) {
+                pid = new PID ();
+                pid.I = 1;
+                pid.max = 60;
+                pid.min = 0;
+            }
+            var s = setting.optional.forceCompensator;
+            Vector2 velocity = rigidBody.velocity;
+            float currSpeed = velocity.magnitude;
+            float targetSpeed = s.targetSpeed;
+            float error = targetSpeed - velocity.x;
+            float forceCalc = pid.Calc (error);
+            forceAdd += forceCalc * Vector2.right;
+        }
 
         rigidBody.AddForce (forceAdd);
+
+
+
+
+        velosity = rigidBody.velocity;
+        force = forceAdd;
 
     }
 
@@ -76,6 +124,37 @@ public class C0_Force : MonoBehaviour {
         }
     }
 
+    [System.Serializable] public class PID {
+        public float I = 0.3f;
+        public float I2 = 0.6f;
+        public bool useLimit = false;
+        public float max = 60;
+        public float min = -60;
+        private bool initial = false;
+        private float integrate = 0;
+        private float lastError;
+
+
+        public float Calc (float error) {
+            if (!initial) {
+                lastError = error;
+                initial = true;
+            }
+            float output;
+            float delta = error - lastError;
+            float wantDel = -error * I;
+            float valueAdd = (wantDel - delta).Shape (1f, 1) * I2;
+            integrate += -valueAdd;
+            if (useLimit) integrate = integrate.Clamp (min, max);
+
+            lastError = error;
+            output = integrate;
+
+            float index = Time.time * 20;
+
+            return output;
+        }
+    }
 
 }
 

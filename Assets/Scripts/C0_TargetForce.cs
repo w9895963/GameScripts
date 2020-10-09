@@ -10,15 +10,28 @@ public class C0_TargetForce : MonoBehaviour {
             public Vector2 target = default;
             public float force;
         }
-
+        // * ---------------------------------- 
+        public Optional optional = new Optional ();
+        [System.Serializable] public class Optional {
+            public bool ignoreMass = true;
+        }
 
     }
     private void FixedUpdate () {
+        Setting.Require require = setting.require;
+        Setting.Optional optional = setting.optional;
         Rigidbody2D rigidbody = GetComponent<Rigidbody2D> ();
+        Vector2 target = require.target;
+        float force = require.force;
+        Vector2 position = rigidbody.position;
+        Vector2 vct = target - position;
+        Vector2 forceAdd = force * vct.normalized;
 
 
-        // rigidbody.AddForce();
 
+
+        float massScale = optional.ignoreMass? rigidbody.mass : 1;
+        rigidbody.AddForce (forceAdd * massScale);
     }
 
 

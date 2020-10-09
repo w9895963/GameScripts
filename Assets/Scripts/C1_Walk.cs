@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Global;
 using UnityEngine;
-
+[RequireComponent (typeof (C0_Contact))]
 public class C1_Walk : MonoBehaviour {
     public Setting setting = new Setting ();
 
@@ -19,49 +19,32 @@ public class C1_Walk : MonoBehaviour {
         }
 
     }
-    private C0_Contact contactComponent;
+
+    private C0_Contact contactComp;
 
 
     // * ---------------------------------- 
-
 
     private void FixedUpdate () {
 
 
 
     }
-
+    private void Awake () {
+        contactComp = gameObject.GetComponent<C0_Contact> ();
+    }
     private void OnEnable () {
-        C0_Contact comp = GetComponent<C0_Contact> ();;
-        if (!comp) {
-            comp = gameObject.AddComponent<C0_Contact> ();
-            comp.createBy = this;
-        }
-        comp.useBy.Add (this);
-
-        comp.events.onChange.AddListener (Onchange);
-
-
-
-
-        contactComponent = comp;
+        contactComp.events.onNormalChanged.AddListener (OnnNormalChanged);
     }
-
-    private void Onchange () {
-        Debug.Log (contactComponent.ExistNormal (-MainCharacter.Gravity, 80));
-    }
-
     private void OnDisable () {
-        C0_Contact comp = contactComponent;
-        comp.events.onChange.RemoveListener (Onchange);
-        List<Object> useBy = comp.useBy;
-        if (useBy.Count == 1 & useBy[0] == this) {
-            comp.Destroy ();
-        } else {
-            useBy.Remove (this);
-        }
+        contactComp.events.onNormalChanged.RemoveListener (OnnNormalChanged);
     }
 
 
+
+
+    private void OnnNormalChanged () {
+        Debug.Log (contactComp.ExistNormal (-MainCharacter.Gravity, 80));
+    }
 
 }

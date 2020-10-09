@@ -153,15 +153,6 @@ public static class ExtensionMethod {
     public static float Min (this float f, float compareWith) {
         return f < compareWith ? f : compareWith;
     }
-    public static float Min (this float f, params float[] compareWith) {
-        List<float> l = new List<float> (compareWith);
-        l.Add (f);
-        l.Sort ();
-        return l[0];
-    }
-    public static float Max (this float f, float compareWith) {
-        return f > compareWith ? f : compareWith;
-    }
     public static float Sign (this float f) {
         return Mathf.Sign (f);
     }
@@ -171,15 +162,32 @@ public static class ExtensionMethod {
     public static float Pow (this float f, float p) {
         return Mathf.Pow (f, p);
     }
+    public static float Shape (this float f, float pow, float move = 0, float div = 1) {
+        float abs = Mathf.Abs (f);
+        float sign = Mathf.Sign (f);
+        float p1 = (Mathf.Pow ((abs + move) / div, pow) * div) - move;
+        return p1 * sign;
+    }
+
+
+
     public static float Clamp (this float f, float min, float max) {
         return Mathf.Clamp (f, min, max);
     }
     public static float ClampMin (this float f, float min) {
         return f > min?f : min;
     }
+    public static float ClampAbsMin (this float f, float min) {
+        float fas = Mathf.Abs (f);
+        float fsi = Mathf.Sign (f);
+        fas = fas < min?min : fas;
+        return fas * fsi;
+    }
     public static float ClampMax (this float f, float max) {
         return f < max?f : max;
     }
+
+
     public static Vector2 ToVector2 (this float fl) {
         return new Vector2 (fl, fl);
     }
@@ -246,9 +254,12 @@ public static class ExtensionMethod {
 
 
 
-    public static void Set2dPosition (this GameObject gameObject, Vector2 p) {
+    public static void SetPosition (this GameObject gameObject, Vector2 p) {
         Vector2 position = p;
         gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
+    }
+    public static void SetPosition (this GameObject gameObject, Vector3 p) {
+        gameObject.transform.position = p;
     }
 
     public static Vector2 Get2dPosition (this GameObject gameObject) {

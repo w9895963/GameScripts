@@ -55,7 +55,7 @@
                 }
 
 
-                gameObject.Set2dPosition (nextP);
+                gameObject.SetPosition (nextP);
 
                 currP = gameObject.Get2dPosition ();
                 vars.lastPosition = gameObject.Get2dPosition ();

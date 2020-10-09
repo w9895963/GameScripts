@@ -57,7 +57,7 @@ public class C1_Follow : MonoBehaviour {
 
 
     private void LateUpdate () {
-        gameObject.Set2dPosition (nextP);
+        gameObject.SetPosition (nextP);
         lastP = gameObject.Get2dPosition ();
     }
 

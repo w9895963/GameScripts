@@ -1,56 +1,59 @@
 ﻿using UnityEngine;
 using static LayerManager;
+using System.Collections.Generic;
+using Global;
+using static Global.Layer;
 
 public class LayerManager : MonoBehaviour {
-    public LayerSettingCs layerSetting = new LayerSettingCs ();
-    [System.Serializable] public class LayerSettingCs {
-        public int staticSolid = 8;
-        public int tempLayer = 31;
-    }
+    public List<LayerSetCs> layerSetting = new List<LayerSetCs> {
+        new LayerSetCs (LayerEnum.staticSolid, 8),
+        new LayerSetCs (LayerEnum.tempLayer, 31)
+    };
 
-    private static LayerSettingCs layerIndex;
-    public static LayerSettingCs LayerIndex {
-        get {
-            if (layerIndex == null) {
-                layerIndex = GameObject.FindObjectOfType<LayerManager> ().layerSetting;
-            }
-            return layerIndex;
+    [System.Serializable] public class LayerSetCs {
+        public LayerEnum layer;
+        public int index;
+
+        public LayerSetCs (Layer.LayerEnum layer, int index) {
+            this.layer = layer;
+            this.index = index;
         }
-        set { layerIndex = value; }
-
     }
-
 }
 
 
 namespace Global {
 
     public static class Layer {
-        public static LayerCs staticSolid = new LayerCs (LayerIndex.staticSolid);
-        public static LayerCs tempLayer = new LayerCs (LayerIndex.tempLayer);
-
-
+        public static LayerCs staticSolid = LayerEnum.staticSolid.ToLayer ();
+        public static LayerCs tempLayer = LayerEnum.tempLayer.ToLayer ();
+        public enum LayerEnum { staticSolid, tempLayer }
+        public static LayerCs ToLayer (this LayerEnum layerEnum) {
+            LayerManager layerManager = GameObject.FindObjectOfType<LayerManager> ();
+            int index = layerManager.layerSetting.Find ((x) => x.layer == layerEnum).index;
+            return new LayerCs (index);
+        }
 
         public class LayerCs {
-            private string name;
+            private int index;
             public LayerCs (int index) {
-                this.name = LayerMask.LayerToName (index);
+                this.index = index;
             }
 
             public string Name {
-                get => name;
+                get => LayerMask.LayerToName (index);
             }
             public int Index {
-                get => LayerMask.NameToLayer (name);
+                get => index;
             }
             public int Mask {
-                get => LayerMask.GetMask (name);
+                get => LayerMask.GetMask (Name);
             }
             public ContactFilter2D ContactFilter {
                 get {
                     ContactFilter2D filter = new ContactFilter2D ();
                     filter.useLayerMask = true;
-                    filter.layerMask = LayerMask.GetMask (name);
+                    filter.layerMask = LayerMask.GetMask (Name);
                     return filter;
                 }
             }

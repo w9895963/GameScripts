@@ -9,12 +9,8 @@ using UnityEngine.Events;
 public class C0_Contact : MonoBehaviour {
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
-        public LayerFilter layerFilter = new LayerFilter ();
-        [System.Serializable] public class LayerFilter {
-            public bool enabled = false;
-            public string layerName;
-        }
-
+        public bool useLayerFilter = true;
+        public Layer.LayerEnum layer = Layer.LayerEnum.staticSolid;
 
     }
     public List<Contact> contacts = new List<Contact> ();
@@ -25,11 +21,10 @@ public class C0_Contact : MonoBehaviour {
     }
     public Events events = new Events ();
     [System.Serializable] public class Events {
-        public UnityEvent onChange = new UnityEvent ();
+        public UnityEvent onNormalChanged = new UnityEvent ();
     }
     // * ---------------------------------- 
-    public Object createBy;
-    public List<Object> useBy = new List<Object> ();
+
 
 
 
@@ -62,7 +57,7 @@ public class C0_Contact : MonoBehaviour {
                 }
             }
             if (changed) {
-                events.onChange.Invoke ();
+                events.onNormalChanged.Invoke ();
             }
         }
     }
@@ -70,15 +65,15 @@ public class C0_Contact : MonoBehaviour {
     private void OnCollisionExit2D (Collision2D other) {
         if (enabled) {
             contacts.RemoveAll ((x) => x.gameObject == other.gameObject);
-            events.onChange.Invoke ();
+            events.onNormalChanged.Invoke ();
         }
     }
 
 
     //* Private Method
     private bool LayerTest (GameObject obj) {
-        if (setting.layerFilter.enabled) {
-            if (obj.layer == LayerMask.NameToLayer (setting.layerFilter.layerName)) {
+        if (setting.useLayerFilter) {
+            if (obj.layer == setting.layer.ToLayer ().Index) {
                 return true;
             } else {
                 return false;
@@ -94,10 +89,8 @@ public class C0_Contact : MonoBehaviour {
     }
     public void ApplyPreset (Preset preset) {
         if (preset == Preset.GroundTester) {
-            var layerFilter = setting.layerFilter;
-            layerFilter.enabled = true;
-            layerFilter.layerName = Layer.staticSolid.Name;
-
+            setting.useLayerFilter = true;
+            setting.layer = Layer.LayerEnum.staticSolid;
         }
     }
 
