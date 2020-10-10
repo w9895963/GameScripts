@@ -36,8 +36,7 @@ public class M_Postprocess : MonoBehaviour {
                 Screen.height, RenderTextureFormat.Default, 24);
             renderTexture = new RenderTexture (dis);
             mainCamera.GetComponent<Camera> ().targetTexture = renderTexture;
-            secondScreen.GetComponent<SpriteRenderer> ().material.SetTexture ("_RenderTexture", renderTexture);
-            // postCamera.enabled = true;
+            secondScreen.GetComponent<SpriteRenderer> ().material.SetTexture ("Texture", renderTexture);
         }
         postCamera.gameObject.SetActive (true);
 

@@ -100,17 +100,17 @@ public class M_Cursor : MonoBehaviour {
         Cursor.visible = !hideSystemCursor;
 
         Object pointerEventObj;
-        pointerEventObj = Fn (this).AddPointerEvent (PointerEventType.onMove, (d) => {
+        pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onMove, (d) => {
             gameObject.GetComponent<RectTransform> ().position = d.position_Screen;
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Fn (this).AddPointerEvent (PointerEventType.onPressDown, (d) => {
+        pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onPressDown, (d) => {
             animator.SetBool ("Click", true);
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Global.Funtion.Fn (this).AddPointerEvent (PointerEventType.onPressUp, (d) => {
+        pointerEventObj = Global.Funtion.Fn (this).AddGlobalPointerEvent (PointerEventType.onPressUp, (d) => {
             animator.SetBool ("Click", false);
         });
         events.Add (pointerEventObj);

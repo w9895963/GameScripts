@@ -45,8 +45,9 @@ public class Ctrl_Camera_Triger : MonoBehaviour {
 
     private void MainAction () {
         if (camTemp == null) {
-            GlobalObject.Camera.GetComponent<Ctrl_Camera> ().Destroy ();
-            camTemp = GlobalObject.Camera.AddComponent<Ctrl_Camera> ();
+            var cam = Camera.main.gameObject;
+            cam.GetComponent<Ctrl_Camera> ().Destroy ();
+            camTemp = cam.AddComponent<Ctrl_Camera> ();
             temps.Add (camTemp);
             camTemp.action = action;
             camTemp.enabled = true;

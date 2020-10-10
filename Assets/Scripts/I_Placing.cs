@@ -32,7 +32,7 @@ public class I_Placing : IC_Base {
 
 
         data.tempInstance.AddIfEmpty (0,
-            () =>Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onMoveNotDrag, (d) => {
+            () =>Global.Funtion.Fn(this).AddGlobalPointerEvent (PointerEventType.onMoveNotDrag, (d) => {
                 setting.targetPosition = d.position_Screen.ScreenToWold ();
             })
         );
@@ -40,7 +40,7 @@ public class I_Placing : IC_Base {
 
         if (setting.endCondition.click) {
             data.tempInstance.AddIfEmpty (1,
-                () =>Global.Funtion.Fn(this).AddPointerEvent (PointerEventType.onClick, (d) => {
+                () =>Global.Funtion.Fn(this).AddGlobalPointerEvent (PointerEventType.onClick, (d) => {
                     enabled = false;
                 })
             );

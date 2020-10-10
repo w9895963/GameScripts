@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class C_PointerEvent : MonoBehaviour {
+public class C0_GlobalPointerEvent : MonoBehaviour {
 
     public Vector2 lastPointerPosition;
     public bool lastPointerPositionSetup = false;
@@ -15,7 +16,7 @@ public class C_PointerEvent : MonoBehaviour {
     public PointerData data = new PointerData ();
     public float pointerDownTime = 0;
     public float clickAllowTime = 0.3f;
-    public Component createBy = null;
+    public Object createBy = null;
 
 
     //*Main
@@ -149,7 +150,6 @@ public enum PointerEventType {
 }
 
 
-
 public class PointerData {
     public Vector2 pointerDownPosition;
     public Vector2 lastPosition_Screen;
@@ -158,41 +158,20 @@ public class PointerData {
 }
 
 
-public static class Extension_M_PointerEvent {
-    public static GameObject Ex_AddPointerEvent (this Component component,
+public static class Extension_GlobalPointerEvent {
+    public static GameObject AddGlobalPointerEvent (this Global.Funtion fn,
         PointerEventType type,
         UnityAction<PointerData> action) {
 
-
-        GameObject obj = new GameObject ("Pointer Event");
-        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
-        comp.createBy = component;
+        const string Name = "Pointer Event";
+        GameObject obj = GlobalObject.TempObject.FindChild (Name);
+        if (obj == null) {
+            obj = new GameObject (Name);
+            obj.SetParent (GlobalObject.TempObject);
+        }
+        C0_GlobalPointerEvent comp = obj.AddComponent<C0_GlobalPointerEvent> ();
+        comp.createBy = fn.callBy;
         comp.AddEvent (type, action);
-        return obj;
-    }
-    public static GameObject AddPointerEvent (this Global.Funtion fn,
-        PointerEventType type,
-        UnityAction<PointerData> action) {
-
-
-        GameObject obj = new GameObject ("Pointer Event");
-        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
-        comp.AddEvent (type, action);
-        return obj;
-    }
-    public static GameObject Ex_AddPointerEventOnece (this Component component,
-        PointerEventType type,
-        UnityAction<PointerData> action) {
-
-
-        GameObject obj = new GameObject ("Pointer Event");
-        C_PointerEvent comp = obj.AddComponent<C_PointerEvent> ();
-        comp.createBy = component;
-        UnityAction<PointerData> ac = (d) => {
-            action (d);
-            GameObject.Destroy (obj);
-        };
-        comp.AddEvent (type, ac);
         return obj;
     }
 }

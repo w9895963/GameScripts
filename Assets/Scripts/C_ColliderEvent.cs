@@ -221,7 +221,7 @@ public static class Extension_C_ColliderEvent {
     public static C_ColliderEvent AddCollierEvent (this Collider2DExMethod ex,
         UnityAction<C_ColliderEvent.Profile> setup
     ) {
-        C_ColliderEvent comp = ex.source.gameObject.AddComponent<C_ColliderEvent> ();
+        C_ColliderEvent comp = ex.collider.gameObject.AddComponent<C_ColliderEvent> ();
         var pf = new C_ColliderEvent.Profile (comp);
         setup (pf);
 

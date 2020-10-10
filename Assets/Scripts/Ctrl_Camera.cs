@@ -79,7 +79,7 @@ public class Ctrl_Camera : MonoBehaviour {
         }
 
         if (action.follow.enabled) {
-            temps.Add (GlobalObject.Camera._Ex (this).Follow ((s) => {
+            temps.Add (Camera.main.gameObject._Ex (this).Follow ((s) => {
                 return action.follow.Setting;
 
             }));
@@ -99,8 +99,9 @@ public class Ctrl_Camera : MonoBehaviour {
 
 namespace Global {
     public static class CameraCtrl {
+        public static GameObject MainCam => Camera.main.gameObject;
         public static void CommitAction (Ctrl_Camera.Action setting) {
-            Ctrl_Camera comp = GlobalObject.Camera.GetComponent<Ctrl_Camera> ();
+            Ctrl_Camera comp = MainCam.GetComponent<Ctrl_Camera> ();
             // comp.enabled = false;
             comp.action = setting;
             comp.enabled = true;
@@ -109,7 +110,7 @@ namespace Global {
 
         public static float Size {
             set {
-                GlobalObject.Camera.GetComponent<Camera> ().orthographicSize = value;
+                MainCam.GetComponent<Camera> ().orthographicSize = value;
                 GlobalObject.IndicatorCamera.GetComponent<Camera> ().orthographicSize = value;
             }
         }

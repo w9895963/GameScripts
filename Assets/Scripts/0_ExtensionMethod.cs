@@ -1,10 +1,24 @@
 using System.Collections.Generic;
+using System.Linq;
 using Global;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 public static class ExtensionMethod {
+    public static EventTrigger Ex_AddInputToTrigger (this Collider2D collider,
+        EventTriggerType type,
+        UnityAction<BaseEventData> action) {
+        ///////////////////////////
+        EventTrigger trigger = collider.gameObject.AddComponent<EventTrigger> ();
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener (action);
+        trigger.triggers.Add (entry);
+        return trigger;
+    }
+
+
 
 
     #region //*Array & List
@@ -67,6 +81,13 @@ public static class ExtensionMethod {
     public static Vector2 Project (this Vector2 vector, Vector2 direction) {
         return (Vector2) Vector3.Project (vector, direction);
     }
+    public static float ProjectToFloat (this Vector2 vector, Vector2 direction) {
+        Vector2 vct = (Vector2) Vector3.Project (vector, direction);
+        float result = vct.magnitude;
+        if ((vct.normalized + direction.normalized).magnitude < 1)
+            result *= -1;
+        return result;
+    }
     public static Vector2 ScreenToWold (this Vector2 vector) {
         return Camera.main.ScreenToWorldPoint (vector);
     }
@@ -90,7 +111,7 @@ public static class ExtensionMethod {
         vectorH = vectorHnorm.Rotate (Vector2.right, direction);
         return vectorH + vectorV;
     }
-    public static Vector2 ClamMax (this Vector2 vector, float max) {
+    public static Vector2 ClampMax (this Vector2 vector, float max) {
         if (vector.magnitude >= max) {
             return vector.normalized * max;
         } else {
@@ -146,6 +167,8 @@ public static class ExtensionMethod {
     #endregion
 
 
+
+
     #region //*Float
 
 
@@ -194,28 +217,7 @@ public static class ExtensionMethod {
 
     #endregion
 
-    public static EventTrigger Ex_AddInputToTrigger (this Collider2D collider,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action) {
-        ///////////////////////////
-        EventTrigger trigger = collider.gameObject.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener (action);
-        trigger.triggers.Add (entry);
-        return trigger;
-    }
-    public static EventTrigger Ex_AddInputToTrigger (this GameObject gameobject,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action) {
-        //////////////////////////////////////
-        EventTrigger trigger = gameobject.AddComponent<EventTrigger> ();
-        EventTrigger.Entry entry = new EventTrigger.Entry ();
-        entry.eventID = type;
-        entry.callback.AddListener (action);
-        trigger.triggers.Add (entry);
-        return trigger;
-    }
+
 
 
     #region //*Unity Object
@@ -245,11 +247,39 @@ public static class ExtensionMethod {
 
 
 
-    public static GameObject AddChildren (this GameObject gameObject, string name) {
+    public static GameObject AddChild (this GameObject gameObject, string name) {
         GameObject obj = new GameObject (name);
         obj.transform.parent = gameObject.transform;
         return obj;
 
+    }
+    public static GameObject FindChild (this GameObject gameObject, string name) {
+        List<GameObject> list = new List<GameObject> ();
+        for (int i = 0; i < gameObject.transform.childCount; i++) {
+            list.Add (gameObject.transform.GetChild (i).gameObject);
+        }
+        return list.Find ((x) => x.name == name);
+    }
+    public static void SetParent (this GameObject gameObject, GameObject parent) {
+        gameObject.transform.parent = parent.transform;
+    }
+
+    public static T GetOrAddComponent<T> (this GameObject gameObject,
+        System.Predicate<T> predicate = null, UnityAction<T> oncreate = null
+    ) where T : MonoBehaviour {
+        List<T> comps = gameObject.GetComponents<T> ().ToList ();
+        if (predicate != null) {
+            comps = comps.FindAll (predicate);
+        }
+
+        T t = comps.Count > 0 ? comps[0] : null;
+        if (t == null) {
+            t = gameObject.AddComponent<T> ();
+            if (oncreate != null) oncreate (t);
+        }
+
+
+        return t;
     }
 
 
@@ -274,8 +304,8 @@ public static class ExtensionMethod {
     #region //*Collider2dExMethod
     public static Vector2? ClosestPointToLine (this Collider2DExMethod ex, Vector2 position, Vector2 direction) {
         Vector2? result = null;
-        int sourceLayer = ex.source.gameObject.layer;
-        ex.source.gameObject.layer = Layer.tempLayer.Index;
+        int sourceLayer = ex.collider.gameObject.layer;
+        ex.collider.gameObject.layer = Layer.tempLayer.Index;
 
 
         RaycastHit2D hit;
@@ -289,11 +319,34 @@ public static class ExtensionMethod {
             }
         }
 
-        ex.source.gameObject.layer = sourceLayer;
+        ex.collider.gameObject.layer = sourceLayer;
         return result;
     }
-
+    public static (EventTrigger, EventTrigger.Entry) AddPointerEvent (this Collider2DExMethod souce,
+            EventTriggerType type, UnityAction<BaseEventData> action
+        ) =>
+        souce.collider.gameObject._Ex (default).AddPointerEvent (type, action);
     #endregion //*End
+
+
+
+
+    #region //*GameObjectExMethod
+    public static (EventTrigger, EventTrigger.Entry) AddPointerEvent (this GameObjectExMethod souce,
+        EventTriggerType type, UnityAction<BaseEventData> action) {
+        EventTrigger trigger = souce.gameObject.GetComponent<EventTrigger> ();
+        if (trigger == null) {
+            trigger = souce.gameObject.AddComponent<EventTrigger> ();
+        }
+
+        EventTrigger.Entry entry = new EventTrigger.Entry ();
+        entry.eventID = type;
+        entry.callback.AddListener (action);
+        trigger.triggers.Add (entry);
+        return (trigger, entry);
+    }
+    #endregion
+
 
 
 
@@ -320,12 +373,11 @@ public class GameObjectExMethod {
     // * ---------------------------------- 
 
 }
-
 public class Collider2DExMethod {
-    public Collider2D source;
+    public Collider2D collider;
     public Object callby;
     public Collider2DExMethod (Collider2D collider, Object callby) {
-        source = collider;
+        this.collider = collider;
         this.callby = callby;
     }
     //*--------------------------

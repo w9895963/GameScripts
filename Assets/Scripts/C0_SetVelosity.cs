@@ -65,7 +65,7 @@ public class C0_SetVelosity : MonoBehaviour {
         float maxAcc = maxForce;
         Vector2 deltaV = targetV - currVonDir;
         var accelAdd = deltaV / deltaTime;
-        accelAdd = accelAdd.ClamMax (maxAcc);
+        accelAdd = accelAdd.ClampMax (maxAcc);
 
         AcAdd += accelAdd;
     }

@@ -7,26 +7,23 @@ using UnityEngine.InputSystem;
 public class M_CursorEvent : MonoBehaviour {
     public Collider2D trigger;
     public M_Cursor.StateCs cursorState = default;
-    public List<Object> tempEvents = new List<Object> ();
-    private void Awake () {
+    public TempObject temp = new TempObject ();
 
-    }
     private void OnEnable () {
         if (trigger) {
             M_Cursor cursorCtrl = FindObjectOfType<M_Cursor> ();
-            EventTrigger eve;
-            eve = trigger.Ex_AddInputToTrigger (EventTriggerType.PointerEnter, (d) => {
-                cursorCtrl.State = cursorState;
-            });
-            tempEvents.Add (eve);
-            eve = trigger.Ex_AddInputToTrigger (EventTriggerType.PointerExit, (d) => {
-                cursorCtrl.State = M_Cursor.StateCs.normal;
-            });
-            tempEvents.Add (eve);
+            temp.AddEventTrigger = trigger.gameObject._Ex (this)
+                .AddPointerEvent (EventTriggerType.PointerEnter, (d) => {
+                    cursorCtrl.State = cursorState;
+                });
+            temp.AddEventTrigger = trigger.gameObject._Ex (this)
+                .AddPointerEvent (EventTriggerType.PointerExit, (d) => {
+                    cursorCtrl.State = M_Cursor.StateCs.normal;
+                });
         }
 
     }
     private void OnDisable () {
-        tempEvents.Destroy ();
+        temp.DestroyAll ();
     }
 }

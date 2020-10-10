@@ -7,17 +7,19 @@ using UnityEngine.EventSystems;
 
 public class M_BackPack : MonoBehaviour {
     public I_InPack[] storage = new I_InPack[1];
-    private EventTrigger iconEvent;
+    // private EventTrigger iconEvent;
+    private TempObject temp = new TempObject ();
 
     private void OnEnable () {
-        iconEvent.Destroy ();
+        // iconEvent.Destroy ();
         GameObject backpackIcon = GlobalObject.Get (GlobalObject.Type.BackpackIcon);
-        iconEvent = backpackIcon.Ex_AddInputToTrigger (EventTriggerType.PointerClick, (d) => {
+        temp.AddEventTrigger = backpackIcon._Ex (this).AddPointerEvent (EventTriggerType.PointerClick, (d) => {
             PutoutStorage (0);
         });
     }
     private void OnDisable () {
-        iconEvent.Destroy ();
+        // iconEvent.Destroy ();
+        temp.DestroyAll ();
     }
 
 
