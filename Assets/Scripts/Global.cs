@@ -190,7 +190,7 @@ namespace Global {
                 comp.endColor = color;
                 comp.startColor = color;
             }
-            if (position != comp.gameObject.Get2dPosition ()) {
+            if (position != comp.gameObject.GetPosition2d ()) {
                 comp.gameObject.SetPosition (position);
             }
 

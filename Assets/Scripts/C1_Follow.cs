@@ -58,13 +58,13 @@ public class C1_Follow : MonoBehaviour {
 
     private void LateUpdate () {
         gameObject.SetPosition (nextP);
-        lastP = gameObject.Get2dPosition ();
+        lastP = gameObject.GetPosition2d ();
     }
 
     private void OnEnable () {
-        targetP = setting.target.Get2dPosition ();
-        nextP = gameObject.Get2dPosition ();
-        lastP = gameObject.Get2dPosition ();
+        targetP = setting.target.GetPosition2d ();
+        nextP = gameObject.GetPosition2d ();
+        lastP = gameObject.GetPosition2d ();
         Object tempObj;
         tempObj = setting.target._Ex (this).AddPositionEvent ((x) => {
             x.moving.AddListener ((d) => {

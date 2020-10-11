@@ -41,7 +41,7 @@ public class M_Cursor : MonoBehaviour {
         //     transform.position += mouseDelta.ToVector3 () * sensitivity;
         //     Vector2 p = transform.position;
 
-        //     gameObject.Set2dPosition (new Vector2 (p.x.Clamp (0, Screen.width), p.y.Clamp (0, Screen.height)));
+        //     gameObject.SetPosition (new Vector2 (p.x.Clamp (0, Screen.width), p.y.Clamp (0, Screen.height)));
 
         // }
 
@@ -100,10 +100,10 @@ public class M_Cursor : MonoBehaviour {
         Cursor.visible = !hideSystemCursor;
 
         Object pointerEventObj;
-        pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onMove, (d) => {
-            gameObject.GetComponent<RectTransform> ().position = d.position_Screen;
-        });
-        events.Add (pointerEventObj);
+        // pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onMove, (d) => {
+        //     gameObject.GetComponent<RectTransform> ().position = d.position_Screen;
+        // });
+        // events.Add (pointerEventObj);
 
         pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onPressDown, (d) => {
             animator.SetBool ("Click", true);

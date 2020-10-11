@@ -49,7 +49,7 @@ public class Ctrl_Camera : MonoBehaviour {
         if (action.moveTo.enabled) {
             C_MoveTo temp = null;
             temp = Camera.main.gameObject._Ex (this).MoveTo ((s) => {
-                s.require.targetPosition = action.moveTo.target.Get2dPosition ();
+                s.require.targetPosition = action.moveTo.target.GetPosition2d ();
                 s.require.time = action.moveTo.time;
                 s.optional.moveCurve = action.moveTo.curve;
                 s.events.onArrived.AddListener (() => {

@@ -56,6 +56,9 @@ public static class ExtensionMethod {
     public static List<T> ToList<T> (this T[] source) {
         return new List<T> (source);
     }
+    public static List<T> ToList<T> (this T source) where T : Object {
+        return new List<T> { source };
+    }
     public static void ForEach<T> (this T[] source, System.Action<T> action) {
         foreach (var t in source) {
             action (t);
@@ -264,6 +267,25 @@ public static class ExtensionMethod {
         gameObject.transform.parent = parent.transform;
     }
 
+    public static List<GameObject> GetSelfAndParents (this GameObject gameObject) {
+        List<GameObject> all = GetParents (gameObject);
+        if (gameObject) all.Add (gameObject);
+        return all;
+    }
+    public static List<GameObject> GetParents (this GameObject gameObject) {
+        List<GameObject> all = new List<GameObject> ();
+        GameObject parent = GetParent (gameObject);
+        while (parent != null) {
+            all.Add (parent);
+            parent = GetParent (parent);
+        }
+        return all;
+    }
+    public static GameObject GetParent (this GameObject gameObject) {
+        Transform parent = gameObject == null?null : gameObject.transform.parent;
+        return parent? parent.gameObject : null;
+    }
+
     public static T GetOrAddComponent<T> (this GameObject gameObject,
         System.Predicate<T> predicate = null, UnityAction<T> oncreate = null
     ) where T : MonoBehaviour {
@@ -292,7 +314,7 @@ public static class ExtensionMethod {
         gameObject.transform.position = p;
     }
 
-    public static Vector2 Get2dPosition (this GameObject gameObject) {
+    public static Vector2 GetPosition2d (this GameObject gameObject) {
         return (Vector2) gameObject.transform.position;
     }
 

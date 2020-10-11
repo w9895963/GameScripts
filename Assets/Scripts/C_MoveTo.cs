@@ -36,7 +36,7 @@
 
             public void UpdatePosition () {
                 float time = Time.time - vars.timebegin;
-                Vector2 currP = gameObject.Get2dPosition ();
+                Vector2 currP = gameObject.GetPosition2d ();
                 Vector2 lastP = vars.lastPosition;
                 Vector2 targetPosition = require.targetPosition;
                 Vector2 v = targetPosition - vars.beginPosition;
@@ -57,8 +57,8 @@
 
                 gameObject.SetPosition (nextP);
 
-                currP = gameObject.Get2dPosition ();
-                vars.lastPosition = gameObject.Get2dPosition ();
+                currP = gameObject.GetPosition2d ();
+                vars.lastPosition = gameObject.GetPosition2d ();
 
                 events.onMoving.Invoke ();
                 if (currP == require.targetPosition) {
