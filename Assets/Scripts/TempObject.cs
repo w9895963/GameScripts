@@ -13,10 +13,13 @@ using UnityEngine.EventSystems;
         int index = tempObjects.Count - 1;
         destroyCall.AddListener (() => {
             EventTrigger comp = tempObjects[index] as EventTrigger;
-            comp.triggers.Remove (entry);
-            if (comp.triggers.Count == 0) {
-                comp.Destroy ();
+            if (comp) {
+                comp.triggers.Remove (entry);
+                if (comp.triggers.Count == 0) {
+                    comp.Destroy ();
+                }
             }
+
         });
 
     }
@@ -24,7 +27,8 @@ using UnityEngine.EventSystems;
         tempObjects.Add (obj);
         int index = tempObjects.Count - 1;
         destroyCall.AddListener (() => {
-            tempObjects[index].Destroy ();
+            Object tempobj = tempObjects[index];
+            if (tempobj) tempobj.Destroy ();
         });
     }
 

@@ -9,6 +9,7 @@ public class C_OnArrive : MonoBehaviour {
     public float distance = 0.001f;
     public Vector2 distanceDirection = default;
     public UnityEvent onArrive = new UnityEvent ();
+    public Object creator;
 
     private Vector2 lastPosition;
     private bool lastPositionSetup = false;
@@ -106,6 +107,8 @@ public class C_OnArrive : MonoBehaviour {
 
 
 }
+
+
 public static class Extension_M_OnArrive {
     public static C_OnArrive OnArrive (this Global.Funtion fn, GameObject gameObject,
         Vector2 position, Vector2 distanceDirection = default,
@@ -116,6 +119,7 @@ public static class Extension_M_OnArrive {
         C_OnArrive comp = gameObject.AddComponent<C_OnArrive> ();
         comp.SetPosition (position, distanceDirection, distance);
         comp.SetEvent (callBack, autoDestroy);
+        comp.creator = fn.callBy;
 
         return comp;
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Global;
 using UnityEngine;
 
-public class Ctrl_Camera_Triger : MonoBehaviour {
+public class CM_CameraControler : MonoBehaviour {
 
     [System.Serializable] public class Condition {
         [System.Serializable] public class OnEnabled {
@@ -19,9 +19,9 @@ public class Ctrl_Camera_Triger : MonoBehaviour {
 
     }
     public Condition condition = new Condition ();
-    public Ctrl_Camera.Action action = new Ctrl_Camera.Action ();
+    public CM_Camera.Action action = new CM_Camera.Action ();
     private List<Object> temps = new List<Object> ();
-    private Ctrl_Camera camTemp;
+    private CM_Camera camTemp;
 
     private void OnEnable () {
         if (condition.trigger.enabled) {
@@ -46,8 +46,8 @@ public class Ctrl_Camera_Triger : MonoBehaviour {
     private void MainAction () {
         if (camTemp == null) {
             var cam = Camera.main.gameObject;
-            cam.GetComponent<Ctrl_Camera> ().Destroy ();
-            camTemp = cam.AddComponent<Ctrl_Camera> ();
+            cam.GetComponent<CM_Camera> ().Destroy ();
+            camTemp = cam.AddComponent<CM_Camera> ();
             temps.Add (camTemp);
             camTemp.action = action;
             camTemp.enabled = true;

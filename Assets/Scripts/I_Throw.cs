@@ -15,7 +15,7 @@ public class I_Throw : IC_Base {
 
 
     void OnEnable () {
-        Vector2 manP = FindObjectOfType<Ctrl_MainCharacter> ().transform.position;
+        Vector2 manP = FindObjectOfType<CM_MainCharacter> ().transform.position;
         setting.rigidBody.position = manP;
         Vector2 position = Pointer.current.position.ReadValue ().ScreenToWold ();
 

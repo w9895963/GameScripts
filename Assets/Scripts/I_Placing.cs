@@ -26,7 +26,7 @@ public class I_Placing : IC_Base {
     }
 
     void Update () {
-       Global.Funtion.Fn(this).DrawLine (FindObjectOfType<Ctrl_MainCharacter> ().transform.position, setting.targetPosition, 0.01f);
+       Global.Funtion.Fn(this).DrawLine (FindObjectOfType<CM_MainCharacter> ().transform.position, setting.targetPosition, 0.01f);
     }
     void OnEnable () {
 

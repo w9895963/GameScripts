@@ -4,7 +4,7 @@ using Global;
 using static Global.Funtion;
 using UnityEngine;
 
-public class Ctrl_Camera : MonoBehaviour {
+public class CM_Camera : MonoBehaviour {
     [System.Serializable] public class Action {
         [System.Serializable] public class MoveTo {
             public bool enabled = false;
@@ -100,8 +100,8 @@ public class Ctrl_Camera : MonoBehaviour {
 namespace Global {
     public static class CameraCtrl {
         public static GameObject MainCam => Camera.main.gameObject;
-        public static void CommitAction (Ctrl_Camera.Action setting) {
-            Ctrl_Camera comp = MainCam.GetComponent<Ctrl_Camera> ();
+        public static void CommitAction (CM_Camera.Action setting) {
+            CM_Camera comp = MainCam.GetComponent<CM_Camera> ();
             // comp.enabled = false;
             comp.action = setting;
             comp.enabled = true;

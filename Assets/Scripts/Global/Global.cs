@@ -8,7 +8,7 @@ using UnityEngine.U2D;
 namespace Global {
 
 
-    [System.Serializable] public class Curve {
+    public class Curve {
         public float inputMax = 1;
         public float inputMin = 0;
         public float outputMax = 1;
@@ -70,8 +70,6 @@ namespace Global {
             }
         }
     }
-
-
 
 
     public class LayerRender {
@@ -281,9 +279,175 @@ namespace Global {
 
     }
 
+    public class TargetForce {
+        public Profile vars;
+        [System.Serializable] public class Profile {
+
+            public Basic basic = new Basic ();
+            [System.Serializable] public class Basic {
+                public Vector2Ref target = new Vector2Ref();
+                public floatRef force = new floatRef (60);
+            }
+            public Optional optional = new Optional ();
+            [System.Serializable] public class Optional {
+                public bool ignoreMass = true;
+
+
+                public bool enablePids = true;
+                public PIDSetting pid = new PIDSetting ();
+                [System.Serializable] public class PIDSetting : PIDv2.Basic { }
+
+                public bool enableVelosityControl = false;
+                public VelosityControl velosityControl = new VelosityControl ();
+                [System.Serializable] public class VelosityControl {
+                    public floatRef maxSpeed = new floatRef (6);
+                    public float minSpeed = 0.1f;
+                    public float slowDownDistance = 1;
+                    public AnimationCurve slowDownCurve = Curve.ZeroOne;
+                }
+
+
+                public bool enableSingleDimension = false;
+                public SingleDimension singleDimension = new SingleDimension ();
+                [System.Serializable] public class SingleDimension {
+                    public Vector2 dimensiion;
+                }
+            }
+        }
+        private GameObject gameObject;
+        private PIDv2 pid2 = new PIDv2 ();
+
+        public TargetForce (Profile profile, GameObject gameObject) {
+            this.vars = profile;
+            this.gameObject = gameObject;
+
+            pid2.basic = profile.optional.pid;
+            pid2.optional.enableMax = true;
+            pid2.optional.maximum = profile.basic.force;
+        }
 
 
 
+        public void ApplyForce () {
+            Rigidbody2D rigidbody = gameObject.GetComponent<Rigidbody2D> ();
+            Vector2 position = rigidbody.position;
+            Vector2 velocity = rigidbody.velocity;
+
+            float force = vars.basic.force.v;
+
+            Vector2 forceAdd = Vector2.zero;
+
+
+            Vector2 target = vars.basic.target.v;
+            if (vars.optional.enableSingleDimension) {
+                SingleDimensionProcess (position, ref target);
+            }
+
+            Vector2 targetV;
+            if (vars.optional.enableVelosityControl) {
+                Vector2 distVt = target - position;
+                var s = vars.optional.velosityControl;
+                float mag = s.slowDownCurve.Evaluate (distVt.magnitude, 0, s.slowDownDistance, s.minSpeed, s.maxSpeed.v);
+                targetV = distVt.normalized * mag;
+            } else {
+                Vector2 distVt = target - position;
+                targetV = distVt;
+            }
+
+
+
+            if (vars.optional.enablePids) {
+                forceAdd += pid2.CalcOutput (targetV - velocity);
+            } else {
+                Vector2 dir = target - position;
+                Vector2 dirVt = (targetV - velocity);
+                float scaler = dirVt.magnitude.ClampMax (1);
+                forceAdd += dirVt.normalized * force * scaler;
+            }
+
+            if (vars.optional.enableSingleDimension) {
+                forceAdd = forceAdd.Project (vars.optional.singleDimension.dimensiion);
+            }
+
+
+            if (vars.optional.ignoreMass) {
+                forceAdd *= rigidbody.mass;
+            }
+
+            rigidbody.AddForce (forceAdd);
+        }
+
+        private void SingleDimensionProcess (Vector2 position, ref Vector2 target) {
+            var s = vars.optional.singleDimension;
+            Vector2 distVt = target - position;
+            target = distVt.Project (s.dimensiion) + position;
+        }
+
+    }
+
+    public class PIDv2 {
+        public Basic basic = new Basic ();
+        [System.Serializable] public class Basic {
+            public float deltaRate = 0.3f;
+            public float changedRate = 45f;
+        }
+        public Optional optional = new Optional ();
+        [System.Serializable] public class Optional {
+            public bool enableMax = false;
+            public floatRef maximum = new floatRef (60);
+        }
+        private bool initial = false;
+        private Vector2 integrate = default;
+        private Vector2 lastError;
+
+
+        public Vector2 CalcOutput (Vector2 error) {
+            var s = basic;
+            if (!initial) {
+                lastError = error;
+                initial = true;
+            }
+            Vector2 output;
+            Vector2 delta = error - lastError;
+            Vector2 wantDel = -error * s.deltaRate;
+            Vector2 valueAdd = (wantDel - delta) * s.changedRate;
+            integrate += -valueAdd;
+            if (optional.enableMax) integrate = integrate.ClampMax (optional.maximum.v);
+
+            lastError = error;
+            output = integrate;
+
+            float index = Time.time * 20;
+
+            return output;
+        }
+    }
+
+    #region //* Reference Value
+    [System.Serializable] public class floatRef {
+        public float v;
+
+        public floatRef (float value = 0) {
+            this.v = value;
+        }
+    }
+
+    [System.Serializable] public class boolRef {
+        public bool v;
+
+        public boolRef (bool value = false) {
+            this.v = value;
+        }
+    }
+
+    [System.Serializable] public class Vector2Ref {
+        public Vector2 v;
+
+        public Vector2Ref (Vector2 value = default) {
+            this.v = value;
+        }
+    }
+    #endregion
 }
 
 
@@ -298,6 +462,5 @@ public static class Extension_Global {
         cur.outputMax = outputMax;
         return cur.Evaluate (index);
     }
-
 
 }

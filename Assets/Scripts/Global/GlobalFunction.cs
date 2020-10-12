@@ -12,7 +12,6 @@ using UnityEngine.U2D;
 
 public static class Extension_Fn {
 
-    //*Event Trigger
 
     public static GameObject DrawLine (this Funtion fn, Vector2 start, Vector2 end, float time = 0.03f, float size = 0.4f) {
         if ((start - end).magnitude > 0.1f) {
@@ -51,13 +50,11 @@ public static class Extension_Fn {
 
     public static GameObject WaitToCall (this Funtion fn, float time, UnityAction action) {
         GameObject obj = new GameObject ("Timer");
+        obj.SetParent (GlobalObject.TempObject);
         Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
         timer.WaitToCall (time, action);
         return obj;
     }
-
-
-
 
 }
 
@@ -72,10 +69,6 @@ namespace Global {
         public static Funtion Fn (Object callBy = null) {
             return new Funtion (callBy);
         }
-
-
-      
-
 
     }
 

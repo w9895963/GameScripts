@@ -52,6 +52,7 @@ public class CustonPointer : MonoBehaviour {
         };
 
 
+     /*    //*Touch Input
         inputSetting.touchPress.performed += (d) => {
             Vector2 p = inputSetting.touchPosition.ReadValue<Vector2> ();
             SetCursorPosition (p);
@@ -66,7 +67,8 @@ public class CustonPointer : MonoBehaviour {
             if (overObject) {
                 CallClickAction (overObject, pointerData);
             };
-        };
+        }; */
+
 
     }
 

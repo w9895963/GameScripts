@@ -1,39 +1,42 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
+using static Global.TargetForce;
 using UnityEngine;
 
 public class C0_TargetForce : MonoBehaviour {
-    public Setting setting = new Setting ();
-    [System.Serializable] public class Setting {
-        public Require require = new Require ();
-        [System.Serializable] public class Require {
-            public Vector2 target = default;
-            public float force;
-        }
-        // * ---------------------------------- 
-        public Optional optional = new Optional ();
-        [System.Serializable] public class Optional {
-            public bool ignoreMass = true;
-        }
+    [SerializeField] private Profile setting = new Profile ();
+    public Data data = new Data ();
+    [System.Serializable] public class Data {
+        public float speed;
+        public Object creator;
+        public string lable;
+    }
+    // * ---------------------------------- 
+    private TargetForce core;
+
+    private void Awake () {
+        core = new TargetForce (setting, gameObject);
+    }
+    private void OnEnable () {
 
     }
+
     private void FixedUpdate () {
-        Setting.Require require = setting.require;
-        Setting.Optional optional = setting.optional;
-        Rigidbody2D rigidbody = GetComponent<Rigidbody2D> ();
-        Vector2 target = require.target;
-        float force = require.force;
-        Vector2 position = rigidbody.position;
-        Vector2 vct = target - position;
-        Vector2 forceAdd = force * vct.normalized;
+        core.ApplyForce ();
 
 
+        data.speed = GetComponent<Rigidbody2D> ().velocity.magnitude;
 
-
-        float massScale = optional.ignoreMass? rigidbody.mass : 1;
-        rigidbody.AddForce (forceAdd * massScale);
     }
 
 
+    public Profile Setting {
+        get => core.vars;
+        set {
+            setting = value;
+            core.vars = value;
+        }
+    }
 
 }

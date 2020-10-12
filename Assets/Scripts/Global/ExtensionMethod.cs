@@ -19,8 +19,6 @@ public static class ExtensionMethod {
     }
 
 
-
-
     #region //*Array & List
 
     public static void Add<T> (this List<T> source, int index, T newMember) {
@@ -76,14 +74,13 @@ public static class ExtensionMethod {
     #region //*Vector
 
 
-    //* Vector2
-
     public static Vector2 ProjectOnPlane (this Vector2 vector, Vector2 normal) {
         return (Vector2) Vector3.ProjectOnPlane (vector, normal);
     }
     public static Vector2 Project (this Vector2 vector, Vector2 direction) {
         return (Vector2) Vector3.Project (vector, direction);
     }
+
     public static float ProjectToFloat (this Vector2 vector, Vector2 direction) {
         Vector2 vct = (Vector2) Vector3.Project (vector, direction);
         float result = vct.magnitude;
@@ -356,6 +353,7 @@ public static class ExtensionMethod {
     #region //*GameObjectExMethod
     public static (EventTrigger, EventTrigger.Entry) AddPointerEvent (this GameObjectExMethod souce,
         EventTriggerType type, UnityAction<BaseEventData> action) {
+        // * ---------------------------------- 
         EventTrigger trigger = souce.gameObject.GetComponent<EventTrigger> ();
         if (trigger == null) {
             trigger = souce.gameObject.AddComponent<EventTrigger> ();
