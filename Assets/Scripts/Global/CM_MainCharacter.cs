@@ -27,8 +27,8 @@ public class CM_MainCharacter : MonoBehaviour {
         }
     }
     // * ---------------------------------- 
-    public Gravity gravity = new Gravity ();
-    [System.Serializable] public class Gravity {
+    public GravitySetting gravity = new GravitySetting ();
+    [System.Serializable] public class GravitySetting {
         public bool enabled = true;
         public Vector2 gravity = new Vector2 (0, -40);
 
@@ -38,6 +38,7 @@ public class CM_MainCharacter : MonoBehaviour {
     public TempObject temp = new TempObject ();
     public C0_TargetForce walkingforce;
     private C_OnArrive arriveComp;
+    private C0_Contact contactComp;
 
     private void Awake () {
 
@@ -49,26 +50,40 @@ public class CM_MainCharacter : MonoBehaviour {
             temp.AddObject = gravity.gravityComponent;
             gravity.gravityComponent.createBy = this;
             gravity.gravityComponent.label = "Gravity";
-            gravity.gravityComponent.setting.badic.force = gravity.gravity;
+            gravity.gravityComponent.setting.basic.force = gravity.gravity;
         }
 
 
         if (walkSetting.enabled) {
-            AddComponent ();
-            void AddComponent () {
+            contactComp = gameObject.AddComponent<C0_Contact> ();
+            temp.AddObject = contactComp;
+            contactComp.events.onNormalChanged.AddListener (() => {
+                bool hit = contactComp._ExistNormal (-WalkingDirection, 5);
+                if (hit) {
+                    walkingforce.enabled = false;
+                    arriveComp.Destroy ();
+                }
+            });
+
+
+
+            AddForceComponent ();
+            void AddForceComponent () {
                 TargetForce.Profile profile = new TargetForce.Profile ();
                 TargetForce.Profile.Optional optional = profile.optional;
                 optional.enablePids = true;
                 optional.enableVelosityControl = true;
                 optional.velosityControl = walkSetting.advance.VelosityControl;
+                optional.velosityControl.maxSpeed = walkSetting.basic.speed;
                 walkSetting.advance.VelosityControl.maxSpeed = walkSetting.basic.speed;
                 optional.enableSingleDimension = true;
-                optional.singleDimension.dimensiion = MainCharacter.Gravity.Rotate (90);
+                optional.singleDimension.dimensiion = Gravity.Rotate (90);
 
                 walkingforce = gameObject.AddComponent<C0_TargetForce> ();
                 temp.AddObject = walkingforce;
                 walkingforce.enabled = false;
                 walkingforce.Setting = profile;
+                walkingforce.Setting.optional.velosityControl.maxSpeed = walkSetting.basic.speed;
                 walkingforce.data.creator = this;
                 walkingforce.data.lable = "walkingforce";
             }
@@ -82,7 +97,7 @@ public class CM_MainCharacter : MonoBehaviour {
                         walkingforce.enabled = false;
                     });
                     void Arrive (UnityAction callback) {
-                        Vector2 dir = MainCharacter.Gravity.Rotate (90);
+                        Vector2 dir = Gravity.Rotate (90);
                         arriveComp.Destroy ();
                         var distance = walkSetting.advance.arriveTriggerDistance;
                         arriveComp = Fn (this).OnArrive (gameObject, target, dir, distance, true, callback);
@@ -99,9 +114,13 @@ public class CM_MainCharacter : MonoBehaviour {
     private void OnDisable () {
         temp.DestroyAll ();
     }
-
-
-
+    //* Public Method
+    public Vector2 WalkingDirection {
+        get {
+            return gameObject.GetComponent<Rigidbody2D> ().velocity.Project (Gravity.Rotate (90)).normalized;
+        }
+    }
+    public Vector2 Gravity => gravity.gravityComponent.setting.basic.force;
 }
 
 
@@ -118,8 +137,8 @@ namespace Global {
             }
         }
         public static void ReverseGravity () {
-            Comp.gravity.gravityComponent.setting.badic.force *= -1;
+            Comp.gravity.gravityComponent.setting.basic.force *= -1;
         }
-        public static Vector2 Gravity => Comp.gravity.gravityComponent.setting.badic.force;
+        public static Vector2 Gravity => Comp.gravity.gravityComponent.setting.basic.force;
     }
 }

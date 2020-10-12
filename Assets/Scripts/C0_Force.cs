@@ -11,7 +11,7 @@ public class C0_Force : MonoBehaviour {
         [System.Serializable] public class Basic {
             public Vector2 force;
         }
-        public Basic badic = new Basic ();
+        public Basic basic = new Basic ();
         [System.Serializable] public class Optional {
             public bool ignoreMass = true;
 
@@ -51,7 +51,7 @@ public class C0_Force : MonoBehaviour {
     private void FixedUpdate () {
         Rigidbody2D rigidBody = GetComponent<Rigidbody2D> ();
         Vector2 position = rigidBody.position;
-        Vector2 forceAdd = setting.badic.force;
+        Vector2 forceAdd = setting.basic.force;
 
 
 

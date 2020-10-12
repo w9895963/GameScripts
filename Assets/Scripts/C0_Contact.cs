@@ -85,10 +85,12 @@ public class C0_Contact : MonoBehaviour {
 
     }
     //* Public Method
-    public bool ExistNormal (Vector2 normal, float angle) {
+
+
+    public bool _ExistNormal (Vector2 normal, float angle) {
         return contacts.SelectMany ((x) => x.normals).ToList ().Exists ((x) => Vector2.Angle (x, normal) < angle);
     }
-    public void ApplyPreset (Preset preset) {
+    public void _ApplyPreset (Preset preset) {
         if (preset == Preset.GroundTester) {
             setting.useLayerFilter = true;
             setting.layer = Layer.LayerEnum.staticSolid;
