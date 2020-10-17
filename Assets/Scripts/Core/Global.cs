@@ -5,17 +5,29 @@ using Global;
 using UnityEngine;
 using UnityEngine.U2D;
 
+
 namespace Global {
 
 
-    public class Curve {
-        public float inputMax = 1;
-        public float inputMin = 0;
-        public float outputMax = 1;
-        public float outputMin = 0;
-        public AnimationCurve curve = ZeroOne;
-        public static AnimationCurve Default = ZeroOne;
+    public static class Curve {
 
+        //* Class Definition
+        public class CurveCs {
+            public float inputMax = 1;
+            public float inputMin = 0;
+            public float outputMax = 1;
+            public float outputMin = 0;
+            public AnimationCurve curve = ZeroOne;
+            public float Evaluate (float index) {
+                float i = (index - inputMin) / (inputMax - inputMin);
+                return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
+            }
+        }
+
+
+
+        //* Public Property
+        public static AnimationCurve Default = ZeroOne;
 
         public static AnimationCurve ZeroOne {
             get {
@@ -49,15 +61,13 @@ namespace Global {
         }
 
 
-        public float Evaluate (float index) {
-            float i = (index - inputMin) / (inputMax - inputMin);
-            return curve.Evaluate (i) * (outputMax - outputMin) + outputMin;
-        }
+
+        //* Public Method
         public static float Evaluate (float index, float inputMin, float inputMax,
-            float outputMin, float outputMax, AnimationCurve curve = null
-        ) {
+            float outputMin, float outputMax, AnimationCurve curve = null) {
+
             if (curve != null) {
-                Curve cur = new Curve ();
+                CurveCs cur = new CurveCs ();
                 cur.curve = curve;
                 cur.inputMax = inputMax;
                 cur.inputMin = inputMin;
@@ -68,6 +78,11 @@ namespace Global {
                 return (index.Clamp (inputMin, inputMax) - inputMin) / (inputMax - inputMin)
                     * (outputMax - outputMin) + outputMin;
             }
+        }
+
+        public static float Evaluate (this AnimationCurve curve, float index, float inputMin, float inputMax,
+            float outputMin = 0, float outputMax = 1) {
+            return Curve.Evaluate (index, inputMin, inputMax, outputMin, outputMax, curve);
         }
     }
 
@@ -279,13 +294,16 @@ namespace Global {
 
     }
 
+
+
+
     public class TargetForce {
         public Profile vars;
         [System.Serializable] public class Profile {
 
             public Basic basic = new Basic ();
             [System.Serializable] public class Basic {
-                public Vector2Ref target = new Vector2Ref();
+                public Vector2Ref target = new Vector2Ref ();
                 public floatRef force = new floatRef (60);
             }
             public Optional optional = new Optional ();
@@ -423,9 +441,14 @@ namespace Global {
         }
     }
 
-    #region //* Reference Value
+
+
+    #region    //*Reference Value
+
+
     [System.Serializable] public class floatRef {
         public float v;
+        public bool enabled = false;
 
         public floatRef (float value = 0) {
             this.v = value;
@@ -448,19 +471,4 @@ namespace Global {
         }
     }
     #endregion
-}
-
-
-public static class Extension_Global {
-    public static float Evaluate (this AnimationCurve curve, float index, float inputMin, float inputMax,
-        float outputMin = 0, float outputMax = 1) {
-        Curve cur = new Curve ();
-        cur.curve = curve;
-        cur.inputMax = inputMax;
-        cur.inputMin = inputMin;
-        cur.outputMin = outputMin;
-        cur.outputMax = outputMax;
-        return cur.Evaluate (index);
-    }
-
 }

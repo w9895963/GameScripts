@@ -11,10 +11,12 @@ using UnityEngine.UI;
 
 public class CustonPointer : MonoBehaviour {
     public float mouseSensity = 1f;
+    public float scrollSensity = 1f;
     public Input inputSetting = new Input ();
     [System.Serializable] public class Input {
         public InputAction mouseDelta;
         public InputAction mousePress;
+        public InputAction mouseScrollWheel;
         public InputAction touchPosition;
         public InputAction touchPress;
     }
@@ -38,7 +40,7 @@ public class CustonPointer : MonoBehaviour {
 
             List<GameObject> exitObjs;
             List<GameObject> enterObjs;
-            CalcOverObjs (out exitObjs, out enterObjs);
+            FindOverObjs (out exitObjs, out enterObjs);
 
             CallEnterAction (enterObjs, pointerData);
             CallExitAction (exitObjs, pointerData);
@@ -47,27 +49,42 @@ public class CustonPointer : MonoBehaviour {
 
         inputSetting.mousePress.performed += (d) => {
             if (overObject) {
-                CallClickAction (overObject, pointerData);
+                CallActionOnceUpward<IPointerClickHandler> (overObject, (x) => {
+                    x.OnPointerClick (pointerData);
+                });
             };
         };
 
 
-     /*    //*Touch Input
-        inputSetting.touchPress.performed += (d) => {
-            Vector2 p = inputSetting.touchPosition.ReadValue<Vector2> ();
-            SetCursorPosition (p);
-
-            List<GameObject> exitObjs;
-            List<GameObject> enterObjs;
-            CalcOverObjs (out exitObjs, out enterObjs);
-
-            CallEnterAction (enterObjs, pointerData);
-            CallExitAction (exitObjs, pointerData);
-
+        inputSetting.mouseScrollWheel.performed += (d) => {
             if (overObject) {
-                CallClickAction (overObject, pointerData);
+                pointerData.scrollDelta = d.ReadValue<Vector2> () / 100f * scrollSensity;
+                CallActionOnceUpward<IScrollHandler> (overObject, (x) => {
+                    x.OnScroll (pointerData);
+                });
+
             };
-        }; */
+        };
+
+
+
+
+        /*    //*Touch Input
+           inputSetting.touchPress.performed += (d) => {
+               Vector2 p = inputSetting.touchPosition.ReadValue<Vector2> ();
+               SetCursorPosition (p);
+
+               List<GameObject> exitObjs;
+               List<GameObject> enterObjs;
+               CalcOverObjs (out exitObjs, out enterObjs);
+
+               CallEnterAction (enterObjs, pointerData);
+               CallExitAction (exitObjs, pointerData);
+
+               if (overObject) {
+                   CallClickAction (overObject, pointerData);
+               };
+           }; */
 
 
     }
@@ -75,12 +92,14 @@ public class CustonPointer : MonoBehaviour {
     private void OnEnable () {
         inputSetting.mouseDelta.Enable ();
         inputSetting.mousePress.Enable ();
+        inputSetting.mouseScrollWheel.Enable ();
         inputSetting.touchPress.Enable ();
         inputSetting.touchPosition.Enable ();
     }
     private void OnDisable () {
         inputSetting.mouseDelta.Disable ();
         inputSetting.mousePress.Disable ();
+        inputSetting.mouseScrollWheel.Disable ();
         inputSetting.touchPress.Disable ();
         inputSetting.touchPosition.Disable ();
     }
@@ -89,16 +108,18 @@ public class CustonPointer : MonoBehaviour {
 
     }
 
-    private void CalcOverObjs (out List<GameObject> exitObjs, out List<GameObject> enterObjs) {
+    private void FindOverObjs (out List<GameObject> exitObjs, out List<GameObject> enterObjs) {
         PointerEventData pointData = pointerData;
 
         List<RaycastResult> result = new List<RaycastResult> ();
+
         EventSystem.current.RaycastAll (pointData, result);
+
 
         GameObject lastObj = overObject;
         GameObject currObj = (result.Count > 0) ? result[0].gameObject : null;
         List<GameObject> lastObjs = overobjects;
-        List<GameObject> currObjs = currObj.GetSelfAndParents ();
+        List<GameObject> currObjs = currObj.GetParentsAndSelf ();
         exitObjs = lastObjs.Except (currObjs).ToList ();
         enterObjs = currObjs.Except (lastObjs).ToList ();
 
@@ -107,6 +128,24 @@ public class CustonPointer : MonoBehaviour {
 
         overObject = currObj;
         overobjects = currObjs;
+    }
+
+    private static void CallAction<T> (List<GameObject> gameObjects, UnityAction<T> action) {
+        gameObjects.ForEach ((x) => {
+            x.GetComponents<T> ().ForEach ((y) => {
+                action (y);
+            });
+        });
+
+    }
+    private static void CallActionOnceUpward<T> (GameObject gameObject, UnityAction<T> action) {
+        T comp = gameObject.GetComponent<T> ();
+        if (comp == null) {
+            comp = gameObject.GetComponentInParent<T> ();
+        }
+        if (comp != null) {
+            action (comp);
+        }
     }
 
     private static void CallEnterAction (List<GameObject> gameObjects, PointerEventData data) {
@@ -123,6 +162,7 @@ public class CustonPointer : MonoBehaviour {
             });
         });
     }
+
     private static void CallClickAction (GameObject gameObjects, PointerEventData data) {
         gameObjects.GetComponents<IPointerClickHandler> ().ForEach ((y) => {
             y.OnPointerClick (data);

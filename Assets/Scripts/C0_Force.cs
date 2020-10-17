@@ -63,8 +63,7 @@ public class C0_Force : MonoBehaviour {
 
 
 
-        if (setting.optional.ignoreMass)
-            forceAdd *= rigidBody.mass;
+        forceAdd *= massScaler;
 
 
         rigidBody.AddForce (forceAdd);
@@ -76,8 +75,20 @@ public class C0_Force : MonoBehaviour {
         data.realForce = forceAdd;
 
     }
+    //* Private Method & Property
+    private float massScaler {
+        get => (setting.optional.ignoreMass) ? GetComponent<Rigidbody2D> ().mass : 1;
+    }
 
 
-
+    //* Public Method & Propety
+    public Vector2 Force {
+        set {
+            setting.basic.force = value / massScaler;
+        }
+        get {
+            return setting.basic.force * massScaler;
+        }
+    }
 
 }

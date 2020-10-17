@@ -57,6 +57,9 @@ public static class ExtensionMethod {
     public static List<T> ToList<T> (this T source) where T : Object {
         return new List<T> { source };
     }
+    public static List<string> ToList (this string source) {
+        return new List<string> { source };
+    }
     public static void ForEach<T> (this T[] source, System.Action<T> action) {
         foreach (var t in source) {
             action (t);
@@ -217,7 +220,13 @@ public static class ExtensionMethod {
 
     #endregion
 
+    #region //*String
 
+    public static bool IsEmpty (this string str) {
+        return string.IsNullOrWhiteSpace (str);
+    }
+
+    #endregion
 
 
     #region //*Unity Object
@@ -264,7 +273,7 @@ public static class ExtensionMethod {
         gameObject.transform.parent = parent.transform;
     }
 
-    public static List<GameObject> GetSelfAndParents (this GameObject gameObject) {
+    public static List<GameObject> GetParentsAndSelf (this GameObject gameObject) {
         List<GameObject> all = GetParents (gameObject);
         if (gameObject) all.Add (gameObject);
         return all;

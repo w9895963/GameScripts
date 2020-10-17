@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class M_CursorEvent : MonoBehaviour {
     public Collider2D trigger;
-    public M_Cursor.StateCs cursorState = default;
+    public string cursorState;
     public TempObject temp = new TempObject ();
 
     private void OnEnable () {
@@ -18,7 +18,7 @@ public class M_CursorEvent : MonoBehaviour {
                 });
             temp.AddEventTrigger = trigger.gameObject._Ex (this)
                 .AddPointerEvent (EventTriggerType.PointerExit, (d) => {
-                    cursorCtrl.State = M_Cursor.StateCs.normal;
+                    cursorCtrl.State = null;
                 });
         }
 

@@ -50,12 +50,16 @@ public class floatRefDrawer : PropertyDrawer {
         EditorGUI.indentLevel = indent;
 
         // Calculate rects
-        var amountRect = new Rect (position.x, position.y, position.width, position.height);
+        // var amountRect = new Rect (position.x, position.y, position.width, position.height);
         // var unitRect = new Rect (position.x + 35, position.y, 50, position.height);
         // var nameRect = new Rect (position.x + 90, position.y, position.width - 90, position.height);
 
         // Draw fields - pass GUIContent.none to each so they are drawn without labels
-        EditorGUI.PropertyField (position, property.FindPropertyRelative ("v"), label);
+        property.Next (true);
+        EditorGUI.PropertyField (position, property, label);
+        // position.y += 30;
+        // EditorGUI.PropertyField (position, property, label);
+        // property.NextVisible()
         // EditorGUI.PropertyField (unitRect, property.FindPropertyRelative ("unit"), GUIContent.none);
         // EditorGUI.PropertyField (nameRect, property.FindPropertyRelative ("name"), GUIContent.none);
 
@@ -87,7 +91,9 @@ public class Vector2RefDrawer : PropertyDrawer {
         // var nameRect = new Rect (position.x + 90, position.y, position.width - 90, position.height);
 
         // Draw fields - pass GUIContent.none to each so they are drawn without labels
+
         EditorGUI.PropertyField (position, property.FindPropertyRelative ("v"), label);
+
         // EditorGUI.PropertyField (unitRect, property.FindPropertyRelative ("unit"), GUIContent.none);
         // EditorGUI.PropertyField (nameRect, property.FindPropertyRelative ("name"), GUIContent.none);
 
@@ -97,3 +103,4 @@ public class Vector2RefDrawer : PropertyDrawer {
         EditorGUI.EndProperty ();
     }
 }
+

@@ -6,7 +6,7 @@ using static Global.Funtion;
 using Global;
 using UnityEngine.Events;
 
-public class CM_MainCharacter : MonoBehaviour {
+public class CM_MainCharacter : MonoBehaviour, IManager, IGravity {
 
     public WalkSetting walkSetting = new WalkSetting ();
     [System.Serializable] public class WalkSetting {
@@ -87,6 +87,7 @@ public class CM_MainCharacter : MonoBehaviour {
                 walkingforce.data.creator = this;
                 walkingforce.data.lable = "walkingforce";
             }
+
             temp.AddEventTrigger = walkSetting.basic.inputZone._Ex (this)
                 .AddPointerEvent (EventTriggerType.PointerClick, (d) => {
                     Vector2 target = (d as PointerEventData).position.ScreenToWold ();
@@ -120,7 +121,15 @@ public class CM_MainCharacter : MonoBehaviour {
             return gameObject.GetComponent<Rigidbody2D> ().velocity.Project (Gravity.Rotate (90)).normalized;
         }
     }
-    public Vector2 Gravity => gravity.gravityComponent.setting.basic.force;
+
+    public Vector2 Gravity {
+        get =>
+            this.gravity.gravityComponent.Force;
+        set =>
+            this.gravity.gravityComponent.Force = value;
+    }
+
+
 }
 
 
@@ -136,6 +145,7 @@ namespace Global {
                 return comp;
             }
         }
+        public static GameObject gameObject => Comp.gameObject;
         public static void ReverseGravity () {
             Comp.gravity.gravityComponent.setting.basic.force *= -1;
         }
