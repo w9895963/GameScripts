@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Global;
+using Global.Mods;
 using RuntimeInspectorNamespace;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,7 +27,7 @@ public class ModEditor : MonoBehaviour {
         }
         get => save;
     }
-    private ModUtility.Mod mod;
+    private Mod mod;
     private RuntimeHierarchy hierarchy;
     private RuntimeInspector inspector;
 
@@ -55,13 +56,13 @@ public class ModEditor : MonoBehaviour {
             SaveFiles ();
         };
         input.load.performed += (d) => {
-            ModUtility.LoadAllModData ();
+            ModFunc.LoadAllModData ();
         };
 
 
-        mod = ModUtility.GetMod (modFolderName);
+        mod = ModFunc.GetMod (modFolderName);
         if (mod != null) {
-            mod = ModUtility.CreateMod (modFolderName, modName);
+            mod = ModFunc.CreateMod (modFolderName, modName);
         }
     }
 

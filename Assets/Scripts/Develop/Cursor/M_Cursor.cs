@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Global;
+using Global.Mods;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
-using static Global.Funtion;
+using static Global.Function;
+using UnityEngine.Events;
 
-public class M_Cursor : InterfaceHolder, IModable {
+public class M_Cursor : InterfaceHolder, IModable, IModableSprite {
 
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
@@ -19,11 +21,7 @@ public class M_Cursor : InterfaceHolder, IModable {
         [System.Serializable] public class State {
             public string stateName;
             public Sprite unpress;
-            public string unpress_SpriteData;
-            public ModUtility.ModImage unpressModed = new ModUtility.ModImage ();
             public Sprite pressed;
-            public string pressed_SpriteData;
-            public ModUtility.ModImage pressedModed = new ModUtility.ModImage ();
 
         }
     }
@@ -54,7 +52,8 @@ public class M_Cursor : InterfaceHolder, IModable {
     private Sprite lastSprite;
     private bool presseDown;
 
-    //*------------------
+    //* Basic Event Function
+    private void Awake () { }
     private void Update () {
         Sprite currSprite = GetComponent<Image> ().sprite;
         if (lastSprite != currSprite) {
@@ -78,7 +77,7 @@ public class M_Cursor : InterfaceHolder, IModable {
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Global.Funtion.Fn (this).AddGlobalPointerEvent (PointerEventType.onPressUp, (d) => {
+        pointerEventObj = Global.Function.Fn (this).AddGlobalPointerEvent (PointerEventType.onPressUp, (d) => {
             presseDown = false;
             UpdateCursorImage ();
         });
@@ -90,6 +89,8 @@ public class M_Cursor : InterfaceHolder, IModable {
         events.Destroy ();
         Cursor.visible = true;
     }
+
+
 
 
     //* Private Method
@@ -124,63 +125,36 @@ public class M_Cursor : InterfaceHolder, IModable {
 
 
     //* Interface Imodable
-    public string ModDataName => "CustomCursor";
+    public string ModTitle => "CustomCursor";
     public bool EnableWriteModDatas => saveToMod;
-    public string ModData {
-        get {
-            List<System.Object> list = new List<object> ();
-            list.Add (setting);
-            var sprites = setting.states.SelectMany ((s) =>
-                new List<Sprite> { s.pressed, s.unpress }).ToList ();
+    public System.Object ModableObjectData => setting;
 
-            var spDatas = sprites.Select ((x) => ModUtility.SpriteToSpritedate (x)).ToList ();
-            list.AddRange (spDatas);
-
-            return ModUtility.ToStoreData (list.ToArray ());
-        }
+    public List<Sprite> ModableSprites {
+        get =>
+            setting.states.SelectMany ((x) => new List<Sprite> { x.unpress, x.pressed }).ToList ();
+        set =>
+            SetSprites (value);
     }
-    public void LoadModData (string modData) {
-        var sprites = setting.states.SelectMany ((s) =>
-            new List<Sprite> { s.pressed, s.unpress }).ToList ();
+    public void LoadModData (ModData loader) {
+        loader.LoadObjectDataTo<Setting> (setting);
+        loader.LoadSprites ();
 
-        var list = ModUtility.FomeStoreData (modData);
-        JsonUtility.FromJsonOverwrite (list[0], setting);
-
-
+        UpdateCursorImage ();
+    }
 
 
-        List<string> lists = list.GetRange (1, list.Count - 1);
-        Debug.Log (lists.Count);
-
-        for (int i = 0; i < lists.Count; i++) {
-            string v = lists[i];
-            var spriteData = JsonUtility.FromJson<ModUtility.SpriteData> (v);
-            if (spriteData != null) {
-                spriteData.LoadSprite ();
-                if (i % 2 == 0) {
-                    setting.states[i / 2].pressed = spriteData.spriteObject;
-                } else {
-                    setting.states[i / 2].unpress = spriteData.spriteObject;
-                }
-            }
-
-        }
-
-        var sprites2 = setting.states.SelectMany ((s) =>
-            new List<Sprite> { s.pressed, s.unpress }).ToList ();
-        for (int i = 0; i < sprites2.Count; i++) {
-            if (sprites2[i] == null) {
-                if (i % 2 == 0) {
-                    setting.states[i / 2].pressed = sprites[i];
-                } else {
-                    setting.states[i / 2].unpress = sprites[i];
-                }
-
+    private void SetSprites (List<Sprite> value) {
+        for (int i = 0; i < value.Count; i++) {
+            if (value[i] != null) {
+                if (i % 2 == 0) setting.states[i / 2].unpress = value[i];
+                else if (i % 2 == 1) setting.states[i / 2].pressed = value[i];
             }
         }
-
-
     }
+
+
+
+
 }
 
 

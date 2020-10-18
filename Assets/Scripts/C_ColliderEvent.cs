@@ -84,22 +84,22 @@ public class C_ColliderEvent : MonoBehaviour {
         } else {
             switch (typ) {
                 case EventType.OnCollisionEnter:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.onCollisionEnter.Invoke (collision));
                     break;
                 case EventType.OnCollisionStay:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.onCollisionStay.Invoke (collision));
                     break;
                 case EventType.OnCollisionExit:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.OnCollisionExit.Invoke (collision));
                     break;
                 case EventType.OnTriggerEnter:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.onTriggerEnter.Invoke (collider));
                     break;
                 case EventType.OnTriggerStay:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.onTriggerStay.Invoke (collider));
                     break;
                 case EventType.OnTriggerExit:
-                    Global.Funtion.Fn (this).WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
+                    Global.Function.Fn (this).WaitToCall (waitTime, () => events.OnTriggerExit.Invoke (collider));
                     break;
             }
         }

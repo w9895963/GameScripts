@@ -26,13 +26,13 @@ public class I_Placing : IC_Base {
     }
 
     void Update () {
-       Global.Funtion.Fn(this).DrawLine (FindObjectOfType<CM_MainCharacter> ().transform.position, setting.targetPosition, 0.01f);
+       Global.Function.Fn(this).DrawLine (FindObjectOfType<CM_MainCharacter> ().transform.position, setting.targetPosition, 0.01f);
     }
     void OnEnable () {
 
 
         data.tempInstance.AddIfEmpty (0,
-            () =>Global.Funtion.Fn(this).AddGlobalPointerEvent (PointerEventType.onMoveNotDrag, (d) => {
+            () =>Global.Function.Fn(this).AddGlobalPointerEvent (PointerEventType.onMoveNotDrag, (d) => {
                 setting.targetPosition = d.position_Screen.ScreenToWold ();
             })
         );
@@ -40,7 +40,7 @@ public class I_Placing : IC_Base {
 
         if (setting.endCondition.click) {
             data.tempInstance.AddIfEmpty (1,
-                () =>Global.Funtion.Fn(this).AddGlobalPointerEvent (PointerEventType.onClick, (d) => {
+                () =>Global.Function.Fn(this).AddGlobalPointerEvent (PointerEventType.onClick, (d) => {
                     enabled = false;
                 })
             );

@@ -13,7 +13,7 @@ using UnityEngine.U2D;
 public static class Extension_Fn {
 
 
-    public static GameObject DrawLine (this Funtion fn, Vector2 start, Vector2 end, float time = 0.03f, float size = 0.4f) {
+    public static GameObject DrawLine (this Function fn, Vector2 start, Vector2 end, float time = 0.03f, float size = 0.4f) {
         if ((start - end).magnitude > 0.1f) {
             GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
             GameObject lineNew = GameObject.Instantiate (line);
@@ -33,7 +33,7 @@ public static class Extension_Fn {
             return null;
         }
     }
-    public static GameObject DrawPoint (this Funtion fn, Vector2 position,
+    public static GameObject DrawPoint (this Function fn, Vector2 position,
         float sizePixel = 6f, float stayTime = 0.03f, Color color = default) {
         /////////////////////////////////////////////////////
         GameObject point = Resources.Load ("DebugFile/IndicatePoint", typeof (GameObject)) as GameObject;
@@ -48,7 +48,7 @@ public static class Extension_Fn {
         return point;
     }
 
-    public static GameObject WaitToCall (this Funtion fn, float time, UnityAction action) {
+    public static GameObject WaitToCall (this Function fn, float time, UnityAction action) {
         GameObject obj = new GameObject ("Timer");
         obj.SetParent (GlobalObject.TempObject);
         Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
@@ -56,22 +56,25 @@ public static class Extension_Fn {
         return obj;
     }
 
-   
+
 
 }
 
 namespace Global {
 
 
-    public class Funtion {
+    public class Function {
         public Object callBy;
-        public Funtion (Object callBy) {
+        public Function (Object callBy) {
             this.callBy = callBy;
         }
-        public static Funtion Fn (Object callBy = null) {
-            return new Funtion (callBy);
+        public static Function Fn (Object callBy = null) {
+            return new Function (callBy);
         }
 
+
     }
+
+
 
 }

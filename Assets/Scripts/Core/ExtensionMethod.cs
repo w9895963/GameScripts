@@ -65,6 +65,14 @@ public static class ExtensionMethod {
             action (t);
         }
     }
+    public static void LogAll<T> (this List<T> source) {
+        for (int i = 0; i < source.Count; i++) {
+            Debug.Log ($"index:{i}|---|content:{source[i]}");
+        }
+    }
+    public static void LogAll<T> (this T[] source) {
+        source.ToList ().LogAll ();
+    }
 
 
 
@@ -328,6 +336,14 @@ public static class ExtensionMethod {
 
 
 
+    #region //* Other
+    public static bool IsList (this System.Type type) {
+        return type.IsGenericType && type.GetGenericTypeDefinition () == typeof (List<>);
+    }
+    #endregion
+
+
+
 
     #region //*Collider2dExMethod
     public static Vector2? ClosestPointToLine (this Collider2DExMethod ex, Vector2 position, Vector2 direction) {
@@ -420,9 +436,5 @@ public class Rigid2dExMethod {
         this.callby = callby;
     }
     //*--------------------------
-
-}
-
-public class Classname {
 
 }

@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global.Mods;
 using UnityEngine;
 
 namespace Global {
     public interface IModable {
-        string ModDataName { get; }
+        string ModTitle { get; }
         bool EnableWriteModDatas { get; }
-        string ModData { get; }
-        void LoadModData (string data);
+        void LoadModData (ModData data);
+        System.Object ModableObjectData { get; }
+
 
     }
 }

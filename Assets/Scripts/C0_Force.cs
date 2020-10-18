@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Global;
-using static Global.Funtion;
+using static Global.Function;
 using UnityEngine;
 using UnityEngine.Events;
 

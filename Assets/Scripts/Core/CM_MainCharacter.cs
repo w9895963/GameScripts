@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static Global.Funtion;
+using static Global.Function;
 using Global;
 using UnityEngine.Events;
 

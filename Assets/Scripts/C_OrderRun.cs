@@ -24,7 +24,7 @@ public class C_OrderRun {
 
 
 public static class Extension_C_OrderRun {
-    public static void OrderRun (this Global.Funtion fn, UnityAction action) {
+    public static void OrderRun (this Global.Function fn, UnityAction action) {
         C_OrderRun.OrderRun (action);
     }
 }

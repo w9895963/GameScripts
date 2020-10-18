@@ -159,7 +159,7 @@ public class PointerData {
 
 
 public static class Extension_GlobalPointerEvent {
-    public static GameObject AddGlobalPointerEvent (this Global.Funtion fn,
+    public static GameObject AddGlobalPointerEvent (this Global.Function fn,
         PointerEventType type,
         UnityAction<PointerData> action) {
 

@@ -110,7 +110,7 @@ public class C_OnArrive : MonoBehaviour {
 
 
 public static class Extension_M_OnArrive {
-    public static C_OnArrive OnArrive (this Global.Funtion fn, GameObject gameObject,
+    public static C_OnArrive OnArrive (this Global.Function fn, GameObject gameObject,
         Vector2 position, Vector2 distanceDirection = default,
         float distance = 0.01f, bool autoDestroy = true,
         UnityAction callBack = null) {

@@ -18,7 +18,12 @@ public class Test : MonoBehaviour {
         // ModUtility.SpriteData spriteData = new ModUtility.SpriteData (FileUtility.GetFullPath ("Mods/last.png"));
         // spriteData.WriteToDisk ();
 
+
+        // string log = JsonUtility.ToJson (d);
+        // Debug.Log (log);
     }
+
+
 
 
     private void Update () { }

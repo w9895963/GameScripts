@@ -3,196 +3,160 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Global;
+using Global.Mods;
+using static Global.Function;
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
-using static Global.Funtion;
-
 
 namespace Global {
-    public class ModUtility {
 
-        #region //*All Names
-        public static string ModsFolderName = "Mods";
-        public static string modProfileFileName = "ModSetting.json";
-        public static string dataFolderName = "Datas";
-        public static string libraryFolderName = "Library";
-        public static string imageFolderName = "Images";
-        public static string defaultTextureName = "ModLoadTexture";
-        private static string defaultSpriteName = "ModLoadSprite";
-        #endregion
+    namespace Mods {
 
-
-        public static Mod currentModBuilder;
-        public static List<SpriteData> spriteLoadLibrary = new List<SpriteData> ();
-
-        //* Private Fields
-        private static List<string> imageExtensions = new List<string> { ".png" };
-        private static List<IModable> modableComponentlist;
+        public static class ModFunc {
 
 
 
 
-        //* Public  Property
+            //* Names and Setting
+            #region All Names
+            public static string RootModsFolderName = "Mods";
+            public static string modProfileFileName = "ModSetting.json";
+            public static string dataFolderName = "Datas";
+            public static List<string> imageExtensions = new List<string> { ".png" };
 
-        public static string ModsRootFolderPath => FileUtility.GetFullPath (ModsFolderName);
+            #endregion
 
-        public static List<IModable> ModableComponents {
-            get {
-                if (modableComponentlist == null) {
-                    modableComponentlist = FindAllInterfaces<IModable> ();
+
+
+
+            //* Public Fields
+            public static Mod currentModBuilder;
+            public static List<SpriteData> spriteLoadLibrary = new List<SpriteData> ();
+
+
+
+
+            //* Public  Property
+            public static string ModsRootFolderPath => FileUtility.GetFullPath (RootModsFolderName);
+
+
+
+
+            //* Public Method
+            #region Public Method
+
+            public static List<Mod> GetAllMods () {
+                List<Mod> result = new List<Mod> ();
+                if (Directory.Exists (ModsRootFolderPath)) {
+                    string[] modFolders = Directory.GetDirectories (ModsRootFolderPath);
+                    modFolders.ForEach ((folder) => {
+                        Mod mod = FolderToMod (folder);
+                        if (mod != null) {
+                            result.Add (mod);
+                        }
+                    });
                 }
-                return modableComponentlist;
+                return result;
             }
-        }
+            public static Mod GetMod (string modFolderName) {
+                return GetAllMods ().Find ((x) => x.ModFolderName == modFolderName);
+            }
+            public static Mod FolderToMod (string folderPath) {
+                Mod result = null;
+                string modSettingPath = FileUtility.FindFile (folderPath, modProfileFileName);
+                if (File.Exists (modSettingPath)) {
+                    string data = File.ReadAllText (modSettingPath);
+                    ModSetting modSetting = JsonUtility.FromJson<ModSetting> (data);
+                    if (modSetting != null) {
+                        result = new Mod (modSetting);
+                    }
+                }
+                return result;
+            }
+            public static Mod CreateMod (string modFolderName, string modName = null) {
+                var modsFolder = FileUtility.GetFile (ModsRootFolderPath);
+                modsFolder.CreateFolder (modFolderName);
+                string name = modName.IsEmpty () ? modName : modFolderName;
+                return new Mod (modFolderName, name);
+            }
 
+            public static void LoadAllModData () {
+                List<IModable> modComps = Fn ().FindAllInterfaces<IModable> ();
 
-
-
-        //* Public Method
-        public static List<Mod> GetAllMods () {
-            List<Mod> result = new List<Mod> ();
-            if (Directory.Exists (ModsRootFolderPath)) {
-                string[] modFolders = Directory.GetDirectories (ModsRootFolderPath);
-                modFolders.ForEach ((folder) => {
-                    Mod mod = FolderToMod (folder);
+                if (!Directory.Exists (ModsRootFolderPath)) {
+                    Directory.CreateDirectory (ModsRootFolderPath);
+                }
+                string[] dirs = Directory.GetDirectories (ModsRootFolderPath);
+                List<Mod> mods = new List<Mod> ();
+                dirs.ForEach ((folderPath) => {
+                    Mod mod = FolderToMod (folderPath);
                     if (mod != null) {
-                        result.Add (mod);
+                        mods.Add (mod);
                     }
                 });
-            }
-            return result;
-        }
-        public static Mod GetMod (string modFolderName) {
-            return GetAllMods ().Find ((x) => x.ModFolderName == modFolderName);
-        }
-        public static Mod FolderToMod (string folderPath) {
-            Mod result = null;
-            string modSettingPath = FileUtility.FindFile (folderPath, modProfileFileName);
-            if (File.Exists (modSettingPath)) {
-                string data = File.ReadAllText (modSettingPath);
-                ModSetting modSetting = JsonUtility.FromJson<ModSetting> (data);
-                if (modSetting != null) {
-                    result = new Mod (modSetting);
-                }
-            }
-            return result;
-        }
-        public static Mod CreateMod (string modFolderName, string modName = null) {
-            var modsFolder = FileUtility.GetFile (ModsRootFolderPath);
-            modsFolder.CreateFolder (modFolderName);
-            string name = modName.IsEmpty () ? modName : modFolderName;
-            return new Mod (modFolderName, name);
-        }
-
-        public static void LoadAllModData () {
-            if (!Directory.Exists (ModsRootFolderPath)) {
-                Directory.CreateDirectory (ModsRootFolderPath);
-            }
-            string[] dirs = Directory.GetDirectories (ModsRootFolderPath);
-            List<Mod> mods = new List<Mod> ();
-            dirs.ForEach ((folderPath) => {
-                Mod mod = FolderToMod (folderPath);
-                if (mod != null) {
-                    mods.Add (mod);
-                }
-            });
-            mods.Sort ((x, y) => x.profile.loadOrder.CompareTo (y.profile.loadOrder));
-            mods.ForEach ((mod) => {
-                mod.ReadModDatas ().ForEach ((dataHolder) => {
-                    IModable modable = ModableComponents.Find ((x) => x.ModDataName == dataHolder.name);
-                    if (modable != null) {
-                        modable.LoadModData (dataHolder.data);
-                    }
+                mods.Sort ((x, y) => x.profile.loadOrder.CompareTo (y.profile.loadOrder));
+                mods.ForEach ((mod) => {
+                    mod.ReadModDatas ().ForEach ((modData) => {
+                        IModable modableComp = modComps.Find ((x) => x.ModTitle == modData.name);
+                        if (modableComp != null) {
+                            modableComp.LoadModData (modData);
+                        }
+                    });
                 });
-            });
-        }
+            }
 
-        private static List<T> FindAllInterfaces<T> () where T : class {
-            InterfaceHolder[] holders = GameObject.FindObjectsOfType<InterfaceHolder> ();
-            return holders.ToList ().Select ((x) => x as T).Distinct ().ToList ();
-        }
-        public static void RenewModableComponentsList () {
-            modableComponentlist = FindAllInterfaces<IModable> ();
-        }
 
-        public static Sprite LoadImageToSprite (string fullPath) {
-            Sprite result = null;
-            var image = FileUtility.GetFile (fullPath);
-            string dataFilename = $"{image.NameNoSuffix}.json";
-            string dataPath = FileUtility.CombinePath (image.Parent.FullPath, dataFilename);
-            var datafile = image.FindFileSamePlace (dataFilename);
-            SpriteData data;
-            if (datafile == null) {
-                data = BuildSpriteDataFile (image.FullPath);
-            } else {
-                data = datafile.ReadJson<SpriteData> ();
-                if (data == null) {
+            public static Sprite LoadImageToSprite (string fullPath) {
+                Sprite result = null;
+                var image = FileUtility.GetFile (fullPath);
+                string dataFilename = $"{image.NameNoSuffix}.json";
+                string dataPath = FileUtility.CombinePath (image.Parent.FullPath, dataFilename);
+                var datafile = image.FindFileSamePlace (dataFilename);
+                SpriteData data;
+                if (datafile == null) {
                     data = BuildSpriteDataFile (image.FullPath);
+                } else {
+                    data = datafile.ReadJson<SpriteData> ();
+                    if (data == null) {
+                        data = BuildSpriteDataFile (image.FullPath);
+                    }
                 }
+
+                data.LoadSprite ();
+                spriteLoadLibrary.Add (data);
+                return result;
             }
 
-            data.LoadSprite ();
-            spriteLoadLibrary.Add (data);
-            return result;
-        }
-
-        private static SpriteData BuildSpriteDataFile (string imageFullPath) {
-            SpriteData data = new SpriteData (imageFullPath);
-            data.WriteToDisk ();
-            return data;
-        }
-
-        public static Sprite CreateSprite (Texture2D texture, SpriteData spriteData) {
-            Sprite result = null;
-            var tex = texture;
-            result = Sprite.Create (tex,
-                new Rect (0, 0, tex.width, tex.height),
-                new Vector2 (0.5f, 0.5f),
-                spriteData.pixelsPerUnit);
-            return result;
-        }
-        public static Sprite LoadSprite (SpriteData spritedata) {
-            Sprite sprite = null;
-            if (spritedata != null) {
-                Texture2D tex = new Texture2D (2, 2);
-                bool sucss = FileUtility.LoadImage (spritedata.FullPath, tex);
-                if (sucss) {
-                    sprite = Sprite.Create (tex, new Rect (0, 0, tex.width, tex.height), new Vector2 (0.5f, 0.5f));
-                    spritedata.spriteObject = sprite;
-                    sprite.name = Path.GetFileNameWithoutExtension (spritedata.FullPath);
-                    spriteLoadLibrary.Add (spritedata);
-                }
+            private static SpriteData BuildSpriteDataFile (string imageFullPath) {
+                SpriteData data = new SpriteData (imageFullPath);
+                data.WriteToDisk ();
+                return data;
             }
-            return sprite;
 
-        }
-        public static void LoadSpriteTo (string json, ref Sprite spriteHolder) {
-            Sprite sprite = LoadSprite (JsonUtility.FromJson<SpriteData> (json));
-            if (sprite) {
-                spriteHolder = sprite;
+            public static Sprite CreateSprite (Texture2D texture, SpriteData spriteData) {
+                Sprite result = null;
+                var tex = texture;
+                result = Sprite.Create (tex,
+                    new Rect (0, 0, tex.width, tex.height),
+                    new Vector2 (0.5f, 0.5f),
+                    spriteData.pixelsPerUnit);
+                return result;
             }
+
+            public static SpriteData SpriteToSpritedate (Sprite sprite) {
+                return spriteLoadLibrary.Find ((x) => x.spriteObject == sprite);
+            }
+
+
+
+
+            #endregion
+
+
         }
 
-
-        public static SpriteData SpriteToSpritedate (Sprite sprite) {
-            return spriteLoadLibrary.Find ((x) => x.spriteObject == sprite);
-        }
-
-        public static string ToStoreData (params System.Object[] objets) {
-            Debug.Log (objets.Length);
-            StoreData st = new StoreData ();
-            st.data = objets.ToList ().Select ((x) => JsonUtility.ToJson (x)).ToList ();
-            return JsonUtility.ToJson (st);
-        }
-        public static List<string> FomeStoreData (string json) {
-            StoreData storeData = JsonUtility.FromJson<StoreData> (json);
-            Debug.Log (storeData.data.Count);
-            return storeData.data;
-        }
-
-
-
-        //* Class Definition
         public class Mod {
 
             public ModSetting profile;
@@ -200,11 +164,10 @@ namespace Global {
             public Mod (string modName = "DefautMod", string modFolderName = "DefautMod", int loadOrder = 0) {
                 profile = new ModSetting (modName, modFolderName, loadOrder);
                 WriteModProfile ();
-                currentModBuilder = this;
+                ModFunc.currentModBuilder = this;
             }
             public Mod (ModSetting modSetting) {
                 this.profile = modSetting;
-                currentModBuilder = this;
             }
 
 
@@ -212,22 +175,27 @@ namespace Global {
             public string ModFolderName => profile.modFolderName;
             public string Name => profile.modName;
 
+
+
+
             #region //*Paths 
-            public string ModFolderPath => FileUtility.GetFullPath ($"{ModsFolderName}/{ModFolderName}");
-            public string ModProfilePath => FileUtility.GetFullPath ($"{ModsFolderName}/{ModFolderName}/{modProfileFileName}");
-            public string LibraryPath => FileUtility.GetFullPath ($"{ModsFolderName}/{ModFolderName}/{libraryFolderName}");
-            public string DataFolderPath => FileUtility.GetFullPath ($"{ModsFolderName}/{ModFolderName}/{dataFolderName}");
-            public string DataFolderLocalPath => $"{ModsFolderName}/{ModFolderName}/{dataFolderName}";
+            public string RootName => ModFunc.RootModsFolderName;
+            public string ModFolderPath => FileUtility.GetFullPath ($"{RootName}/{ModFolderName}");
+            public string ModProfilePath => FileUtility.GetFullPath ($"{RootName}/{ModFolderName}/{ModFunc.modProfileFileName}");
+            public string DataFolderLocalPath => $"{RootName}/{ModFolderName}/{ModFunc.dataFolderName}";
 
             #endregion
 
-            //* Public  Property
+
+
+
+            //* Public Property
             private List<FileUtility.LocalFile> imageFiles;
             public List<FileUtility.LocalFile> ImageFiles {
                 get {
                     string path = ModFolderPath;
                     if (imageFiles == null) {
-                        imageFiles = FileUtility.GetAllFiles (path, imageExtensions.ToArray ());
+                        imageFiles = FileUtility.GetAllFiles (path, ModFunc.imageExtensions.ToArray ());
                     }
                     return imageFiles;
                 }
@@ -237,13 +205,11 @@ namespace Global {
             private void WriteModProfile () {
                 FileUtility.WriteAllText (ModProfilePath, JsonUtility.ToJson (profile));
             }
-
             public void LoadAllImage () {
                 ImageFiles.ForEach (((file) => {
-                    ModUtility.LoadImageToSprite (file.FullPath);
+                    ModFunc.LoadImageToSprite (file.FullPath);
                 }));
             }
-
             public List<ModData> ReadModDatas () {
                 List<ModData> result = new List<ModData> ();
                 var filePaths = FileUtility.GetFiles (DataFolderLocalPath, new List<string> { ".json" });
@@ -256,12 +222,13 @@ namespace Global {
                 return result;
             }
             public void WriteAllModData () {
-                RenewModableComponentsList ();
-                List<IModable> modHolders = modableComponentlist.FindAll ((x) => x.EnableWriteModDatas);
+                List<IModable> modHolders = Fn ().FindAllInterfaces<IModable> ().FindAll ((x) => x.EnableWriteModDatas);
                 modHolders.ForEach ((holder) => {
-                    ModData data = new ModData (holder.ModDataName, holder.ModData);
-                    string fullPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{holder.ModDataName}.json");
-                    FileUtility.WriteAllText (fullPath, JsonUtility.ToJson (data));
+                    ModData data = new ModData (holder.ModTitle, holder.ModableObjectData);
+                    var sprites = (holder as IModableSprite).ModableSprites;
+                    data.spriteDatas = sprites.Select ((x) => ModFunc.SpriteToSpritedate (x)).ToList ();
+                    string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.name}.json");
+                    FileUtility.WriteAllText (mainDataPath, JsonUtility.ToJson (data));
                 });
             }
 
@@ -289,13 +256,14 @@ namespace Global {
                 return JsonUtility.ToJson (this);
             }
 
-            public void LoadSprite () {
+            public Sprite LoadSprite () {
                 Texture2D tex = new Texture2D (2, 2);
                 bool success = FileUtility.LoadImage (FullPath, tex);
                 if (success) {
-                    spriteObject = CreateSprite (tex, this);
+                    spriteObject = ModFunc.CreateSprite (tex, this);
                     spriteObject.name = name;
                 }
+                return spriteObject;
             }
         }
 
@@ -315,35 +283,38 @@ namespace Global {
         [System.Serializable]
         public class ModData {
             public string name;
-            public string data;
+            public string objectJson;
+            public List<SpriteData> spriteDatas;
+            private List<Sprite> backUpSprites;
+            public IModable modTarget => Global.Function.Fn ().FindAllInterfaces<IModable> ()
+                .Find ((x) => x.ModTitle == name);
+            public IModableSprite spriteHandler => modTarget as IModableSprite;
 
-            public ModData (string name, string data) {
+            public ModData (string name, System.Object obj = null) {
                 this.name = name;
-                this.data = data;
+                objectJson = JsonUtility.ToJson (obj);
             }
-        }
 
-        [System.Serializable]
-        public class ModImage {
-            public string path;
+            public void LoadObjectDataTo<T> (System.Object target) where T : class {
+                if (spriteHandler != null) {
+                    backUpSprites = spriteHandler.ModableSprites;
 
-            public Sprite Mod (Sprite unModSprite) {
-                Sprite result = unModSprite;
-                Texture2D tex = new Texture2D (2, 2);
-                bool suc = FileUtility.LoadImage (path, tex);
-                if (suc) {
-                    result = Sprite.Create (tex, new Rect (0, 0, tex.width, tex.height), Vector2.one / 2f);
-                    Debug.Log (result.GetInstanceID ());
                 }
-                return result;
+
+                JsonUtility.FromJsonOverwrite (objectJson, target as T);
+            }
+
+            public void LoadSprites () {
+                if (spriteDatas != null) {
+                    spriteHandler.ModableSprites = spriteDatas.Select ((x) => x.LoadSprite ()).ToList ();
+                }
+                var p = spriteHandler.ModableSprites.Select ((sprite, i) => sprite == null? backUpSprites[i] : null).ToList ();
+                spriteHandler.ModableSprites = p;
             }
         }
 
-        [System.Serializable]
-        public class StoreData {
-            public List<string> data = new List<string> ();
 
-        }
+
     }
 
 }

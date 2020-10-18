@@ -133,7 +133,7 @@ public class C_AnimateData : MonoBehaviour {
 }
 
 public static class Extension_C_AnimateData {
-    public static GameObject AnimateFloat (this Funtion fn, float floatStart, float floatEnd, float time,
+    public static GameObject AnimateFloat (this Function fn, float floatStart, float floatEnd, float time,
         UnityAction<float> onChanged, bool useUnscaleTime = false, AnimationCurve curve = null
     ) {
         GameObject gameObject = GlobalObject.TempObject.AddChild ("AnimateData");
@@ -159,7 +159,7 @@ public static class Extension_C_AnimateData {
 
         return gameObject;
     }
-    public static GameObject AnimateData (this Funtion fn, UnityAction<C_AnimateData.Profile> setup) {
+    public static GameObject AnimateData (this Function fn, UnityAction<C_AnimateData.Profile> setup) {
         GameObject gameObject = GlobalObject.TempObject.AddChild ("AnimateData");
         C_AnimateData comp = gameObject.AddComponent<C_AnimateData> ();
         C_AnimateData.Profile setting = new C_AnimateData.Profile (comp);
