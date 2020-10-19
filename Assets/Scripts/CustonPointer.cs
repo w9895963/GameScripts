@@ -12,6 +12,7 @@ using UnityEngine.UI;
 public class CustonPointer : MonoBehaviour {
     public float mouseSensity = 1f;
     public float scrollSensity = 1f;
+    public bool forceMousePositionWhenInEditor = true;
     public Input inputSetting = new Input ();
     [System.Serializable] public class Input {
         public InputAction mouseDelta;
@@ -34,7 +35,11 @@ public class CustonPointer : MonoBehaviour {
 
         inputSetting.mouseDelta.performed += (d) => {
             Vector2 currP;
-            CalcCursorPositionViaMouse (out currP);
+
+            CalcPointerPosition (out currP);
+            if (forceMousePositionWhenInEditor) {
+                currP = Mouse.current.position.ReadValue ();
+            }
             SetCursorPosition (currP);
 
 
@@ -170,7 +175,7 @@ public class CustonPointer : MonoBehaviour {
     }
 
 
-    private void CalcCursorPositionViaMouse (out Vector2 currP) {
+    private void CalcPointerPosition (out Vector2 currP) {
         Vector2 lastP = cursorPosition;
         Vector2 mouseDelta = inputSetting.mouseDelta.ReadValue<Vector2> ();
         float sensitivity1 = mouseSensity;

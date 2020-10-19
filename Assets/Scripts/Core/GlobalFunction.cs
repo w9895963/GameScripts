@@ -73,8 +73,11 @@ namespace Global {
         }
 
 
+
+        public static List<T> FindAllInterfaces<T> () where T : class {
+            MonoBehaviour[] holders = GameObject.FindObjectsOfType<MonoBehaviour> ();
+            return holders.OfType<T> ().ToList ();
+        }
     }
-
-
 
 }

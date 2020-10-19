@@ -4,6 +4,6 @@ using Global.Mods;
 using UnityEngine;
 public class ModLoader : MonoBehaviour {
     private void Awake () {
-        ModFunc.LoadAllModData ();
+        ModUtility.LoadAllModData ();
     }
 }

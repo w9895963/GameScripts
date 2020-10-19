@@ -11,11 +11,12 @@ using UnityEngine.UI;
 using static Global.Function;
 using UnityEngine.Events;
 
-public class M_Cursor : InterfaceHolder, IModable, IModableSprite {
+public class M_Cursor : MonoBehaviour, IModable, IModableSprite {
 
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
         public bool hideSystemCursor = true;
+        public bool autoHideSystemCursorNotEditor = true;
         public float scale = 0.2f;
         public List<State> states = new List<State> (4);
         [System.Serializable] public class State {
@@ -68,6 +69,9 @@ public class M_Cursor : InterfaceHolder, IModable, IModableSprite {
         UpdateSize ();
         image.raycastTarget = false;
         Cursor.visible = !setting.hideSystemCursor;
+        if (!Application.isEditor & setting.autoHideSystemCursorNotEditor) {
+            Cursor.visible = false;
+        }
 
         Object pointerEventObj;
 

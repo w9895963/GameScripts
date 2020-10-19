@@ -6,7 +6,7 @@ using static Global.Function;
 using Global;
 using UnityEngine.Events;
 
-public class CM_MainCharacter : MonoBehaviour, IManager, IGravity {
+public class CM_MainCharacter : MonoBehaviour, IGravity {
 
     public WalkSetting walkSetting = new WalkSetting ();
     [System.Serializable] public class WalkSetting {
@@ -115,6 +115,9 @@ public class CM_MainCharacter : MonoBehaviour, IManager, IGravity {
     private void OnDisable () {
         temp.DestroyAll ();
     }
+
+
+
     //* Public Method
     public Vector2 WalkingDirection {
         get {
@@ -128,7 +131,9 @@ public class CM_MainCharacter : MonoBehaviour, IManager, IGravity {
         set =>
             this.gravity.gravityComponent.Force = value;
     }
-
+    public void ResetGravity () {
+        Gravity = gravity.gravity;
+    }
 
 }
 

@@ -9,9 +9,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class ModEditor : MonoBehaviour {
-    public string modFolderName = "DefautMod";
-    public string modName = "DefautMod";
+public class ModBuilder : MonoBehaviour {
     public Input input = new Input ();
     [System.Serializable] public class Input {
         public InputAction hierarchy;
@@ -19,15 +17,6 @@ public class ModEditor : MonoBehaviour {
         public InputAction save;
         public InputAction load;
     }
-    private bool save = false;
-    public bool SaveToDisk {
-        set {
-            save = value;
-            SaveFiles ();
-        }
-        get => save;
-    }
-    private Mod mod;
     private RuntimeHierarchy hierarchy;
     private RuntimeInspector inspector;
 
@@ -53,17 +42,13 @@ public class ModEditor : MonoBehaviour {
             }
         };
         input.save.performed += (d) => {
-            SaveFiles ();
+            GetComponent<ModSaver> ().SaveFiles ();
         };
         input.load.performed += (d) => {
-            ModFunc.LoadAllModData ();
+            ModUtility.LoadAllModData ();
         };
 
 
-        mod = ModFunc.GetMod (modFolderName);
-        if (mod != null) {
-            mod = ModFunc.CreateMod (modFolderName, modName);
-        }
     }
 
     private void OnEnable () {
@@ -73,7 +58,6 @@ public class ModEditor : MonoBehaviour {
         input.load.Enable ();
     }
     private void Start () {
-        mod.LoadAllImage ();
         CreateFakeScence ();
 
         hierarchy.gameObject.SetActive (false);
@@ -91,14 +75,9 @@ public class ModEditor : MonoBehaviour {
         RuntimeHierarchy hra = transform.parent.GetComponentInChildren<RuntimeHierarchy> ();
         hra.CreatePseudoScene ("Mod");
         hra.AddToPseudoScene ("Mod", GameObject.FindObjectOfType<M_Cursor> ().transform);
-        hra.AddToPseudoScene ("Mod", GameObject.FindObjectOfType<ModEditor> ().transform);
+        hra.AddToPseudoScene ("Mod", GameObject.FindObjectOfType<ModBuilder> ().transform);
     }
 
-
-
-    private void SaveFiles () {
-        mod.WriteAllModData ();
-    }
 
 
 

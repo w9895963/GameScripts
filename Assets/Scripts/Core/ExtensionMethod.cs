@@ -67,11 +67,14 @@ public static class ExtensionMethod {
     }
     public static void LogAll<T> (this List<T> source) {
         for (int i = 0; i < source.Count; i++) {
-            Debug.Log ($"index:{i}|---|content:{source[i]}");
+            Debug.Log ($"index:{i}|---|content:{source[i]}", source[i] as UnityEngine.Object);
         }
     }
-    public static void LogAll<T> (this T[] source) {
-        source.ToList ().LogAll ();
+    public static void LogAll<T, S> (this List<T> source, System.Func<T, S> selector) {
+        List<S> lists = source.Select (selector).ToList ();
+        for (int i = 0; i < lists.Count; i++) {
+            Debug.Log (lists[i], lists[i] as UnityEngine.Object);
+        }
     }
 
 

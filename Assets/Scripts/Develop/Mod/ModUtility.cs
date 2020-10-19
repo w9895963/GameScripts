@@ -8,15 +8,14 @@ using static Global.Function;
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Global {
 
     namespace Mods {
 
-        public static class ModFunc {
-
-
+        public static class ModUtility {
 
 
             //* Names and Setting
@@ -83,7 +82,7 @@ namespace Global {
             }
 
             public static void LoadAllModData () {
-                List<IModable> modComps = Fn ().FindAllInterfaces<IModable> ();
+                List<IModable> modComps = FindAllInterfaces<IModable> ();
 
                 if (!Directory.Exists (ModsRootFolderPath)) {
                     Directory.CreateDirectory (ModsRootFolderPath);
@@ -99,10 +98,13 @@ namespace Global {
                 mods.Sort ((x, y) => x.profile.loadOrder.CompareTo (y.profile.loadOrder));
                 mods.ForEach ((mod) => {
                     mod.ReadModDatas ().ForEach ((modData) => {
-                        IModable modableComp = modComps.Find ((x) => x.ModTitle == modData.name);
-                        if (modableComp != null) {
-                            modableComp.LoadModData (modData);
+                        if (modComps.Count > 0) {
+                            IModable modableComp = modComps.Find ((x) => x.ModTitle == modData.name);
+                            if (modableComp != null) {
+                                modableComp.LoadModData (modData);
+                            }
                         }
+
                     });
                 });
             }
@@ -149,6 +151,28 @@ namespace Global {
                 return spriteLoadLibrary.Find ((x) => x.spriteObject == sprite);
             }
 
+            public static string GenerateTitle (MonoBehaviour component) {
+                string title = component.name;
+                List<GameObject> lists = component.gameObject.GetParents ();
+                lists.ForEach ((obj) => {
+                    title = title.Insert (0, $"{obj.name}, ");
+                });
+                title = title.Insert (0, $"{SceneManager.GetActiveScene().name}, ");
+                Debug.Log (title);
+                return title;
+            }
+
+            public static string ToJson (ModData data, List < (string key, string json) > maps = null) {
+                string re = JsonUtility.ToJson (data);
+                SimpleJSON.JSONNode jSONNode = SimpleJSON.JSON.Parse (re);
+                if (maps != null) {
+                    maps.ForEach ((x) => {
+                        jSONNode[x.key] = x.json;
+                    });
+                }
+                return jSONNode.ToString ();
+            }
+
 
 
 
@@ -164,7 +188,7 @@ namespace Global {
             public Mod (string modName = "DefautMod", string modFolderName = "DefautMod", int loadOrder = 0) {
                 profile = new ModSetting (modName, modFolderName, loadOrder);
                 WriteModProfile ();
-                ModFunc.currentModBuilder = this;
+                ModUtility.currentModBuilder = this;
             }
             public Mod (ModSetting modSetting) {
                 this.profile = modSetting;
@@ -179,10 +203,10 @@ namespace Global {
 
 
             #region //*Paths 
-            public string RootName => ModFunc.RootModsFolderName;
+            public string RootName => ModUtility.RootModsFolderName;
             public string ModFolderPath => FileUtility.GetFullPath ($"{RootName}/{ModFolderName}");
-            public string ModProfilePath => FileUtility.GetFullPath ($"{RootName}/{ModFolderName}/{ModFunc.modProfileFileName}");
-            public string DataFolderLocalPath => $"{RootName}/{ModFolderName}/{ModFunc.dataFolderName}";
+            public string ModProfilePath => FileUtility.GetFullPath ($"{RootName}/{ModFolderName}/{ModUtility.modProfileFileName}");
+            public string DataFolderLocalPath => $"{RootName}/{ModFolderName}/{ModUtility.dataFolderName}";
 
             #endregion
 
@@ -195,7 +219,7 @@ namespace Global {
                 get {
                     string path = ModFolderPath;
                     if (imageFiles == null) {
-                        imageFiles = FileUtility.GetAllFiles (path, ModFunc.imageExtensions.ToArray ());
+                        imageFiles = FileUtility.GetAllFiles (path, ModUtility.imageExtensions.ToArray ());
                     }
                     return imageFiles;
                 }
@@ -207,14 +231,17 @@ namespace Global {
             }
             public void LoadAllImage () {
                 ImageFiles.ForEach (((file) => {
-                    ModFunc.LoadImageToSprite (file.FullPath);
+                    ModUtility.LoadImageToSprite (file.FullPath);
                 }));
             }
             public List<ModData> ReadModDatas () {
                 List<ModData> result = new List<ModData> ();
                 var filePaths = FileUtility.GetFiles (DataFolderLocalPath, new List<string> { ".json" });
                 filePaths.ForEach ((filePath) => {
-                    ModData modData = JsonUtility.FromJson<ModData> (File.ReadAllText (filePath));
+
+                    string json = File.ReadAllText (filePath);
+                    ModData modData = JsonUtility.FromJson<ModData> (json);
+
                     if (modData != null) {
                         result.Add (modData);
                     }
@@ -222,13 +249,23 @@ namespace Global {
                 return result;
             }
             public void WriteAllModData () {
-                List<IModable> modHolders = Fn ().FindAllInterfaces<IModable> ().FindAll ((x) => x.EnableWriteModDatas);
+                List<IModable> modHolders = FindAllInterfaces<IModable> ().FindAll ((x) => x.EnableWriteModDatas);
                 modHolders.ForEach ((holder) => {
                     ModData data = new ModData (holder.ModTitle, holder.ModableObjectData);
-                    var sprites = (holder as IModableSprite).ModableSprites;
-                    data.spriteDatas = sprites.Select ((x) => ModFunc.SpriteToSpritedate (x)).ToList ();
+
+
+                    if (holder as IModableSprite != null) {
+                        var sprites = (holder as IModableSprite).ModableSprites;
+                        List<SpriteData> lists = sprites.Select ((x) => ModUtility.SpriteToSpritedate (x)).ToList ();
+                        data.spriteDatas = lists;
+
+                    }
                     string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.name}.json");
-                    FileUtility.WriteAllText (mainDataPath, JsonUtility.ToJson (data));
+
+
+
+                    FileUtility.WriteAllText (mainDataPath, ModUtility.ToJson (data));
+
                 });
             }
 
@@ -260,7 +297,7 @@ namespace Global {
                 Texture2D tex = new Texture2D (2, 2);
                 bool success = FileUtility.LoadImage (FullPath, tex);
                 if (success) {
-                    spriteObject = ModFunc.CreateSprite (tex, this);
+                    spriteObject = ModUtility.CreateSprite (tex, this);
                     spriteObject.name = name;
                 }
                 return spriteObject;
@@ -286,7 +323,8 @@ namespace Global {
             public string objectJson;
             public List<SpriteData> spriteDatas;
             private List<Sprite> backUpSprites;
-            public IModable modTarget => Global.Function.Fn ().FindAllInterfaces<IModable> ()
+            //* Public Property
+            public IModable modTarget => FindAllInterfaces<IModable> ()
                 .Find ((x) => x.ModTitle == name);
             public IModableSprite spriteHandler => modTarget as IModableSprite;
 
@@ -298,9 +336,7 @@ namespace Global {
             public void LoadObjectDataTo<T> (System.Object target) where T : class {
                 if (spriteHandler != null) {
                     backUpSprites = spriteHandler.ModableSprites;
-
                 }
-
                 JsonUtility.FromJsonOverwrite (objectJson, target as T);
             }
 
@@ -312,6 +348,7 @@ namespace Global {
                 spriteHandler.ModableSprites = p;
             }
         }
+
 
 
 

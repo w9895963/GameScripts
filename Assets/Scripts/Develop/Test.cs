@@ -5,22 +5,15 @@ using Global;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.U2D;
+using UnityEngine.UI;
 
 public class Test : MonoBehaviour {
-    public RuntimeAnimatorController obj;
 
-    private void Awake () { }
+  
 
     private void OnValidate () {
-        // Debug.Log (Directory.Exists ("D:/Downloads/Mouse-cursor-hand-pointer.svg"));
-        // Debug.Log (File.Exists ("D:/Downloads/Mouse-cursor-hand-pointer.svg"));
+        GetComponent<InputField> ();
 
-        // ModUtility.SpriteData spriteData = new ModUtility.SpriteData (FileUtility.GetFullPath ("Mods/last.png"));
-        // spriteData.WriteToDisk ();
-
-
-        // string log = JsonUtility.ToJson (d);
-        // Debug.Log (log);
     }
 
 
