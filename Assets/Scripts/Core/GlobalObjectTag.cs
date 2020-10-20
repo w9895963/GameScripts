@@ -4,7 +4,7 @@ using System.Linq;
 using Global;
 using UnityEngine;
 
-public class M_GlobalObject : MonoBehaviour {
+public class GlobalObjectTag : MonoBehaviour {
     public GlobalObject.Type instanceName = default;
 
 
@@ -33,12 +33,12 @@ namespace Global {
 
         public static GameObject Get (Type type) {
             List<GameObject> gameObjects = GetAll ();
-            return gameObjects.Find ((x) => x.GetComponent<M_GlobalObject> ().instanceName == type);
+            return gameObjects.Find ((x) => x.GetComponent<GlobalObjectTag> ().instanceName == type);
         }
 
 
         private static List<GameObject> GetAll () {
-            return GameObject.FindObjectsOfType<M_GlobalObject> ().ToList ()
+            return GameObject.FindObjectsOfType<GlobalObjectTag> ().ToList ()
                 .Select ((x) => x.gameObject).ToList ();
         }
 

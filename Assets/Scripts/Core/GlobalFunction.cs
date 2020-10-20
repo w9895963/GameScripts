@@ -49,11 +49,8 @@ public static class Extension_Fn {
     }
 
     public static GameObject WaitToCall (this Function fn, float time, UnityAction action) {
-        GameObject obj = new GameObject ("Timer");
-        obj.SetParent (GlobalObject.TempObject);
-        Fn_Timer timer = obj.AddComponent<Fn_Timer> ();
-        timer.WaitToCall (time, action);
-        return obj;
+        Timer.TimerControler timerControler = Timer.WaitToCall (time, action, creator : fn.callBy);
+        return Timer.TimerManager.gameObject;
     }
 
 

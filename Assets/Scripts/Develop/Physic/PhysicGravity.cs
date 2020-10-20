@@ -25,6 +25,7 @@ public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Public Method
     public void ResetGravity () {
         gravity = setting.gravity;
+
     }
     // *-------Private-------Private-------Private------- 
 
@@ -49,7 +50,7 @@ public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Method
     private void GravityAction (ActionData data) {
         Vector2 force = gravity * GetComponent<Rigidbody2D> ().mass;
-        data.SetForceAdd ((int) PresetForceType.Gravity, force);
+        data.SetForce (force);
     }
     //*  Class
     [System.Serializable] public class Setting {

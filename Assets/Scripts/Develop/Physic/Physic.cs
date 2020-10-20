@@ -27,7 +27,7 @@ namespace Global {
                     comp.ActionList.RemoveAll ((x) => x.Item2 == action);
                 }
             }
-          
+
 
 
         }
@@ -35,42 +35,48 @@ namespace Global {
             private int currentIndex;
             public int CurrentIndex { get => currentIndex; set => currentIndex = value; }
 
-            private List<AddForceCs> addForces = new List<AddForceCs> ();
+            private List<ForceData> forces = new List<ForceData> ();
 
-            public Vector2 GetTotalForceAdd () {
+            public Vector2 GetTotalForce () {
                 Vector2 result = Vector2.zero;
-                addForces.ForEach ((x) => result += x.force);
+                forces.ForEach ((x) => result += x.force);
                 return result;
             }
-            public Vector2 GetForceAdd (int index) {
+            public Vector2 GetForce (int index) {
                 Vector2 result = Vector2.zero;
-                addForces.ForEach ((x) => result += x.force);
-                AddForceCs addForce = addForces.Find ((x) => x.index == index);
+                forces.ForEach ((x) => result += x.force);
+                ForceData addForce = forces.Find ((x) => x.index == index);
                 return addForce != null?addForce.force : Vector2.zero;
             }
-            public void SetForceAdd (int index, Vector2 force) {
-                AddForceCs forceItem = addForces.Find ((x) => x.index == index);
+            public void SetForce (Vector2 force) {
+                ForceData forceItem = forces.Find ((x) => x.index == currentIndex);
                 if (forceItem == null) {
-                    forceItem = new AddForceCs ();
+                    forceItem = new ForceData ();
                     forceItem.index = currentIndex;
-                    addForces.Add (forceItem);
+                    forces.Add (forceItem);
                 }
                 forceItem.force = force;
 
             }
+            public ForceData GetForceData (int index) {
+                return forces.Find ((x) => x.index == index);
+
+            }
 
 
-            private class AddForceCs {
+
+            public class ForceData {
                 public int index;
                 public Vector2 force;
 
             }
         }
 
-        public enum PresetForceType {
-            Gravity = 0
+        public static class PhysicOrder {
+            public static int Gravity = 0;
+            public static int GravityReverse = 1;
         }
 
-      
+
     }
 }

@@ -25,6 +25,6 @@ public class PhysicForceAction : MonoBehaviour {
             action (actionData);
             actionData.CurrentIndex++;
         });
-        gameObject.GetComponent<Rigidbody2D> ().AddForce (actionData.GetTotalForceAdd ());
+        gameObject.GetComponent<Rigidbody2D> ().AddForce (actionData.GetTotalForce ());
     }
 }
