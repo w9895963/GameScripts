@@ -68,7 +68,7 @@ namespace Global {
         public Function (Object callBy) {
             this.callBy = callBy;
         }
-        public static Function Fn (Object callBy = null) {
+        public static Function CallFn (Object callBy = null) {
             return new Function (callBy);
         }
 

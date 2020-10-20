@@ -26,7 +26,7 @@ public class ModSaver : MonoBehaviour {
 
 
     private void Awake () {
-        mod = ModUtility.GetMod (modFolderName);
+        mod = ModUtility.FindMod (modFolderName);
         if (mod != null) {
             mod = ModUtility.CreateMod (modFolderName, modName);
         }

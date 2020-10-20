@@ -6,6 +6,8 @@ using Global;
 using Global.Mods;
 using static Global.Function;
 using System;
+using SimpleJSON;
+using static Global.Mods.ModUtility;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -31,7 +33,6 @@ namespace Global {
 
 
             //* Public Fields
-            public static Mod currentModBuilder;
             public static List<SpriteData> spriteLoadLibrary = new List<SpriteData> ();
 
 
@@ -46,12 +47,12 @@ namespace Global {
             //* Public Method
             #region Public Method
 
-            public static List<Mod> GetAllMods () {
+            public static List<Mod> ReadAllMods () {
                 List<Mod> result = new List<Mod> ();
                 if (Directory.Exists (ModsRootFolderPath)) {
                     string[] modFolders = Directory.GetDirectories (ModsRootFolderPath);
                     modFolders.ForEach ((folder) => {
-                        Mod mod = FolderToMod (folder);
+                        Mod mod = ReadMod (folder);
                         if (mod != null) {
                             result.Add (mod);
                         }
@@ -59,15 +60,15 @@ namespace Global {
                 }
                 return result;
             }
-            public static Mod GetMod (string modFolderName) {
-                return GetAllMods ().Find ((x) => x.ModFolderName == modFolderName);
+            public static Mod FindMod (string modFolderName) {
+                return ReadAllMods ().Find ((x) => x.ModFolderName == modFolderName);
             }
-            public static Mod FolderToMod (string folderPath) {
+            public static Mod ReadMod (string folderPath) {
                 Mod result = null;
                 string modSettingPath = FileUtility.FindFile (folderPath, modProfileFileName);
                 if (File.Exists (modSettingPath)) {
                     string data = File.ReadAllText (modSettingPath);
-                    ModSetting modSetting = JsonUtility.FromJson<ModSetting> (data);
+                    ModProfile modSetting = JsonUtility.FromJson<ModProfile> (data);
                     if (modSetting != null) {
                         result = new Mod (modSetting);
                     }
@@ -78,8 +79,11 @@ namespace Global {
                 var modsFolder = FileUtility.GetFile (ModsRootFolderPath);
                 modsFolder.CreateFolder (modFolderName);
                 string name = modName.IsEmpty () ? modName : modFolderName;
-                return new Mod (modFolderName, name);
+                Mod mod = new Mod (modFolderName, name);
+                mod.WriteModProfile ();
+                return mod;
             }
+
 
             public static void LoadAllModData () {
                 List<IModable> modComps = FindAllInterfaces<IModable> ();
@@ -90,7 +94,7 @@ namespace Global {
                 string[] dirs = Directory.GetDirectories (ModsRootFolderPath);
                 List<Mod> mods = new List<Mod> ();
                 dirs.ForEach ((folderPath) => {
-                    Mod mod = FolderToMod (folderPath);
+                    Mod mod = ReadMod (folderPath);
                     if (mod != null) {
                         mods.Add (mod);
                     }
@@ -108,7 +112,6 @@ namespace Global {
                     });
                 });
             }
-
 
             public static Sprite LoadImageToSprite (string fullPath) {
                 Sprite result = null;
@@ -151,6 +154,8 @@ namespace Global {
                 return spriteLoadLibrary.Find ((x) => x.spriteObject == sprite);
             }
 
+
+
             public static string GenerateTitle (MonoBehaviour component) {
                 string title = component.name;
                 List<GameObject> lists = component.gameObject.GetParents ();
@@ -183,14 +188,12 @@ namespace Global {
 
         public class Mod {
 
-            public ModSetting profile;
+            public ModProfile profile;
 
             public Mod (string modName = "DefautMod", string modFolderName = "DefautMod", int loadOrder = 0) {
-                profile = new ModSetting (modName, modFolderName, loadOrder);
-                WriteModProfile ();
-                ModUtility.currentModBuilder = this;
+                profile = new ModProfile (modName, modFolderName, loadOrder);
             }
-            public Mod (ModSetting modSetting) {
+            public Mod (ModProfile modSetting) {
                 this.profile = modSetting;
             }
 
@@ -226,7 +229,7 @@ namespace Global {
             }
 
 
-            private void WriteModProfile () {
+            public void WriteModProfile () {
                 FileUtility.WriteAllText (ModProfilePath, JsonUtility.ToJson (profile));
             }
             public void LoadAllImage () {
@@ -240,7 +243,10 @@ namespace Global {
                 filePaths.ForEach ((filePath) => {
 
                     string json = File.ReadAllText (filePath);
-                    ModData modData = JsonUtility.FromJson<ModData> (json);
+                    // ModData modData = JsonUtility.FromJson<ModData> (json);
+                    ModData modData = new ModData ();
+
+                    modData.FromJson (json);
 
                     if (modData != null) {
                         result.Add (modData);
@@ -263,8 +269,7 @@ namespace Global {
                     string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.name}.json");
 
 
-
-                    FileUtility.WriteAllText (mainDataPath, ModUtility.ToJson (data));
+                    FileUtility.WriteAllText (mainDataPath, data.ToJson ());
 
                 });
             }
@@ -275,11 +280,11 @@ namespace Global {
         [System.Serializable]
         public class SpriteData {
             public Sprite spriteObject;
-            public string FullPath => pathObj.FullPath;
-            public string LocalPath => pathObj.localPath;
-            [SerializeField] private FileUtility.LocalFile pathObj;
             public string name;
             public float pixelsPerUnit = 100;
+            [SerializeField] private FileUtility.LocalFile pathObj;
+            public string FullPath => pathObj.FullPath;
+            public string LocalPath => pathObj.localPath;
 
             public SpriteData (string path, Sprite sprite = null) {
                 this.spriteObject = sprite;
@@ -292,7 +297,6 @@ namespace Global {
             public string ToJson () {
                 return JsonUtility.ToJson (this);
             }
-
             public Sprite LoadSprite () {
                 Texture2D tex = new Texture2D (2, 2);
                 bool success = FileUtility.LoadImage (FullPath, tex);
@@ -305,12 +309,12 @@ namespace Global {
         }
 
         [System.Serializable]
-        public class ModSetting {
+        public class ModProfile {
             public string modFolderName;
             public string modName;
             public int loadOrder;
 
-            public ModSetting (string modName, string modFolderName, int loadOrder) {
+            public ModProfile (string modName, string modFolderName, int loadOrder) {
                 this.modName = modName;
                 this.modFolderName = modFolderName;
                 this.loadOrder = loadOrder;
@@ -324,11 +328,14 @@ namespace Global {
             public List<SpriteData> spriteDatas;
             private List<Sprite> backUpSprites;
             //* Public Property
-            public IModable modTarget => FindAllInterfaces<IModable> ()
-                .Find ((x) => x.ModTitle == name);
+            public IModable modTarget {
+                get {
+                    return FindAllInterfaces<IModable> ().Find ((x) => x.ModTitle == name);
+                }
+            }
             public IModableSprite spriteHandler => modTarget as IModableSprite;
 
-            public ModData (string name, System.Object obj = null) {
+            public ModData (string name = null, System.Object obj = null) {
                 this.name = name;
                 objectJson = JsonUtility.ToJson (obj);
             }
@@ -337,16 +344,33 @@ namespace Global {
                 if (spriteHandler != null) {
                     backUpSprites = spriteHandler.ModableSprites;
                 }
+
                 JsonUtility.FromJsonOverwrite (objectJson, target as T);
+
+                if (spriteHandler != null) {
+                    spriteHandler.ModableSprites = backUpSprites;
+                }
             }
 
             public void LoadSprites () {
                 if (spriteDatas != null) {
-                    spriteHandler.ModableSprites = spriteDatas.Select ((x) => x.LoadSprite ()).ToList ();
+                    List<Sprite> spriteslist = spriteDatas.Select ((x) => x.LoadSprite ()).ToList ();
+                    spriteHandler.ModableSprites = spriteslist;
                 }
-                var p = spriteHandler.ModableSprites.Select ((sprite, i) => sprite == null? backUpSprites[i] : null).ToList ();
-                spriteHandler.ModableSprites = p;
             }
+            public string ToJson () {
+                JSONNode jSONNode = JSON.Parse (JsonUtility.ToJson (this));
+                jSONNode["objectJson"] = JSON.Parse (objectJson);
+                return jSONNode.ToString ();
+            }
+            public void FromJson (string json) {
+                JSONNode jSONNode = JSON.Parse (json);
+                ModData modData = JsonUtility.FromJson<ModData> (json);
+                name = modData.name;
+                objectJson = jSONNode["objectJson"].ToString ();
+                spriteDatas = modData.spriteDatas;
+            }
+
         }
 
 

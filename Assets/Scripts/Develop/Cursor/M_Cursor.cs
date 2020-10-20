@@ -75,13 +75,13 @@ public class M_Cursor : MonoBehaviour, IModable, IModableSprite {
 
         Object pointerEventObj;
 
-        pointerEventObj = Fn (this).AddGlobalPointerEvent (PointerEventType.onPressDown, (d) => {
+        pointerEventObj = CallFn (this).AddGlobalPointerEvent (PointerEventType.onPressDown, (d) => {
             presseDown = true;
             UpdateCursorImage ();
         });
         events.Add (pointerEventObj);
 
-        pointerEventObj = Global.Function.Fn (this).AddGlobalPointerEvent (PointerEventType.onPressUp, (d) => {
+        pointerEventObj = Global.Function.CallFn (this).AddGlobalPointerEvent (PointerEventType.onPressUp, (d) => {
             presseDown = false;
             UpdateCursorImage ();
         });

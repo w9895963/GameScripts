@@ -101,7 +101,7 @@ public class CM_MainCharacter : MonoBehaviour, IGravity {
                         Vector2 dir = Gravity.Rotate (90);
                         arriveComp.Destroy ();
                         var distance = walkSetting.advance.arriveTriggerDistance;
-                        arriveComp = Fn (this).OnArrive (gameObject, target, dir, distance, true, callback);
+                        arriveComp = CallFn (this).OnArrive (gameObject, target, dir, distance, true, callback);
                         temp.AddObject = arriveComp;
                     }
                 });

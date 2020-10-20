@@ -17,7 +17,7 @@ public class IG_GroupCore : IC_Base {
 
     public void OnEnable () {
         property.setOn.Distinct ();
-       Global.Function.Fn(this).OrderRun (() => {
+       Global.Function.CallFn(this).OrderRun (() => {
             property.setOn.ForEach ((x) => {
 
                 if (x) x.enabled = true;
@@ -29,7 +29,7 @@ public class IG_GroupCore : IC_Base {
 
     public void OnDisable () {
         property.setOff.Distinct ();
-       Global.Function.Fn(this).OrderRun (() => {
+       Global.Function.CallFn(this).OrderRun (() => {
             property.setOff.ForEach ((x) => {
                 if (x) x.enabled = false;
             });
@@ -59,7 +59,7 @@ public class IG_GroupCore : IC_Base {
         PropertyChanged (property.currentState);
     }
     public void Changestate (string stateName) {
-       Global.Function.Fn(this).OrderRun (() => {
+       Global.Function.CallFn(this).OrderRun (() => {
             if (!string.IsNullOrWhiteSpace (stateName)) {
                 property.group.ForEach ((x) => {
                     x.property.currentState = stateName;

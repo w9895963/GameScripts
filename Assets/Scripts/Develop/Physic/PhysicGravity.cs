@@ -2,12 +2,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using Global;
+using Global.Physic;
 using UnityEngine;
-[RequireComponent (typeof (Rigidbody2D), typeof (PhysicForce))]
+using static Global.Physic.PhysicUtility;
+
+
+
+
+[RequireComponent (typeof (Rigidbody2D), typeof (PhysicForceAction))]
 public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Public Fields
     public Setting setting = new Setting ();
-
 
     //*  Public Property
     public Vector2 Gravity {
@@ -17,23 +22,21 @@ public class PhysicGravity : MonoBehaviour, IGravity {
             gravity = value;
     }
 
-
     //*  Public Method
     public void ResetGravity () {
         gravity = setting.gravity;
     }
     // *-------Private-------Private-------Private------- 
-    //*  Basic Event 
+
     private void Awake () {
         gravity = setting.gravity;
     }
     private void OnEnable () {
-        GetComponent<PhysicForce> ().AddPhysicAction (0, GravityAction);
+        AddPhysicAction (gameObject, 0, GravityAction);
     }
 
-
     private void OnDisable () {
-        GetComponent<PhysicForce> ().RemovePhysicAction (GravityAction);
+        RemovePhysicAction (gameObject, GravityAction);
     }
     private void OnValidate () {
         gravity = setting.gravity;
@@ -44,8 +47,9 @@ public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Property
 
     //*  Method
-    private void GravityAction (PhysicForce.ActionData data) {
-        data.addForce = gravity * GetComponent<Rigidbody2D> ().mass;
+    private void GravityAction (ActionData data) {
+        Vector2 force = gravity * GetComponent<Rigidbody2D> ().mass;
+        data.SetForceAdd ((int) PresetForceType.Gravity, force);
     }
     //*  Class
     [System.Serializable] public class Setting {

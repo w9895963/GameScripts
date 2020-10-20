@@ -79,7 +79,7 @@ public class IC_SmallCore : MonoBehaviour {
     public new bool enabled {
         get => base.enabled;
         set {
-           Global.Function.Fn(this).OrderRun (() => {
+           Global.Function.CallFn(this).OrderRun (() => {
                 if (base.enabled != value) {
                     if (value == false) {
                         data.tempInstance.Destroy ();

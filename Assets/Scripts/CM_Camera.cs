@@ -61,7 +61,7 @@ public class CM_Camera : MonoBehaviour {
 
 
         if (action.zoom.enabled) {
-            temps.Add (Fn (this).AnimateData ((s) => {
+            temps.Add (CallFn (this).AnimateData ((s) => {
                 var set = s.useFloatVersion;
                 var require = set.require;
                 require.time = action.zoom.time;

@@ -67,7 +67,7 @@ public static class ExtensionMethod {
     }
     public static void LogAll<T> (this List<T> source) {
         for (int i = 0; i < source.Count; i++) {
-            Debug.Log ($"index:{i}|---|content:{source[i]}", source[i] as UnityEngine.Object);
+            Debug.Log ($"index:{i};content:{source[i]}", source[i] as UnityEngine.Object);
         }
     }
     public static void LogAll<T, S> (this List<T> source, System.Func<T, S> selector) {
