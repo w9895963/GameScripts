@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Global {
     public interface IGravity {
-        Vector2 Gravity { get; set; }
-        void ResetGravity ();
+        Vector2 Gravity { get; }
     }
 }

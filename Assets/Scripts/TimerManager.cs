@@ -24,7 +24,12 @@ public class TimerManager : MonoBehaviour {
 
         calls.ForEach ((x) => {
             x.onEnd.Invoke ();
-            timers.Remove (x);
+            if (x.loop) {
+                x.beginTime = x.beginTime + x.lastTime;
+            } else {
+                timers.Remove (x);
+            }
+
         });
         if (timers.Count == 0) {
             Destroy (gameObject);
@@ -49,11 +54,9 @@ namespace Global {
                     var timerObj = tempObject.AddChild ("TimerManager");
                     timerManager = timerObj.AddComponent<TimerManager> ();
                 }
-                Debug.Log (timerManager);
                 return timerManager;
             }
         }
-
         public static TimerControler WaitToCall (float time, UnityAction callback, bool onRealTime = false, Object creator = null) {
             TimerControler timer = new TimerControler ();
             if (onRealTime) {
@@ -70,6 +73,12 @@ namespace Global {
 
             return timer;
         }
+        public static TimerControler Loop (float time, UnityAction callback, bool onRealTime = false, Object creator = null) {
+            TimerControler timer = WaitToCall (time, callback, onRealTime, creator);
+            timer.loop = true;
+
+            return timer;
+        }
 
         [System.Serializable]
         public class TimerControler {
@@ -77,6 +86,7 @@ namespace Global {
             public float lastTime;
             public bool onRealTime = false;
             public Object creator;
+            public bool loop = false;
             public UnityEvent onEnd = new UnityEvent ();
 
             public void Stop () {

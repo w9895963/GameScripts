@@ -15,7 +15,6 @@ namespace Global {
 
     public static class GlobalObject {
         public static GameObject IndicatorCamera { get => Get (Type.IndicatorCamera); }
-        public static GameObject BackpackIcon { get => Get (Type.BackpackIcon); }
         public static GameObject MainCharactor { get => GameObject.FindObjectOfType<CM_MainCharacter> ().gameObject; }
         public static GameObject Cursor => GameObject.FindObjectOfType<M_Cursor> ().gameObject;
         public static GameObject TempObject {

@@ -9,7 +9,7 @@ using static Global.Physic.PhysicUtility;
 
 
 
-[RequireComponent (typeof (Rigidbody2D), typeof (PhysicForceAction))]
+[RequireComponent (typeof (Rigidbody2D), typeof (PhysicManager))]
 public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Public Fields
     public Setting setting = new Setting ();
@@ -48,7 +48,7 @@ public class PhysicGravity : MonoBehaviour, IGravity {
     //*  Property
 
     //*  Method
-    private void GravityAction (ActionData data) {
+    private void GravityAction (PhysicAction data) {
         Vector2 force = gravity * GetComponent<Rigidbody2D> ().mass;
         data.SetForce (force);
     }

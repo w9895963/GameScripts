@@ -75,6 +75,9 @@ public class M_Cursor : MonoBehaviour, IModable, IModableSprite {
 
         Object pointerEventObj;
 
+        pointerEventObj = CallFn (this).AddGlobalPointerEvent (PointerEventType.onMove, (d) => {
+            transform.position = d.position_Screen;
+        });
         pointerEventObj = CallFn (this).AddGlobalPointerEvent (PointerEventType.onPressDown, (d) => {
             presseDown = true;
             UpdateCursorImage ();

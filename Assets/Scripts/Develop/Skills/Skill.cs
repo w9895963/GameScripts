@@ -5,6 +5,7 @@ using Global.Physic;
 using static Global.Physic.PhysicUtility;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace Global {
     namespace Skill {
@@ -14,32 +15,40 @@ namespace Global {
         }
 
 
+
         public class GravityReverse {
-            public GameObject target;
             public float lastTime;
+            public TempObject temps = new TempObject ();
 
-            public GravityReverse (GameObject target, float lastTime, UnityAction endAction = null) {
-                this.target = target;
-                this.lastTime = lastTime;
-                AddPhysicAction (target, PhysicOrder.GravityReverse, Action);
-
-                Timer.WaitToCall (lastTime, () => {
-                    if (endAction != null) {
-                        endAction ();
-                    }
-                    RemovePhysicAction (target, Action);
-
-                });
-            }
-
-            private void Action (ActionData data) {
+            private void PhysicAction (PhysicAction data) {
                 int index = PhysicOrder.Gravity;
                 Vector2 gravityF = data.GetForce (index);
                 data.SetForce (-gravityF * 2);
             }
 
 
+            public void Enable () {
+                var gravityComps = GameObject.FindObjectsOfType<PhysicGravity> ();
+                gravityComps.ForEach ((comp) => {
+                    temps.AddEventTrigger = InputUtility.AddPointerEvent (comp, EventTriggerType.PointerClick, (d) => {
+                        Cast (comp.gameObject);
+                    });
+                });
+            }
+            public void Disable () {
+                temps.DestroyAll ();
+            }
+
+
+            public void Cast (GameObject target) {
+                AddPhysicAction (target, PhysicOrder.GravityReverse, PhysicAction);
+
+                Timer.WaitToCall (lastTime, () => {
+                    RemovePhysicAction (target, PhysicAction);
+                });
+            }
+
         }
-        
+
     }
 }

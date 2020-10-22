@@ -6,7 +6,7 @@ using static Global.Function;
 using Global;
 using UnityEngine.Events;
 
-public class CM_MainCharacter : MonoBehaviour, IGravity {
+public class CM_MainCharacter : MonoBehaviour {
 
     public WalkSetting walkSetting = new WalkSetting ();
     [System.Serializable] public class WalkSetting {

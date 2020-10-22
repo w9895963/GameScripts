@@ -58,7 +58,7 @@ public class ModBuilder : MonoBehaviour {
         input.load.Enable ();
     }
     private void Start () {
-        CreateFakeScence ();
+        // CreateFakeScence ();
 
         hierarchy.gameObject.SetActive (false);
         inspector.gameObject.SetActive (false);
@@ -74,8 +74,6 @@ public class ModBuilder : MonoBehaviour {
     private void CreateFakeScence () {
         RuntimeHierarchy hra = transform.parent.GetComponentInChildren<RuntimeHierarchy> ();
         hra.CreatePseudoScene ("Mod");
-        hra.AddToPseudoScene ("Mod", GameObject.FindObjectOfType<M_Cursor> ().transform);
-        hra.AddToPseudoScene ("Mod", GameObject.FindObjectOfType<ModBuilder> ().transform);
     }
 
 

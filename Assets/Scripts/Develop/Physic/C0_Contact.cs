@@ -10,7 +10,7 @@ public class C0_Contact : MonoBehaviour {
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
         public bool useLayerFilter = true;
-        public Layer.LayerEnum layer = Layer.LayerEnum.staticSolid;
+        public LayerUtility.PresetLayer layer = LayerUtility.PresetLayer.Obstacle;
 
     }
     public List<Contact> contacts = new List<Contact> ();
@@ -93,7 +93,7 @@ public class C0_Contact : MonoBehaviour {
     public void _ApplyPreset (Preset preset) {
         if (preset == Preset.GroundTester) {
             setting.useLayerFilter = true;
-            setting.layer = Layer.LayerEnum.staticSolid;
+            setting.layer = LayerUtility.PresetLayer.Obstacle;
         }
     }
 

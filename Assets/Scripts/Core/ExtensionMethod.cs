@@ -281,7 +281,7 @@ public static class ExtensionMethod {
         return list.Find ((x) => x.name == name);
     }
     public static void SetParent (this GameObject gameObject, GameObject parent) {
-        gameObject.transform.parent = parent.transform;
+        gameObject.transform.SetParent (parent.transform);
     }
 
     public static List<GameObject> GetParentsAndSelf (this GameObject gameObject) {
@@ -303,23 +303,7 @@ public static class ExtensionMethod {
         return parent? parent.gameObject : null;
     }
 
-    public static T GetOrAddComponent<T> (this GameObject gameObject,
-        System.Predicate<T> predicate = null, UnityAction<T> oncreate = null
-    ) where T : MonoBehaviour {
-        List<T> comps = gameObject.GetComponents<T> ().ToList ();
-        if (predicate != null) {
-            comps = comps.FindAll (predicate);
-        }
-
-        T t = comps.Count > 0 ? comps[0] : null;
-        if (t == null) {
-            t = gameObject.AddComponent<T> ();
-            if (oncreate != null) oncreate (t);
-        }
-
-
-        return t;
-    }
+  
 
 
 
@@ -333,6 +317,11 @@ public static class ExtensionMethod {
 
     public static Vector2 GetPosition2d (this GameObject gameObject) {
         return (Vector2) gameObject.transform.position;
+    }
+    public static Vector2 GetPositionBottomLeft (this GameObject gameObject) {
+        Vector2 position = gameObject.transform.position;
+        position = gameObject.GetComponent<Renderer> ().bounds.min;
+        return position;
     }
 
     #endregion//*Endregion
@@ -352,15 +341,15 @@ public static class ExtensionMethod {
     public static Vector2? ClosestPointToLine (this Collider2DExMethod ex, Vector2 position, Vector2 direction) {
         Vector2? result = null;
         int sourceLayer = ex.collider.gameObject.layer;
-        ex.collider.gameObject.layer = Layer.tempLayer.Index;
+        ex.collider.gameObject.layer = LayerUtility.temp.Index;
 
 
         RaycastHit2D hit;
-        hit = Physics2D.Raycast (position, direction, Mathf.Infinity, Layer.tempLayer.Mask);
+        hit = Physics2D.Raycast (position, direction, Mathf.Infinity, LayerUtility.temp.Mask);
         if (hit != default) {
             result = hit.point;
         } else {
-            hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, Layer.tempLayer.Mask);
+            hit = Physics2D.Raycast (position, -direction, Mathf.Infinity, LayerUtility.temp.Mask);
             if (hit != default) {
                 result = hit.point;
             }
@@ -405,8 +394,8 @@ public static class ExtensionMethod {
     public static Collider2DExMethod _Ex (this Collider2D collider, Object callBy) {
         return new Collider2DExMethod (collider, callBy);
     }
-    public static Rigid2dExMethod _Ex (this Rigidbody2D rigidbody, Object callBy) {
-        return new Rigid2dExMethod (rigidbody, callBy);
+    public static RigidBody2dExMethod _Ex (this Rigidbody2D rigidbody, Object callBy) {
+        return new RigidBody2dExMethod (rigidbody, callBy);
     }
 
 }
@@ -431,10 +420,10 @@ public class Collider2DExMethod {
     //*--------------------------
 
 }
-public class Rigid2dExMethod {
+public class RigidBody2dExMethod {
     public Rigidbody2D rigidbody;
     public Object callby;
-    public Rigid2dExMethod (Rigidbody2D rigidbody, Object callby) {
+    public RigidBody2dExMethod (Rigidbody2D rigidbody, Object callby) {
         this.rigidbody = rigidbody;
         this.callby = callby;
     }

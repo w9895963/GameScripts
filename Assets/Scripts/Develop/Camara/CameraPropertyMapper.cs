@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 [SelectionBase]
-public class M_CameraProperty : MonoBehaviour {
+public class CameraPropertyMapper : MonoBehaviour {
     public Camera target;
     public float size;
     private void OnValidate () {

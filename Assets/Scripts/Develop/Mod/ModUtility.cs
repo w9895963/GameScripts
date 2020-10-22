@@ -8,6 +8,8 @@ using static Global.Function;
 using System;
 using SimpleJSON;
 using static Global.Mods.ModUtility;
+using Global.Visible;
+using static Global.Visible.VisibleUtility;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -21,19 +23,14 @@ namespace Global {
 
 
             //* Names and Setting
-            #region All Names
             public static string RootModsFolderName = "Mods";
             public static string modProfileFileName = "ModSetting.json";
             public static string dataFolderName = "Datas";
             public static List<string> imageExtensions = new List<string> { ".png" };
 
-            #endregion
 
 
 
-
-            //* Public Fields
-            public static List<SpriteData> spriteLoadLibrary = new List<SpriteData> ();
 
 
 
@@ -119,40 +116,30 @@ namespace Global {
                 string dataFilename = $"{image.NameNoSuffix}.json";
                 string dataPath = FileUtility.CombinePath (image.Parent.FullPath, dataFilename);
                 var datafile = image.FindFileSamePlace (dataFilename);
-                SpriteData data;
+                SpriteIterm data;
                 if (datafile == null) {
                     data = BuildSpriteDataFile (image.FullPath);
                 } else {
-                    data = datafile.ReadJson<SpriteData> ();
+                    data = datafile.ReadJson<SpriteIterm> ();
                     if (data == null) {
                         data = BuildSpriteDataFile (image.FullPath);
                     }
                 }
 
-                data.LoadSprite ();
+                data.Load ();
                 spriteLoadLibrary.Add (data);
                 return result;
             }
 
-            private static SpriteData BuildSpriteDataFile (string imageFullPath) {
-                SpriteData data = new SpriteData (imageFullPath);
+            private static SpriteIterm BuildSpriteDataFile (string imageFullPath) {
+                SpriteIterm data = new SpriteIterm (imageFullPath);
                 data.WriteToDisk ();
                 return data;
             }
 
-            public static Sprite CreateSprite (Texture2D texture, SpriteData spriteData) {
-                Sprite result = null;
-                var tex = texture;
-                result = Sprite.Create (tex,
-                    new Rect (0, 0, tex.width, tex.height),
-                    new Vector2 (0.5f, 0.5f),
-                    spriteData.pixelsPerUnit);
-                return result;
-            }
 
-            public static SpriteData SpriteToSpritedate (Sprite sprite) {
-                return spriteLoadLibrary.Find ((x) => x.spriteObject == sprite);
-            }
+
+           
 
 
 
@@ -262,7 +249,7 @@ namespace Global {
 
                     if (holder as IModableSprite != null) {
                         var sprites = (holder as IModableSprite).ModableSprites;
-                        List<SpriteData> lists = sprites.Select ((x) => ModUtility.SpriteToSpritedate (x)).ToList ();
+                        List<SpriteIterm> lists = sprites.Select ((x) => FindSpritedate (x)).ToList ();
                         data.spriteDatas = lists;
 
                     }
@@ -275,37 +262,6 @@ namespace Global {
             }
 
 
-        }
-
-        [System.Serializable]
-        public class SpriteData {
-            public Sprite spriteObject;
-            public string name;
-            public float pixelsPerUnit = 100;
-            [SerializeField] private FileUtility.LocalFile pathObj;
-            public string FullPath => pathObj.FullPath;
-            public string LocalPath => pathObj.localPath;
-
-            public SpriteData (string path, Sprite sprite = null) {
-                this.spriteObject = sprite;
-                this.pathObj = new FileUtility.LocalFile (path, true);
-                this.name = System.IO.Path.GetFileNameWithoutExtension (path);
-            }
-            public void WriteToDisk () {
-                FileUtility.WriteAllText (System.IO.Path.ChangeExtension (FullPath, ".json"), ToJson ());
-            }
-            public string ToJson () {
-                return JsonUtility.ToJson (this);
-            }
-            public Sprite LoadSprite () {
-                Texture2D tex = new Texture2D (2, 2);
-                bool success = FileUtility.LoadImage (FullPath, tex);
-                if (success) {
-                    spriteObject = ModUtility.CreateSprite (tex, this);
-                    spriteObject.name = name;
-                }
-                return spriteObject;
-            }
         }
 
         [System.Serializable]
@@ -325,7 +281,7 @@ namespace Global {
         public class ModData {
             public string name;
             public string objectJson;
-            public List<SpriteData> spriteDatas;
+            public List<SpriteIterm> spriteDatas;
             private List<Sprite> backUpSprites;
             //* Public Property
             public IModable modTarget {
@@ -354,7 +310,7 @@ namespace Global {
 
             public void LoadSprites () {
                 if (spriteDatas != null) {
-                    List<Sprite> spriteslist = spriteDatas.Select ((x) => x.LoadSprite ()).ToList ();
+                    List<Sprite> spriteslist = spriteDatas.Select ((x) => x.Load ()).ToList ();
                     spriteHandler.ModableSprites = spriteslist;
                 }
             }
@@ -370,6 +326,8 @@ namespace Global {
                 objectJson = jSONNode["objectJson"].ToString ();
                 spriteDatas = modData.spriteDatas;
             }
+
+
 
         }
 
