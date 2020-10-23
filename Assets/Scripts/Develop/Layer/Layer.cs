@@ -5,13 +5,9 @@ using UnityEngine;
 namespace Global {
 
     public static class LayerUtility {
-        
-        public enum PresetLayer {
-            Lead = 9,
-            Obstacle = 8,
-            TempLayer = 31
-        }
-        public static Layer Lead = PresetLayer.Lead.ToLayer ();
+
+
+        public static Layer Lead = PresetLayer.Player.ToLayer ();
         public static Layer obstacle = PresetLayer.Obstacle.ToLayer ();
         public static Layer temp = PresetLayer.TempLayer.ToLayer ();
 
@@ -43,6 +39,13 @@ namespace Global {
                     return filter;
                 }
             }
+        }
+
+        public enum PresetLayer {
+            Obstacle = 8,
+            Player = 9,
+            Indicator = 30,
+            TempLayer = 31
         }
     }
 }

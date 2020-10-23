@@ -226,6 +226,11 @@ public static class ExtensionMethod {
     public static float ClampMax (this float f, float max) {
         return f < max?f : max;
     }
+    public static float Map (this float f, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp = true) {
+        float f1 = f;
+        if (clamp) f1 = f.Clamp (inputMin, inputMax);
+        return (f1 - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin;
+    }
 
 
     public static Vector2 ToVector2 (this float fl) {

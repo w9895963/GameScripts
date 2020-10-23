@@ -13,10 +13,13 @@ using static Global.Visible.VisibleUtility;
 public class Test : MonoBehaviour {
     public float time;
     public GameObject target;
+    public Sprite sp;
 
     private void Start () {
         GravityReverse gravityReverse = new GravityReverse ();
         gravityReverse.lastTime = 3;
+
+       
       
 
         AddCountDown (target, time, target.GetPositionBottomLeft () - new Vector2 (-0.05f, 0.25f));

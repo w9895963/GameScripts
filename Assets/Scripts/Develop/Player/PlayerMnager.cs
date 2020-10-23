@@ -4,6 +4,7 @@ using Global;
 using Global.Physic;
 using static Global.Physic.PhysicUtility;
 using System.Linq;
+using Global.Animation;
 using Global.Mods;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,28 +13,54 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
         public Vector2 gravity = new Vector2 (0, -40);
-        public float moveForce = 80;
-        public float decelerate = 80;
-        public float maxSpeed = 8;
-        public float jumpForce = 200f;
-        public float jumpLastTime;
-        public AnimationCurve jumpCurve = Curve.OneZero;
+        public Move move = new Move ();
+        [System.Serializable] public class Move {
+            public float moveForce = 80;
+            public float decelerate = 80;
+            public float maxSpeed = 8;
+
+        }
+        public Jump jump = new Jump ();
+        [System.Serializable] public class Jump {
+            public float force = 200f;
+            public float lastTime;
+            public Vector2 JumpCurveProfile {
+                get {
+                    return Curve.CurveToVector2 (jumpCurve);
+                }
+                set {
+                    Curve.SetCurveByVector2 (jumpCurve, value);
+                }
+            }
+            public AnimationCurve jumpCurve = Curve.OneZero;
+
+        }
+        public Animation animation = new Animation ();
+        [System.Serializable] public class Animation {
+            public AnimationObject walking;
+            public AnimationObject standing;
+
+        }
     }
     public bool saveMod;
-    public Vector2 Gravity => setting.gravity;
     private Vector2 moveButton;
     private float jumpButton;
     private Jump jump;
     private CollisionEvent collisionEvent;
     private Vector2 force;
 
+
+
+
+    public Vector2 Gravity => setting.gravity;
     public int LayerIndex => LayerUtility.Lead.Index;
-
     public string ModTitle => ModUtility.GenerateTitle (this);
-
     public bool EnableWriteModDatas => saveMod;
 
     public object ModableObjectData => setting;
+
+
+
 
     private void Awake () {
 
@@ -65,6 +92,7 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
         RemovePhysicAction (gameObject, JumpAction);
         collisionEvent.RemoveEvent ();
     }
+    private void OnValidate () { }
 
     private void WalkAction (PhysicAction action) {
         Rigidbody2D rigidbody = gameObject.GetComponent<Rigidbody2D> ();
@@ -72,23 +100,31 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
         if (moveButton.x != 0) {
             float scaler = 1;
             if (velosity.x * moveButton.x >= 0) {
-                scaler = Curve.Evaluate (velosity.x.Abs (), setting.maxSpeed * 0.5f, setting.maxSpeed, 1, 0);
+                scaler = Curve.Evaluate (velosity.x.Abs (), setting.move.maxSpeed * 0.5f, setting.move.maxSpeed, 1, 0);
             }
-            force = new Vector2 (moveButton.x, 0) * setting.moveForce * scaler;
+            force = new Vector2 (moveButton.x, 0) * setting.move.moveForce * scaler;
             action.SetForce (force);
         } else {
             float wantVx = 0;
             float currVx = velosity.x;
             float delx = wantVx - currVx;
-            float deaccele = setting.decelerate * Time.fixedDeltaTime;
+            float deaccele = setting.move.decelerate * Time.fixedDeltaTime;
             float vChaned;
             if (delx.Abs () < deaccele) {
                 vChaned = delx;
             } else {
                 vChaned = deaccele * delx.Sign ();
             }
-            action.SetForce (VelosityToForce(new Vector2(vChaned,0)));
+            action.SetForce (VelosityToForce (new Vector2 (vChaned, 0)));
         }
+
+
+        if (moveButton.x != 0) {
+            AnimationUtility.SetAnimation (gameObject, setting.animation.walking);
+        } else {
+            AnimationUtility.SetAnimation (gameObject, setting.animation.standing);
+        }
+        GetComponentInChildren<AnimationObject> ().GetComponent<SpriteRenderer> ().flipX = (moveButton.x < 0) ? true : false;
     }
 
     private void JumpAction (PhysicAction action) {
@@ -96,13 +132,13 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
             if (jumpButton > 0) {
                 jump = new Jump ();
                 jump.beginTime = Time.time;
-                jump.jumpCurve = setting.jumpCurve;
-                jump.jumpLastTime = setting.jumpLastTime;
+                jump.jumpCurve = setting.jump.jumpCurve;
+                jump.jumpLastTime = setting.jump.lastTime;
             }
         }
 
         if (jump != null) {
-            action.SetForce (new Vector2 (0, jump.JumpScaler) * setting.jumpForce);
+            action.SetForce (new Vector2 (0, jump.JumpScaler) * setting.jump.force);
         }
 
     }
@@ -116,10 +152,6 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
 
     }
 
-    public void LoadModData (ModData data) {
-        data.LoadObjectDataTo<Setting> (setting);
-    }
-
     private class Jump {
         public float beginTime;
         public AnimationCurve jumpCurve;
@@ -131,4 +163,8 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable {
             }
         }
     }
+    public void LoadModData (ModData data) {
+        data.LoadObjectDataTo<Setting> (setting);
+    }
+
 }
