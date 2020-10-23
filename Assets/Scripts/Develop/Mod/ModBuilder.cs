@@ -14,66 +14,64 @@ public class ModBuilder : MonoBehaviour {
     [System.Serializable] public class Input {
         public InputAction hierarchy;
         public InputAction inspector;
-        public InputAction save;
-        public InputAction load;
     }
-    private RuntimeHierarchy hierarchy;
-    private RuntimeInspector inspector;
-
-
+    public ModProfile modProfile = new ModProfile ();
+    [System.Serializable] public class ModProfile {
+        public string modFolderName = "DefautMod";
+        public string modName = "DefautMod";
+        public int loadOrder = 0;
+    }
+    public GameObject modEditor;
+    public Mod Mod {
+        get {
+            var mod = ModUtility.FindMod (modProfile.modFolderName);
+            if (mod == null) {
+                mod = ModUtility.CreateMod (modProfile.modFolderName, modProfile.modName, modProfile.loadOrder);
+            }
+            return mod;
+        }
+    }
+    private GameObject holderObj;
+    private GameObject hirObj;
 
     private void Awake () {
-        hierarchy = transform.parent.GetComponentInChildren<RuntimeHierarchy> ();
-        inspector = transform.parent.GetComponentInChildren<RuntimeInspector> ();
-        input.hierarchy.performed += (d) => {
-            GameObject hrObj = hierarchy.gameObject;
-            if (!hrObj.activeSelf) {
-                hrObj.SetActive (true);
-            } else {
-                hrObj.SetActive (false);
-            }
-        };
-        input.inspector.performed += (d) => {
-            GameObject inObj = inspector.gameObject;
-            if (!inObj.activeSelf) {
-                inObj.SetActive (true);
-            } else {
-                inObj.SetActive (false);
-            }
-        };
-        input.save.performed += (d) => {
-            GetComponent<ModSaver> ().SaveFiles ();
-        };
-        input.load.performed += (d) => {
-            ModUtility.LoadAllModData ();
-        };
-
-
+        input.hierarchy.performed += CallHierarchy;
+        input.inspector.performed += CallInspector;
     }
+
+    private void CallHierarchy (InputAction.CallbackContext _) {
+        if (hirObj == null) {
+            hirObj = GetComponentInChildren<RuntimeHierarchy> ().gameObject;
+        }
+
+        hirObj.SetActive (!hirObj.activeSelf);
+    }
+
+    private void CallInspector (InputAction.CallbackContext _) {
+        RuntimeInspector runtimeInspector = GetComponentInChildren<RuntimeInspector> ();
+        if (runtimeInspector != null) {
+            Mod.WriteAllModData ();
+
+            holderObj.Destroy ();
+        } else {
+            holderObj = Instantiate (modEditor);
+            holderObj.SetParent (gameObject);
+
+
+            Mod.LoadAllImage ();
+        }
+    }
+
 
     private void OnEnable () {
         input.hierarchy.Enable ();
         input.inspector.Enable ();
-        input.save.Enable ();
-        input.load.Enable ();
     }
-    private void Start () {
-        // CreateFakeScence ();
-
-        hierarchy.gameObject.SetActive (false);
-        inspector.gameObject.SetActive (false);
-    }
+    private void Start () { }
 
     private void OnDisable () {
         input.hierarchy.Disable ();
         input.inspector.Disable ();
-        input.save.Disable ();
-        input.load.Disable ();
-    }
-
-    private void CreateFakeScence () {
-        RuntimeHierarchy hra = transform.parent.GetComponentInChildren<RuntimeHierarchy> ();
-        hra.CreatePseudoScene ("Mod");
     }
 
 

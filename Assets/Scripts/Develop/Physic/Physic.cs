@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using static Global.Physic.PhysicUtility;
@@ -7,6 +8,10 @@ using static Global.Physic.PhysicUtility;
 namespace Global {
     namespace Physic {
         public static class PhysicUtility {
+            public static Vector2 VelosityToForce (Vector2 velosityChanged, float mass = 1, bool isFixedUpdata = true) {
+                var deltaTime = isFixedUpdata?Time.fixedDeltaTime : Time.deltaTime;
+                return velosityChanged / deltaTime * mass;
+            }
             public static void AddPhysicAction (GameObject gameObject, int runOrder, UnityAction<PhysicAction> action) {
                 PhysicManager comp = gameObject.GetComponent<PhysicManager> ();
                 if (comp != null) {
@@ -28,8 +33,16 @@ namespace Global {
                 }
             }
 
-            public static void AddColliderEvent (UnityAction<PhysicAction> action) { }
-
+            public static CollisionEvent AddColliderAction (GameObject gameObject, UnityAction<Collision2D> onEnter = null,
+                UnityAction<Collision2D> onStay = null, UnityAction<Collision2D> onExit = null) {
+                CollisionEvent evt = new CollisionEvent ();
+                evt.gameObject = gameObject;
+                evt.onEnter = onEnter;
+                evt.onStay = onStay;
+                evt.onExit = onExit;
+                evt.Applay ();
+                return evt;
+            }
 
 
         }
@@ -77,6 +90,31 @@ namespace Global {
                 return output;
             }
         }
+
+        public class JumpForce {
+            public GameObject gameObject;
+            public float jumpForce;
+            public bool jumped = false;
+            public JumpForce (GameObject gameObject, UnityAction<JumpForce> onCreate) {
+                this.gameObject = gameObject;
+                onCreate (this);
+                AddPhysicAction (gameObject, PhysicOrder.Jump, Action);
+            }
+            public void Action (PhysicAction action) {
+                if (!jumped) {
+                    jumped = true;
+                    action.SetForce (jumpForce * Vector2.up);
+                    CollisionEvent evt = null;
+                    evt = AddColliderAction (gameObject, (other) => {
+                        bool hitGround = other.contacts.Any ((x) => x.normal.Angle (Vector2.up) < 60);
+                        if (hitGround) {
+                            evt.RemoveEvent ();
+                        }
+                    });
+                }
+
+            }
+        }
         public class PhysicAction {
             private int currentIndex;
             public int CurrentIndex { get => currentIndex; set => currentIndex = value; }
@@ -118,12 +156,61 @@ namespace Global {
             }
         }
 
+        public class CollisionEvent {
+            public GameObject gameObject;
+            public UnityAction<Collision2D> onEnter;
+            public UnityAction<Collision2D> onStay;
+            public UnityAction<Collision2D> onExit;
+
+            public void Applay () {
+                PhysicEventHandler comp = gameObject.GetComponent<PhysicEventHandler> ();
+                if (comp == null) {
+                    comp = gameObject.AddComponent<PhysicEventHandler> ();
+                }
+                if (onEnter != null) {
+                    comp.onCollisionEnter2D.AddListener (onEnter);
+                    comp.eventCount++;
+                }
+                if (onStay != null) {
+                    comp.onCollisionStay2D.AddListener (onStay);
+                    comp.eventCount++;
+                }
+                if (onExit != null) {
+                    comp.onCollisionExit2D.AddListener (onExit);
+                    comp.eventCount++;
+                }
+            }
+            public void RemoveEvent () {
+                PhysicEventHandler comp = gameObject.GetComponent<PhysicEventHandler> ();
+                if (comp != null) {
+                    if (onEnter != null) {
+                        comp.onCollisionEnter2D.RemoveListener (onEnter);
+                        comp.eventCount--;
+                    }
+                    if (onStay != null) {
+                        comp.onCollisionStay2D.RemoveListener (onStay);
+                        comp.eventCount--;
+                    }
+                    if (onExit != null) {
+                        comp.onCollisionExit2D.RemoveListener (onExit);
+                        comp.eventCount--;
+                    }
+                    if (comp.eventCount == 0) {
+                        GameObject.Destroy (comp);
+                    }
+                }
+            }
+
+        }
+
         public static class PhysicOrder {
             public static int Gravity = 0;
             public static int GravityReverse = 1;
             public static int Movement = 2;
             public static int Jump = 3;
         }
+
+
 
 
     }

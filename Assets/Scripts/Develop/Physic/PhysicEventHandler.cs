@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class PhysicEventHandler : MonoBehaviour {
+    public int eventCount=0;
     public UnityEvent<Collision2D> onCollisionEnter2D = new UnityEvent<Collision2D> ();
     public UnityEvent<Collision2D> onCollisionStay2D = new UnityEvent<Collision2D> ();
     public UnityEvent<Collision2D> onCollisionExit2D = new UnityEvent<Collision2D> ();

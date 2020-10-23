@@ -78,7 +78,6 @@ namespace Global {
         public static GameObject FindObjectWithInterfaces<T> () where T : class {
             MonoBehaviour[] holders = GameObject.FindObjectsOfType<MonoBehaviour> ();
             IEnumerable<T> enumerable = holders.OfType<T> ();
-            Debug.Log (enumerable.First ());
             MonoBehaviour monoBehaviour = enumerable.First () as MonoBehaviour;
             return monoBehaviour.gameObject;
         }

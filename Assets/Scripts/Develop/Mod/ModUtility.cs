@@ -31,10 +31,6 @@ namespace Global {
 
 
 
-
-
-
-
             //* Public  Property
             public static string ModsRootFolderPath => FileUtility.GetFullPath (RootModsFolderName);
 
@@ -72,11 +68,12 @@ namespace Global {
                 }
                 return result;
             }
-            public static Mod CreateMod (string modFolderName, string modName = null) {
+            public static Mod CreateMod (string modFolderName, string modName = null, int loadOrder = 0) {
                 var modsFolder = FileUtility.GetFile (ModsRootFolderPath);
                 modsFolder.CreateFolder (modFolderName);
                 string name = modName.IsEmpty () ? modName : modFolderName;
                 Mod mod = new Mod (modFolderName, name);
+                mod.profile.loadOrder = loadOrder;
                 mod.WriteModProfile ();
                 return mod;
             }
@@ -139,9 +136,6 @@ namespace Global {
 
 
 
-           
-
-
 
             public static string GenerateTitle (MonoBehaviour component) {
                 string title = component.name;
@@ -150,7 +144,6 @@ namespace Global {
                     title = title.Insert (0, $"{obj.name}, ");
                 });
                 title = title.Insert (0, $"{SceneManager.GetActiveScene().name}, ");
-                Debug.Log (title);
                 return title;
             }
 
