@@ -12,8 +12,7 @@ using UnityEngine.UI;
 namespace Global {
     namespace Visible {
         public static class VisibleUtility {
-            public static List<SpriteIterm> spriteLoadLibrary = new List<SpriteIterm> ();
-            private const string CountDownIconPath = "Visible/倒计时";
+            public static List<ImageIterm> ImageItermLibrary = new List<ImageIterm> ();
 
             public static Sprite CreateSprite (Texture2D texture, float pixelsPerUnit) {
                 Sprite result = null;
@@ -24,80 +23,24 @@ namespace Global {
                     pixelsPerUnit);
                 return result;
             }
-            public static List<Sprite> CreateSpriteSheet (Texture2D texture, int column, int row, float pixelsPerUnit) {
-                List<Sprite> result = new List<Sprite> ();
-                var tex = texture;
-                float width = tex.width / (float) column;
-                float height = tex.height / (float) row;
-                for (int ro = row - 1; ro >= 0; ro--) {
-                    for (int co = 0; co < column; co++) {
-                        var sprite = Sprite.Create (tex,
-                            new Rect (co * width, ro * height, width, height),
-                            new Vector2 (0.5f, 0.5f), pixelsPerUnit);
-                        result.Add (sprite);
-                    }
-                }
-                return result;
+
+
+            public static ImageIterm FindImageIterm (Sprite sprite) {
+                return ImageItermLibrary.Find ((x) => x.spriteIdentify == sprite);
+            }
+            public static ImageIterm FindImageIterm (Texture2D texture) {
+                return ImageItermLibrary.Find ((x) => x.texture == texture);
             }
 
-            public static SpriteIterm FindSpritedate (Sprite sprite) {
-                return spriteLoadLibrary.Find ((x) => x.spriteIdentify == sprite);
-            }
 
-            public static void AddCountDown (GameObject target, float time, Vector2 position) {
-                GameObject icon = GameObject.Instantiate (Resources.Load<GameObject> (CountDownIconPath));
-                icon.SetParent (target);
-                icon.transform.position = position;
-                var image = icon.GetComponentInChildren<Image> ();
-                Sprite sprite = image.sprite;
-                SpriteIterm spriteIterm = FindSpritedate (sprite);
-                Timer.TimerControler timerControler = spriteIterm.ApplyAnimationTo (time, (sp) => {
-                    image.sprite = sp;
-                });
-                Timer.WaitToCall (time, () => {
-                    timerControler.Stop ();
-                    icon.Destroy ();
-                });
 
-            }
-            public static void AddStatusBar (GameObject target) {
-
-            }
         }
 
-        [System.Serializable]
-        public class SpriteResourceSetting {
-            public Sprite spriteIdentify;
-            public SpriteType spriteType;
-            public int column = 1;
-            public int row = 1;
-            public float speed = 1;
-
-            public SpriteIterm ToSpriteIterm () {
-                SpriteIterm sp = new SpriteIterm ();
-                sp.texture = spriteIdentify.texture;
-                sp.spriteIdentify = spriteIdentify;
-                sp.column = column;
-                sp.row = row;
-                sp.spriteType = spriteType;
-                sp.speed = speed;
-                sp.Load ();
-
-                return sp;
-            }
-        }
-
-        [System.Serializable]
-        public class SpriteIterm {
+        [System.Serializable] public class ImageIterm {
             public Texture2D texture;
             public Sprite spriteIdentify;
             public string name;
             public float pixelsPerUnit = 100;
-            public SpriteType spriteType = SpriteType.Single;
-            public List<Sprite> sprites = new List<Sprite> ();
-            public int column = 1;
-            public int row = 1;
-            public float speed = 1;
             [SerializeField]
             private FileUtility.LocalFile pathObj;
 
@@ -106,71 +49,51 @@ namespace Global {
 
 
 
-            public SpriteIterm (string path) {
+            public ImageIterm (string path) {
                 this.pathObj = new FileUtility.LocalFile (path, true);
                 this.name = System.IO.Path.GetFileNameWithoutExtension (path);
             }
-            public SpriteIterm () { }
             public void WriteToDisk () {
                 FileUtility.WriteAllText (System.IO.Path.ChangeExtension (FullPath, ".json"), ToJson ());
             }
             public string ToJson () {
                 return JsonUtility.ToJson (this);
             }
-            private void LoadSpriteFromTexture () {
-                if (spriteType == SpriteType.Single) {
+            private Sprite LoadSpriteFromTexture () {
+                if (texture != null) {
                     var sp = CreateSprite (texture, pixelsPerUnit);
                     sp.name = name;
-                    if (spriteIdentify == null) spriteIdentify = sp;
-                    sprites.Add (sp);
-                } else {
-                    sprites = CreateSpriteSheet (texture, column, row, pixelsPerUnit);
-                    if (spriteIdentify == null) spriteIdentify = sprites[0];
-                    for (int i = 0; i < sprites.Count; i++) {
-                        sprites[i].name = $"{name}-{i}";
-                    }
+                    if (spriteIdentify == null)
+                        spriteIdentify = sp;
                 }
+
+                return spriteIdentify;
             }
-            public Sprite Load () {
-                bool texLoadSuccess = false;
+            public Texture2D LoadTexture () {
                 if (texture == null) {
                     Texture2D tex = new Texture2D (2, 2);
-                    texLoadSuccess = FileUtility.LoadImage (FullPath, tex);
+                    var texLoadSuccess = FileUtility.LoadImage (FullPath, tex);
                     if (texLoadSuccess) {
                         tex.name = name;
                         texture = tex;
                     }
-                } else {
-                    texLoadSuccess = true;
                 }
-                if (texLoadSuccess) {
-                    LoadSpriteFromTexture ();
-                }
+                return texture;
+            }
+            public Sprite LoadSprite () {
+                LoadTexture ();
 
-                Sprite spriteIdentify = sprites.Count > 0 ? sprites[0] : null;
-                if (spriteIdentify) {
-                    VisibleUtility.spriteLoadLibrary.Add (this);
-                }
+                LoadSpriteFromTexture ();
+
+
                 return spriteIdentify;
             }
 
-            public void ApplyAnimationTo (UnityAction<Sprite> apply) {
-                ApplyAnimationTo (speed, apply);
-            }
-            public Timer.TimerControler ApplyAnimationTo (float speed, UnityAction<Sprite> apply) {
-                int index = 0;
-                var timerControler = Timer.Loop (speed / sprites.Count, () => {
-                    apply (sprites[index]);
-                    index++;
-                    if (index >= sprites.Count) {
-                        index = 0;
-                    }
-                });
-                return timerControler;
-            }
+
+
 
         }
-        public enum SpriteType { Single, Animation }
 
+      
     }
 }
