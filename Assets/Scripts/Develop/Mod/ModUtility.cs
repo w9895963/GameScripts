@@ -113,23 +113,23 @@ namespace Global {
                 string dataFilename = $"{image.NameNoSuffix}.json";
                 string dataPath = FileUtility.CombinePath (image.Parent.FullPath, dataFilename);
                 var datafile = image.FindFileSamePlace (dataFilename);
-                SpriteIterm data;
+                ImageIterm data;
                 if (datafile == null) {
                     data = BuildSpriteDataFile (image.FullPath);
                 } else {
-                    data = datafile.ReadJson<SpriteIterm> ();
+                    data = datafile.ReadJson<ImageIterm> ();
                     if (data == null) {
                         data = BuildSpriteDataFile (image.FullPath);
                     }
                 }
 
-                data.Load ();
-                spriteLoadLibrary.Add (data);
+                data.LoadSprite ();
+                ImageItermLibrary.Add (data);
                 return result;
             }
 
-            private static SpriteIterm BuildSpriteDataFile (string imageFullPath) {
-                SpriteIterm data = new SpriteIterm (imageFullPath);
+            private static ImageIterm BuildSpriteDataFile (string imageFullPath) {
+                ImageIterm data = new ImageIterm (imageFullPath);
                 data.WriteToDisk ();
                 return data;
             }
@@ -239,11 +239,19 @@ namespace Global {
                 modHolders.ForEach ((holder) => {
                     ModData data = new ModData (holder.ModTitle, holder.ModableObjectData);
 
-
+                    data.ImageIterms = new List<ImageIterm> ();
                     if (holder as IModableSprite != null) {
                         var sprites = (holder as IModableSprite).ModableSprites;
-                        List<SpriteIterm> lists = sprites.Select ((x) => FindSpritedate (x)).ToList ();
-                        data.spriteDatas = lists;
+                        List<ImageIterm> lists = sprites.Select ((x) => FindImageIterm (x)).ToList ();
+                        data.ImageIterms.AddRange (lists);
+
+                    }
+                    if (holder as IModableTexture != null) {
+                        Debug.Log (123);
+                        var textureList = (holder as IModableTexture).ModableTexture;
+                        List<ImageIterm> lists = textureList.Select ((x) => FindImageIterm (x)).ToList ();
+                        data.ImageIterms.AddRange (lists);
+                        data.ImageIterms = data.ImageIterms.Distinct ().ToList ();
 
                     }
                     string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.name}.json");
@@ -274,8 +282,9 @@ namespace Global {
         public class ModData {
             public string name;
             public string objectJson;
-            public List<SpriteIterm> spriteDatas;
+            public List<ImageIterm> ImageIterms;
             private List<Sprite> backUpSprites;
+            private List<Texture2D> backUpTexture;
             //* Public Property
             public IModable modTarget {
                 get {
@@ -283,6 +292,7 @@ namespace Global {
                 }
             }
             public IModableSprite spriteHandler => modTarget as IModableSprite;
+            public IModableTexture textureHandler => modTarget as IModableTexture;
 
             public ModData (string name = null, System.Object obj = null) {
                 this.name = name;
@@ -293,19 +303,33 @@ namespace Global {
                 if (spriteHandler != null) {
                     backUpSprites = spriteHandler.ModableSprites;
                 }
+                if (textureHandler != null) {
+                    backUpTexture = textureHandler.ModableTexture;
+                }
 
                 JsonUtility.FromJsonOverwrite (objectJson, target as T);
 
                 if (spriteHandler != null) {
                     spriteHandler.ModableSprites = backUpSprites;
                 }
+                if (textureHandler != null) {
+                    textureHandler.ModableTexture = backUpTexture;
+                }
             }
 
             public void LoadSprites () {
-                if (spriteDatas != null) {
-                    List<Sprite> spriteslist = spriteDatas.Select ((x) => x.Load ()).ToList ();
+                if (ImageIterms != null) {
+                    List<Sprite> spriteslist = ImageIterms.Select ((x) => x.LoadSprite ()).ToList ();
                     spriteHandler.ModableSprites = spriteslist;
                 }
+            }
+            public List<Texture2D> LoadTexture () {
+                List<Texture2D> result = null;
+                if (ImageIterms != null) {
+                    List<Texture2D> list = ImageIterms.Select ((x) => x.LoadTexture ()).ToList ();
+                    result = list;
+                }
+                return result;
             }
             public string ToJson () {
                 JSONNode jSONNode = JSON.Parse (JsonUtility.ToJson (this));
@@ -317,7 +341,7 @@ namespace Global {
                 ModData modData = JsonUtility.FromJson<ModData> (json);
                 name = modData.name;
                 objectJson = jSONNode["objectJson"].ToString ();
-                spriteDatas = modData.spriteDatas;
+                ImageIterms = modData.ImageIterms;
             }
 
 
