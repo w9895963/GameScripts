@@ -113,9 +113,11 @@ namespace Global {
                 bool v = ImageConversion.LoadImage (texture, bytes);
                 return v;
             }
-            texture.name = Path.GetFileName (path);
+
             if (name != null) {
                 texture.name = name;
+            } else {
+                texture.name = Path.GetFileName (path);
             }
             return false;
         }

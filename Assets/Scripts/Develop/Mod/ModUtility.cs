@@ -23,6 +23,7 @@ namespace Global {
 
 
             //* Names and Setting
+            public static string BuildinModsFolderName = "Buildin";
             public static string RootModsFolderName = "Mods";
             public static string modProfileFileName = "ModSetting.json";
             public static string dataFolderName = "Datas";
@@ -33,6 +34,7 @@ namespace Global {
 
             //* Public  Property
             public static string ModsRootFolderPath => FileUtility.GetFullPath (RootModsFolderName);
+            public static string BuildinFolderPath => FileUtility.GetFullPath (BuildinModsFolderName);
 
 
 
@@ -79,33 +81,41 @@ namespace Global {
             }
 
 
-            public static void LoadAllModData () {
+            public static void LoadModProcess () {
                 List<IModable> modComps = FindAllInterfaces<IModable> ();
 
-                if (!Directory.Exists (ModsRootFolderPath)) {
-                    Directory.CreateDirectory (ModsRootFolderPath);
-                }
-                string[] dirs = Directory.GetDirectories (ModsRootFolderPath);
-                List<Mod> mods = new List<Mod> ();
-                dirs.ForEach ((folderPath) => {
-                    Mod mod = ReadMod (folderPath);
-                    if (mod != null) {
-                        mods.Add (mod);
-                    }
-                });
-                mods.Sort ((x, y) => x.profile.loadOrder.CompareTo (y.profile.loadOrder));
-                mods.ForEach ((mod) => {
-                    mod.ReadModDatas ().ForEach ((modData) => {
-                        if (modComps.Count > 0) {
-                            IModable modableComp = modComps.Find ((x) => x.ModTitle == modData.name);
-                            if (modableComp != null) {
-                                modableComp.LoadModData (modData);
-                            }
-                        }
 
+                List<Mod> allMods = new List<Mod> ();
+                allMods.AddRange (GetMods (BuildinFolderPath));
+                allMods.AddRange (GetMods (ModsRootFolderPath));
+
+                var allModDatas = allMods.SelectMany ((mod) =>
+                    mod.ReadModDatas ()).ToList ();
+
+                modComps.ForEach ((comp) => {
+                    var datas = allModDatas.FindAll ((data) => data.title == comp.ModTitle);
+                    datas.ForEach ((data) => {
+                        comp.LoadModData (data);
                     });
                 });
+
             }
+
+            private static List<Mod> GetMods (string modsFolderPath) {
+                if (Directory.Exists (modsFolderPath)) {
+                    string[] dirs = Directory.GetDirectories (modsFolderPath);
+                    List<Mod> mods = new List<Mod> ();
+                    dirs.ForEach ((folderPath) => {
+                        Mod mod = ReadMod (folderPath);
+                        if (mod != null) {
+                            mods.Add (mod);
+                        }
+                    });
+                    return mods;
+                }
+                return new List<Mod> (0);
+            }
+
 
             public static Sprite LoadImageToSprite (string fullPath) {
                 Sprite result = null;
@@ -247,14 +257,13 @@ namespace Global {
 
                     }
                     if (holder as IModableTexture != null) {
-                        Debug.Log (123);
                         var textureList = (holder as IModableTexture).ModableTexture;
                         List<ImageIterm> lists = textureList.Select ((x) => FindImageIterm (x)).ToList ();
                         data.ImageIterms.AddRange (lists);
                         data.ImageIterms = data.ImageIterms.Distinct ().ToList ();
 
                     }
-                    string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.name}.json");
+                    string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.title}.json");
 
 
                     FileUtility.WriteAllText (mainDataPath, data.ToJson ());
@@ -280,7 +289,7 @@ namespace Global {
 
         [System.Serializable]
         public class ModData {
-            public string name;
+            public string title;
             public string objectJson;
             public List<ImageIterm> ImageIterms;
             private List<Sprite> backUpSprites;
@@ -288,14 +297,14 @@ namespace Global {
             //* Public Property
             public IModable modTarget {
                 get {
-                    return FindAllInterfaces<IModable> ().Find ((x) => x.ModTitle == name);
+                    return FindAllInterfaces<IModable> ().Find ((x) => x.ModTitle == title);
                 }
             }
             public IModableSprite spriteHandler => modTarget as IModableSprite;
             public IModableTexture textureHandler => modTarget as IModableTexture;
 
             public ModData (string name = null, System.Object obj = null) {
-                this.name = name;
+                this.title = name;
                 objectJson = JsonUtility.ToJson (obj);
             }
 
@@ -339,7 +348,7 @@ namespace Global {
             public void FromJson (string json) {
                 JSONNode jSONNode = JSON.Parse (json);
                 ModData modData = JsonUtility.FromJson<ModData> (json);
-                name = modData.name;
+                title = modData.title;
                 objectJson = jSONNode["objectJson"].ToString ();
                 ImageIterms = modData.ImageIterms;
             }

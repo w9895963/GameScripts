@@ -11,7 +11,7 @@ using UnityEngine;
 using static Global.Timer;
 using UnityEngine.Events;
 
-public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IPlayer, IModable, IModableTexture {
+public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable, IModableTexture {
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
         public Vector2 gravity = new Vector2 (0, -40);

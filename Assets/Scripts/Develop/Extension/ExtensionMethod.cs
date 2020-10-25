@@ -35,6 +35,9 @@ public static class ExtensionMethod {
         }
 
     }
+    public static void Sort<T> (this List<T> source, System.Func<T, float> selector) {
+        source.Sort ((x, y) => selector (x).CompareTo (selector (y)));
+    }
 
 
 
@@ -247,8 +250,6 @@ public static class ExtensionMethod {
 
     #endregion
 
-
-  
 
 
 

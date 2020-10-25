@@ -86,8 +86,10 @@ public static class ObjectExtention {
 
     public static void WaitUpdate (this GameObject gameObject, UnityAction call) {
         BasicEvent basicEvent = gameObject.AddComponent<BasicEvent> ();
-        basicEvent.onUpdate.AddListener (call);
-        basicEvent.destroy = true;
+        basicEvent.onUpdate.AddListener (() => {
+            call ();
+            basicEvent.Destroy ();
+        });
     }
 
 }

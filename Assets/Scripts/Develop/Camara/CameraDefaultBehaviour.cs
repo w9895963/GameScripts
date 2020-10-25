@@ -9,7 +9,7 @@ public class CameraDefaultBehaviour : MonoBehaviour {
     public bool followPlayer = false;
     private void Awake () {
         if (followPlayer) {
-            CameraUtility.Follow (ObjectManager.Player);
+            CameraUtility.Follow (Find.Player);
         }
     }
  

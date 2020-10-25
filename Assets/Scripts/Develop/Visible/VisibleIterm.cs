@@ -70,13 +70,11 @@ namespace Global {
                 return spriteIdentify;
             }
             public Texture2D LoadTexture () {
-                if (texture == null) {
-                    Texture2D tex = new Texture2D (2, 2);
-                    var texLoadSuccess = FileUtility.LoadImage (FullPath, tex);
-                    if (texLoadSuccess) {
-                        tex.name = name;
-                        texture = tex;
-                    }
+                Texture2D tex = new Texture2D (2, 2);
+                var texLoadSuccess = FileUtility.LoadImage (FullPath, tex);
+                if (texLoadSuccess) {
+                    tex.name = name;
+                    texture = tex;
                 }
                 return texture;
             }
@@ -94,6 +92,6 @@ namespace Global {
 
         }
 
-      
+
     }
 }
