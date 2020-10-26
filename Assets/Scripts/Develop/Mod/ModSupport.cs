@@ -21,7 +21,7 @@ public class ModSupport : MonoBehaviour, IModable {
         }
     }
 
-    public void LoadModData (ModData data1) {
+    public void LoadModData (ModObjectData data1) {
         Data data = JsonUtility.FromJson<Data> (data1.objectJson);
         Rigidbody2D ri = GetComponent<Rigidbody2D> ();
         ri.drag = data.drag;

@@ -67,8 +67,8 @@ namespace Global {
 
         }
 
-        [System.Serializable] public class TextureAnimateProfile {
-            public Texture2D texture;
+        [System.Serializable] public class TextureAnimateProfile : IModDataContainer {
+            public Texture2D texture;   
             public int Column = 1;
             public int Row = 1;
             public float animationTime = 1;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Global;
+using Global.Mods;
 using Global.Visible;
 using Unity.Collections;
 using UnityEngine;
@@ -25,30 +26,15 @@ public class Test : MonoBehaviour {
     private void OnValidate () {
         List<System.Reflection.FieldInfo> list = new List<System.Reflection.FieldInfo> ();
 
-        var curr = Find.Player.GetComponent<PlayerMnager> ().setting;
-        List<System.Reflection.FieldInfo> currlist = curr.GetType ().GetFields ().ToList ();
 
 
-        while (currlist.Count > 0) {
-            var fieldInfos = currlist;
-            var textures = fieldInfos.Where ((x) => x.FieldType == typeof (Texture2D)).ToList ();
-            list.AddRange (textures);
-            var classes = fieldInfos.Where ((x) => x.FieldType.IsClass).ToList ();
-            currlist = classes.SelectMany ((x) => x.FieldType.GetFields ()).ToList ();
-        }
-        // Debug.Log (list.Count);
-
-        var lists = Find.CursorComp.setting.GetType ().GetFields ();
-        Debug.Log (lists[3].FieldType.IsList ());
-        var obj = (IEnumerable) lists[3].GetValue (Find.CursorComp.setting);
-        Debug.Log (obj);
-        foreach (var item in obj) {
-            Debug.Log (item);
-        }
 
     }
 
     private void Reset () {
+        var curr = Find.PlayerComp.setting;
+        var lists1 = ModUtility.GetMembersFromObj (curr, typeof (Texture2D));
+        Debug.Log (lists1.Count);
 
     }
 

@@ -10,6 +10,7 @@ using SimpleJSON;
 using static Global.Mods.ModUtility;
 using Global.Visible;
 using static Global.Visible.VisibleUtility;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -35,12 +36,31 @@ namespace Global {
             //* Public  Property
             public static string ModsRootFolderPath => FileUtility.GetFullPath (RootModsFolderName);
             public static string BuildinFolderPath => FileUtility.GetFullPath (BuildinModsFolderName);
-
+            public static List<ModImageData> ImageItermLibrary = new List<ModImageData> ();
 
 
 
             //* Public Method
             #region Public Method
+
+
+            public static Sprite CreateSprite (Texture2D texture, float pixelsPerUnit) {
+                Sprite result = null;
+                var tex = texture;
+                result = Sprite.Create (tex,
+                    new Rect (0, 0, tex.width, tex.height),
+                    new Vector2 (0.5f, 0.5f),
+                    pixelsPerUnit);
+                return result;
+            }
+
+
+            public static ModImageData FindImageIterm (Sprite sprite) {
+                return ImageItermLibrary.Find ((x) => x.sprite == sprite);
+            }
+            public static ModImageData FindImageIterm (Texture2D texture) {
+                return ImageItermLibrary.Find ((x) => x.texture == texture);
+            }
 
             public static List<Mod> ReadAllMods () {
                 List<Mod> result = new List<Mod> ();
@@ -63,7 +83,7 @@ namespace Global {
                 string modSettingPath = FileUtility.FindFile (folderPath, modProfileFileName);
                 if (File.Exists (modSettingPath)) {
                     string data = File.ReadAllText (modSettingPath);
-                    ModProfile modSetting = JsonUtility.FromJson<ModProfile> (data);
+                    ModProjectData modSetting = JsonUtility.FromJson<ModProjectData> (data);
                     if (modSetting != null) {
                         result = new Mod (modSetting);
                     }
@@ -81,7 +101,7 @@ namespace Global {
             }
 
 
-            public static void LoadModProcess () {
+            public static void LoadAllModData () {
                 List<IModable> modComps = FindAllInterfaces<IModable> ();
 
 
@@ -101,6 +121,65 @@ namespace Global {
 
             }
 
+            public static void WriteAllModDataToDisk (string folderPath) {
+                var modFolderName = GameObject.FindObjectOfType<ModBuilder> ().modProfile.modFolderName;
+
+                List<IModable> modHolders = FindAllInterfaces<IModable> ().FindAll ((x) => x.EnableWriteModDatas);
+                modHolders.ForEach ((holder) => {
+                    ModObjectData data = new ModObjectData (holder.ModTitle, holder.ModableObjectData);
+
+
+                    List<MenberInfo> spriteMembers = GetMembersFromObj (holder.ModableObjectData, typeof (Sprite));
+                    var sprites = spriteMembers.Select ((x) => x.GetValue () as Sprite).ToList ();
+                    data.modSprites = sprites.Select ((x) => FindImageIterm (x)).ToList ();
+
+                    List<MenberInfo> textureMembers = GetMembersFromObj (holder.ModableObjectData, typeof (Texture2D));
+                    var textures = textureMembers.Select ((x) => x.GetValue () as Texture2D).ToList ();
+                    data.modTextures = textures.Select ((x) => FindImageIterm (x)).ToList ();
+
+
+                    string mainDataPath = FileUtility.CombinePath (folderPath, $"{data.title}.json");
+
+                    FileUtility.WriteAllText (mainDataPath, data.ToJson ());
+
+                });
+            }
+            public static List<MenberInfo> GetMembersFromObj (System.Object sourceObject, System.Type type) {
+                List<MenberInfo> result = new List<MenberInfo> ();
+
+                var currObjs = new List<System.Object> () { sourceObject };
+
+                int count = 0;
+                while (currObjs.Count > 0 & count < 9) {
+                    count++;
+                    var currFiields = currObjs.SelectMany ((obj) => MenberInfo.GetAllMembers (obj)).ToList ();
+                    var matchL = currFiields.Where ((x) => x.Type == type).ToList ();
+                    result.AddRange (matchL);
+
+                    List<System.Object> children = new List<System.Object> ();
+                    var arrays = currFiields.Where ((x) => x.IsArrayOrList).ToList ();
+                    arrays.ForEach ((ar) => {
+                        IEnumerable enumerable = (IEnumerable) ar.GetValue ();
+                        foreach (var item in enumerable) {
+                            children.Add (item);
+                        }
+                    });
+
+                    List<MenberInfo> container = currFiields.Where ((f) => f.IsContainer).ToList ();
+                    children.AddRange (container.Select ((x) => x.GetValue ()));
+
+                    currObjs = children;
+                }
+                return result;
+            }
+            public static List<T> GetMemberValuesFromObj<T> (System.Object sourceObject) where T : class {
+                List<MenberInfo> result = GetMembersFromObj (sourceObject, typeof (T));
+                return result.Select ((x) => x.GetValue<T> ()).ToList ();
+            }
+
+
+
+
             private static List<Mod> GetMods (string modsFolderPath) {
                 if (Directory.Exists (modsFolderPath)) {
                     string[] dirs = Directory.GetDirectories (modsFolderPath);
@@ -117,29 +196,29 @@ namespace Global {
             }
 
 
-            public static Sprite LoadImageToSprite (string fullPath) {
+            public static Sprite LoadImage (string fullPath) {
                 Sprite result = null;
                 var image = FileUtility.GetFile (fullPath);
                 string dataFilename = $"{image.NameNoSuffix}.json";
                 string dataPath = FileUtility.CombinePath (image.Parent.FullPath, dataFilename);
                 var datafile = image.FindFileSamePlace (dataFilename);
-                ImageIterm data;
+                ModImageData data;
                 if (datafile == null) {
-                    data = BuildSpriteDataFile (image.FullPath);
+                    data = BuildModImageDataFile (image.FullPath);
                 } else {
-                    data = datafile.ReadJson<ImageIterm> ();
+                    data = datafile.ReadJson<ModImageData> ();
                     if (data == null) {
-                        data = BuildSpriteDataFile (image.FullPath);
+                        data = BuildModImageDataFile (image.FullPath);
                     }
                 }
 
-                data.LoadSprite ();
+                data.Load ();
                 ImageItermLibrary.Add (data);
                 return result;
             }
 
-            private static ImageIterm BuildSpriteDataFile (string imageFullPath) {
-                ImageIterm data = new ImageIterm (imageFullPath);
+            private static ModImageData BuildModImageDataFile (string imageFullPath) {
+                ModImageData data = ModImageData.CreateDefault (imageFullPath);
                 data.WriteToDisk ();
                 return data;
             }
@@ -157,17 +236,6 @@ namespace Global {
                 return title;
             }
 
-            public static string ToJson (ModData data, List < (string key, string json) > maps = null) {
-                string re = JsonUtility.ToJson (data);
-                SimpleJSON.JSONNode jSONNode = SimpleJSON.JSON.Parse (re);
-                if (maps != null) {
-                    maps.ForEach ((x) => {
-                        jSONNode[x.key] = x.json;
-                    });
-                }
-                return jSONNode.ToString ();
-            }
-
 
 
 
@@ -178,12 +246,12 @@ namespace Global {
 
         public class Mod {
 
-            public ModProfile profile;
+            public ModProjectData profile;
 
             public Mod (string modName = "DefautMod", string modFolderName = "DefautMod", int loadOrder = 0) {
-                profile = new ModProfile (modName, modFolderName, loadOrder);
+                profile = new ModProjectData (modName, modFolderName, loadOrder);
             }
-            public Mod (ModProfile modSetting) {
+            public Mod (ModProjectData modSetting) {
                 this.profile = modSetting;
             }
 
@@ -224,17 +292,17 @@ namespace Global {
             }
             public void LoadAllImage () {
                 ImageFiles.ForEach (((file) => {
-                    ModUtility.LoadImageToSprite (file.FullPath);
+                    ModUtility.LoadImage (file.FullPath);
                 }));
             }
-            public List<ModData> ReadModDatas () {
-                List<ModData> result = new List<ModData> ();
+            public List<ModObjectData> ReadModDatas () {
+                List<ModObjectData> result = new List<ModObjectData> ();
                 var filePaths = FileUtility.GetFiles (DataFolderLocalPath, new List<string> { ".json" });
                 filePaths.ForEach ((filePath) => {
 
                     string json = File.ReadAllText (filePath);
                     // ModData modData = JsonUtility.FromJson<ModData> (json);
-                    ModData modData = new ModData ();
+                    ModObjectData modData = new ModObjectData ();
 
                     modData.FromJson (json);
 
@@ -245,42 +313,19 @@ namespace Global {
                 return result;
             }
             public void WriteAllModData () {
-                List<IModable> modHolders = FindAllInterfaces<IModable> ().FindAll ((x) => x.EnableWriteModDatas);
-                modHolders.ForEach ((holder) => {
-                    ModData data = new ModData (holder.ModTitle, holder.ModableObjectData);
-
-                    data.ImageIterms = new List<ImageIterm> ();
-                    if (holder as IModableSprite != null) {
-                        var sprites = (holder as IModableSprite).ModableSprites;
-                        List<ImageIterm> lists = sprites.Select ((x) => FindImageIterm (x)).ToList ();
-                        data.ImageIterms.AddRange (lists);
-
-                    }
-                    if (holder as IModableTexture != null) {
-                        var textureList = (holder as IModableTexture).ModableTexture;
-                        List<ImageIterm> lists = textureList.Select ((x) => FindImageIterm (x)).ToList ();
-                        data.ImageIterms.AddRange (lists);
-                        data.ImageIterms = data.ImageIterms.Distinct ().ToList ();
-
-                    }
-                    string mainDataPath = FileUtility.GetFullPath ($"{DataFolderLocalPath}/{data.title}.json");
-
-
-                    FileUtility.WriteAllText (mainDataPath, data.ToJson ());
-
-                });
+                WriteAllModDataToDisk (FileUtility.GetFullPath (DataFolderLocalPath));
             }
 
 
         }
 
         [System.Serializable]
-        public class ModProfile {
+        public class ModProjectData {
             public string modFolderName;
             public string modName;
             public int loadOrder;
 
-            public ModProfile (string modName, string modFolderName, int loadOrder) {
+            public ModProjectData (string modName, string modFolderName, int loadOrder) {
                 this.modName = modName;
                 this.modFolderName = modFolderName;
                 this.loadOrder = loadOrder;
@@ -288,10 +333,12 @@ namespace Global {
         }
 
         [System.Serializable]
-        public class ModData {
+        public class ModObjectData {
             public string title;
             public string objectJson;
-            public List<ImageIterm> ImageIterms;
+
+            public List<ModImageData> modSprites = new List<ModImageData> ();
+            public List<ModImageData> modTextures = new List<ModImageData> ();
             private List<Sprite> backUpSprites;
             private List<Texture2D> backUpTexture;
             //* Public Property
@@ -300,46 +347,55 @@ namespace Global {
                     return FindAllInterfaces<IModable> ().Find ((x) => x.ModTitle == title);
                 }
             }
-            public IModableSprite spriteHandler => modTarget as IModableSprite;
-            public IModableTexture textureHandler => modTarget as IModableTexture;
 
-            public ModData (string name = null, System.Object obj = null) {
+            public ModObjectData (string name = null, System.Object obj = null) {
                 this.title = name;
                 objectJson = JsonUtility.ToJson (obj);
             }
 
             public void LoadObjectDataTo<T> (System.Object target) where T : class {
-                if (spriteHandler != null) {
-                    backUpSprites = spriteHandler.ModableSprites;
-                }
-                if (textureHandler != null) {
-                    backUpTexture = textureHandler.ModableTexture;
-                }
+                backUpSprites = GetMemberValuesFromObj<Sprite> (target);
+                backUpTexture = GetMemberValuesFromObj<Texture2D> (target);
+                List<MenberInfo> sprites = GetMembersFromObj (target, typeof (Sprite));
+                List<MenberInfo> textures = GetMembersFromObj (target, typeof (Texture2D));
+
 
                 JsonUtility.FromJsonOverwrite (objectJson, target as T);
 
-                if (spriteHandler != null) {
-                    spriteHandler.ModableSprites = backUpSprites;
+                if (modSprites.Count > 0) {
+                    List<Sprite> spriteLoads = modSprites.Select ((x) => x.Load ().sprite).ToList ();
+                    for (int i = 0; i < spriteLoads.Count; i++) {
+                        if (spriteLoads[i] != null) {
+                            sprites[i].SetValue (spriteLoads[i]);
+                        }
+                    }
                 }
-                if (textureHandler != null) {
-                    textureHandler.ModableTexture = backUpTexture;
+                if (modTextures.Count > 0) {
+                    List<Texture2D> textureLoads = modTextures.Select ((x) => x.Load ().texture).ToList ();
+                    for (int i = 0; i < textureLoads.Count; i++) {
+                        if (textureLoads[i] != null) {
+                            textures[i].SetValue (textureLoads[i]);
+                        }
+                    }
+                }
+
+
+
+
+                for (int i = 0; i < sprites.Count; i++) {
+                    if (sprites[i].GetValue<Sprite> () == null) {
+                        sprites[i].SetValue (backUpSprites[i]);
+                    }
+                }
+
+                for (int i = 0; i < textures.Count; i++) {
+                    if (textures[i].GetValue<Texture2D> () == null) {
+                        textures[i].SetValue (backUpTexture[i]);
+                    }
                 }
             }
 
-            public void LoadSprites () {
-                if (ImageIterms != null) {
-                    List<Sprite> spriteslist = ImageIterms.Select ((x) => x.LoadSprite ()).ToList ();
-                    spriteHandler.ModableSprites = spriteslist;
-                }
-            }
-            public List<Texture2D> LoadTexture () {
-                List<Texture2D> result = null;
-                if (ImageIterms != null) {
-                    List<Texture2D> list = ImageIterms.Select ((x) => x.LoadTexture ()).ToList ();
-                    result = list;
-                }
-                return result;
-            }
+
             public string ToJson () {
                 JSONNode jSONNode = JSON.Parse (JsonUtility.ToJson (this));
                 jSONNode["objectJson"] = JSON.Parse (objectJson);
@@ -347,16 +403,100 @@ namespace Global {
             }
             public void FromJson (string json) {
                 JSONNode jSONNode = JSON.Parse (json);
-                ModData modData = JsonUtility.FromJson<ModData> (json);
+                ModObjectData modData = JsonUtility.FromJson<ModObjectData> (json);
                 title = modData.title;
                 objectJson = jSONNode["objectJson"].ToString ();
-                ImageIterms = modData.ImageIterms;
+                modTextures = modData.modTextures;
+            }
+
+
+        }
+
+        [System.Serializable] public class ModImageData {
+            public Texture2D texture;
+            public Sprite sprite;
+            [SerializeField]
+            private FileUtility.LocalFile pathObj;
+
+            public string FullPath => pathObj.FullPath;
+            public string LocalPath => pathObj.localPath;
+
+
+
+            public static ModImageData CreateDefault (string path) {
+                ModImageData data = new ModImageData ();
+                data.pathObj = new FileUtility.LocalFile (path, true);
+                return data;
+            }
+
+            public void WriteToDisk () {
+                FileUtility.WriteAllText (System.IO.Path.ChangeExtension (FullPath, ".json"), JsonUtility.ToJson (this));
+            }
+
+
+            private Texture2D LoadTexture () {
+                Texture2D tex = new Texture2D (2, 2);
+                var texLoadSuccess = FileUtility.LoadImage (FullPath, tex);
+                if (texLoadSuccess) {
+                    tex.name = pathObj.NameNoSuffix;
+                    texture = tex;
+                }
+                return texture;
+            }
+            private void LoadSprite () {
+                sprite = CreateSprite (texture, 100);
+                sprite.name = pathObj.NameNoSuffix;
+            }
+
+            public ModImageData Load () {
+                if (texture == null) {
+                    LoadTexture ();
+                }
+
+                if (sprite == null & texture != null) {
+                    LoadSprite ();
+                }
+
+                return this;
+
             }
 
 
 
         }
 
+        public class MenberInfo {
+            public System.Object sourceObj;
+            public FieldInfo fieldInfo;
+            public System.Type Type => fieldInfo.FieldType;
+            public bool IsContainer => HasInterface (typeof (IModDataContainer));
+            public bool IsArrayOrList => fieldInfo.FieldType.IsArray | fieldInfo.FieldType.IsList ();
+            public bool HasInterface (System.Type type) {
+                return fieldInfo.FieldType.GetInterfaces ().Contains (type);
+            }
+            public object GetValue () {
+                return fieldInfo.GetValue (sourceObj);
+            }
+            public void SetValue (object value) {
+                fieldInfo.SetValue (sourceObj, value);
+            }
+            public T GetValue<T> () where T : class {
+                return fieldInfo.GetValue (sourceObj) as T;
+            }
+
+
+            public static List<MenberInfo> GetAllMembers (System.Object obj) {
+                List<MenberInfo> lists = obj.GetType ().GetFields ().Select ((f) => {
+                    MenberInfo result = new MenberInfo ();
+                    result.sourceObj = obj;
+                    result.fieldInfo = f;
+                    return result;
+                }).ToList ();
+                return lists;
+            }
+
+
+        }
 
 
 

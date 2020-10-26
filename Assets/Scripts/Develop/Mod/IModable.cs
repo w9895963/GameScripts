@@ -7,7 +7,7 @@ namespace Global {
     public interface IModable {
         string ModTitle { get; }
         bool EnableWriteModDatas { get; }
-        void LoadModData (ModData data);
+        void LoadModData (ModObjectData data);
         System.Object ModableObjectData { get; }
 
 

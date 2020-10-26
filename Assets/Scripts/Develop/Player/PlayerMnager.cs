@@ -11,19 +11,19 @@ using UnityEngine;
 using static Global.Timer;
 using UnityEngine.Events;
 
-public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable, IModableTexture {
+public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
     public Setting setting = new Setting ();
     [System.Serializable] public class Setting {
         public Vector2 gravity = new Vector2 (0, -40);
         public Move move = new Move ();
-        [System.Serializable] public class Move {
+        [System.Serializable] public class Move : IModDataContainer {
             public float moveForce = 80;
             public float decelerate = 80;
             public float maxSpeed = 8;
 
         }
         public Jump jump = new Jump ();
-        [System.Serializable] public class Jump {
+        [System.Serializable] public class Jump : IModDataContainer {
             public float force = 200f;
             public float lastTime;
             public Vector2 JumpCurveProfile {
@@ -38,7 +38,7 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable, IModableT
 
         }
         public Animation animation = new Animation ();
-        [System.Serializable] public class Animation {
+        [System.Serializable] public class Animation : IModDataContainer {
             public AnimationObject walking;
             public TextureAnimateProfile walkingTexture = new TextureAnimateProfile ();
 
@@ -63,14 +63,6 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable, IModableT
 
     public object ModableObjectData => setting;
 
-    [HideInInspector] public List<Texture2D> ModableTexture {
-        get =>
-            new List<Texture2D> () { setting.animation.standingTexture.texture, setting.animation.walkingTexture.texture };
-        set {
-            if (value[0]) setting.animation.standingTexture.texture = value[0];
-            if (value[1]) setting.animation.walkingTexture.texture = value[1];
-        }
-    }
 
     private void Awake () {
 
@@ -197,9 +189,8 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable, IModableT
             }
         }
     }
-    public void LoadModData (ModData data) {
+    public void LoadModData (ModObjectData data) {
         data.LoadObjectDataTo<Setting> (setting);
-        ModableTexture = data.LoadTexture ();
     }
 
 }

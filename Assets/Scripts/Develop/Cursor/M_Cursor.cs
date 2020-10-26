@@ -11,10 +11,10 @@ using UnityEngine.UI;
 using static Global.Function;
 using UnityEngine.Events;
 
-public class M_Cursor : MonoBehaviour, IModable, IModableSprite {
+public class M_Cursor : MonoBehaviour, IModable {
 
     public Setting setting = new Setting ();
-    [System.Serializable] public class Setting {
+    [System.Serializable] public class Setting : IModDataContainer {
         public bool hideSystemCursor = true;
         public bool autoHideSystemCursorNotEditor = true;
         public float scale = 0.2f;
@@ -142,9 +142,9 @@ public class M_Cursor : MonoBehaviour, IModable, IModableSprite {
         set =>
             SetSprites (value);
     }
-    public void LoadModData (ModData loader) {
+    public void LoadModData (ModObjectData loader) {
         loader.LoadObjectDataTo<Setting> (setting);
-        loader.LoadSprites ();
+        // loader.LoadSprites ();
 
         UpdateCursorImage ();
     }

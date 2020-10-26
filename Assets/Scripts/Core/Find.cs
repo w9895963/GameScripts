@@ -7,8 +7,8 @@ namespace Global {
         private static GameObject player;
         private static GameObject cursor;
 
-        public static GameObject Player => player?player : player =
-            GameObject.FindObjectOfType<PlayerMnager> ().gameObject;
+        public static GameObject Player => FindObj<PlayerMnager> (ref player);
+        public static PlayerMnager PlayerComp => Player.GetComponent<PlayerMnager> ();
 
         public static GameObject Cursor => FindObj<M_Cursor> (ref cursor);
         public static M_Cursor CursorComp => Cursor.GetComponent<M_Cursor> ();
