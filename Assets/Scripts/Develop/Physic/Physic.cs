@@ -34,8 +34,18 @@ namespace Global {
             }
 
             public static CollisionEvent AddColliderAction (GameObject gameObject, UnityAction<Collision2D> onEnter = null,
-                UnityAction<Collision2D> onStay = null, UnityAction<Collision2D> onExit = null) {
+                UnityAction<Collision2D> onExit = null, UnityAction<Collision2D> onStay = null) {
                 CollisionEvent evt = new CollisionEvent ();
+                evt.gameObject = gameObject;
+                evt.onEnter = onEnter;
+                evt.onStay = onStay;
+                evt.onExit = onExit;
+                evt.Applay ();
+                return evt;
+            }
+            public static TriggerEvent AddTriggerAction (GameObject gameObject, UnityAction<Collider2D> onEnter = null,
+                UnityAction<Collider2D> onExit = null, UnityAction<Collider2D> onStay = null) {
+                TriggerEvent evt = new TriggerEvent ();
                 evt.gameObject = gameObject;
                 evt.onEnter = onEnter;
                 evt.onStay = onStay;
@@ -91,30 +101,6 @@ namespace Global {
             }
         }
 
-        public class JumpForce {
-            public GameObject gameObject;
-            public float jumpForce;
-            public bool jumped = false;
-            public JumpForce (GameObject gameObject, UnityAction<JumpForce> onCreate) {
-                this.gameObject = gameObject;
-                onCreate (this);
-                AddPhysicAction (gameObject, PhysicOrder.Jump, Action);
-            }
-            public void Action (PhysicAction action) {
-                if (!jumped) {
-                    jumped = true;
-                    action.SetForce (jumpForce * Vector2.up);
-                    CollisionEvent evt = null;
-                    evt = AddColliderAction (gameObject, (other) => {
-                        bool hitGround = other.contacts.Any ((x) => x.normal.Angle (Vector2.up) < 60);
-                        if (hitGround) {
-                            evt.RemoveEvent ();
-                        }
-                    });
-                }
-
-            }
-        }
         public class PhysicAction {
             private int currentIndex;
             public int CurrentIndex { get => currentIndex; set => currentIndex = value; }
@@ -193,6 +179,52 @@ namespace Global {
                     }
                     if (onExit != null) {
                         comp.onCollisionExit2D.RemoveListener (onExit);
+                        comp.eventCount--;
+                    }
+                    if (comp.eventCount == 0) {
+                        GameObject.Destroy (comp);
+                    }
+                }
+            }
+
+        }
+        public class TriggerEvent {
+            public GameObject gameObject;
+            public UnityAction<Collider2D> onEnter;
+            public UnityAction<Collider2D> onStay;
+            public UnityAction<Collider2D> onExit;
+
+            public void Applay () {
+                PhysicEventHandler comp = gameObject.GetComponent<PhysicEventHandler> ();
+                if (comp == null) {
+                    comp = gameObject.AddComponent<PhysicEventHandler> ();
+                }
+                if (onEnter != null) {
+                    comp.onTriggerEnter2D.AddListener (onEnter);
+                    comp.eventCount++;
+                }
+                if (onStay != null) {
+                    comp.onTriggerStay2D.AddListener (onStay);
+                    comp.eventCount++;
+                }
+                if (onExit != null) {
+                    comp.onTriggerExit2D.AddListener (onExit);
+                    comp.eventCount++;
+                }
+            }
+            public void RemoveEvent () {
+                PhysicEventHandler comp = gameObject.GetComponent<PhysicEventHandler> ();
+                if (comp != null) {
+                    if (onEnter != null) {
+                        comp.onTriggerEnter2D.RemoveListener (onEnter);
+                        comp.eventCount--;
+                    }
+                    if (onStay != null) {
+                        comp.onTriggerStay2D.RemoveListener (onStay);
+                        comp.eventCount--;
+                    }
+                    if (onExit != null) {
+                        comp.onTriggerExit2D.RemoveListener (onExit);
                         comp.eventCount--;
                     }
                     if (comp.eventCount == 0) {

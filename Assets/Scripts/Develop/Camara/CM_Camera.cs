@@ -53,7 +53,7 @@ public class CM_Camera : MonoBehaviour {
                 s.require.time = action.moveTo.time;
                 s.optional.moveCurve = action.moveTo.curve;
                 s.events.onArrived.AddListener (() => {
-                    temp.Destroy ();
+                    temp.DestroySelf ();
                 });
             });
             temps.Add (temp);

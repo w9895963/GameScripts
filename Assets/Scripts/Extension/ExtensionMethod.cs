@@ -189,7 +189,7 @@ public static class ExtensionMethod {
 
 
 
-    #region //*Float
+    #region //*Float & Int
 
 
 
@@ -229,11 +229,27 @@ public static class ExtensionMethod {
     public static float ClampMax (this float f, float max) {
         return f < max?f : max;
     }
+    public static int ClampMax (this int i, int max) {
+        return i < max?i : max;
+    }
     public static float Map (this float f, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp = true) {
         float f1 = f;
         if (clamp) f1 = f.Clamp (inputMin, inputMax);
         return (f1 - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin;
     }
+    public static float Floor (this float f) {
+        return Mathf.Floor (f);
+    }
+    public static int FloorToInt (this float f) {
+        return Mathf.FloorToInt (f);
+    }
+    public static float Ceil (this float f) {
+        return Mathf.Ceil (f);
+    }
+    public static int CeilToInt (this float f) {
+        return Mathf.CeilToInt (f);
+    }
+
 
 
     public static Vector2 ToVector2 (this float fl) {
@@ -242,13 +258,10 @@ public static class ExtensionMethod {
 
     #endregion
 
-    #region //*String
 
     public static bool IsEmpty (this string str) {
         return string.IsNullOrWhiteSpace (str);
     }
-
-    #endregion
 
 
 

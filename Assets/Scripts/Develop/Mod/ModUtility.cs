@@ -8,8 +8,6 @@ using static Global.Function;
 using System;
 using SimpleJSON;
 using static Global.Mods.ModUtility;
-using Global.Visible;
-using static Global.Visible.VisibleUtility;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,6 +17,9 @@ using UnityEngine.UI;
 namespace Global {
 
     namespace Mods {
+        public static class ModManager {
+
+        }
 
         public static class ModUtility {
 
@@ -153,7 +154,7 @@ namespace Global {
                 while (currObjs.Count > 0 & count < 9) {
                     count++;
                     var currFiields = currObjs.SelectMany ((obj) => MenberInfo.GetAllMembers (obj)).ToList ();
-                    var matchL = currFiields.Where ((x) => x.Type == type).ToList ();
+                    var matchL = currFiields.Where ((x) => x.Type == type | x.Type.IsSubclassOf (type)).ToList ();
                     result.AddRange (matchL);
 
                     List<System.Object> children = new List<System.Object> ();
@@ -194,7 +195,6 @@ namespace Global {
                 }
                 return new List<Mod> (0);
             }
-
 
             public static Sprite LoadImage (string fullPath) {
                 Sprite result = null;
@@ -354,6 +354,8 @@ namespace Global {
             }
 
             public void LoadObjectDataTo<T> (System.Object target) where T : class {
+
+
                 backUpSprites = GetMemberValuesFromObj<Sprite> (target);
                 backUpTexture = GetMemberValuesFromObj<Texture2D> (target);
                 List<MenberInfo> sprites = GetMembersFromObj (target, typeof (Sprite));
@@ -379,20 +381,23 @@ namespace Global {
                     }
                 }
 
+                ApplyBackup ();
 
+                void ApplyBackup () {
+                    for (int i = 0; i < sprites.Count; i++) {
+                        if (sprites[i].GetValue<Sprite> ().GetType () == null) {
+                            sprites[i].SetValue (backUpSprites[i]);
+                        }
+                    }
 
-
-                for (int i = 0; i < sprites.Count; i++) {
-                    if (sprites[i].GetValue<Sprite> () == null) {
-                        sprites[i].SetValue (backUpSprites[i]);
+                    for (int i = 0; i < textures.Count; i++) {
+                        if (textures[i].GetValue<Texture2D> () == null) {
+                            textures[i].SetValue (backUpTexture[i]);
+                        }
                     }
                 }
 
-                for (int i = 0; i < textures.Count; i++) {
-                    if (textures[i].GetValue<Texture2D> () == null) {
-                        textures[i].SetValue (backUpTexture[i]);
-                    }
-                }
+
             }
 
 

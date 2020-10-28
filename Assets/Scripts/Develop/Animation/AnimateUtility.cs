@@ -4,16 +4,56 @@ using System.Linq;
 using Global;
 using static Global.Timer;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 namespace Global {
-    namespace Animation {
+    namespace Animate {
         public static class AnimateUtility {
             public const string uvClampAttribute = "UVClamp";
             public const string textureAttribute = "SpriteTexture";
 
 
-            public static void SetSpriteTexture (GameObject gameObject, Texture2D texture) {
+
+            public static TimerControler AnimateInt (int start, int end, float duration, UnityAction<int> callcack, AnimationCurve timeCurve = null) {
+                int currIndex = start;
+                Timer.TimerControler timerControler = null;
+                timeCurve = timeCurve != null? timeCurve : Curve.ZeroOne;
+
+                callcack (start);
+
+                timerControler = Timer.DynimicLoop (DurationCalc, Callback);
+
+                return timerControler;
+
+
+
+                void Callback () {
+                    currIndex++;
+                    if (currIndex > end) {
+                        currIndex = 0;
+                    }
+                    callcack (currIndex);
+                }
+
+                float DurationCalc () {
+                    float beginTime = timerControler.beginTime;
+                    float currentTime = timerControler.CurrentTime;
+                    float max = ((float) (end - start + 1)).ClampMin (1);
+
+                    float scale = timeCurve.Evaluate ((currIndex - start + 1) / max) - timeCurve.Evaluate ((currIndex - start) / max);
+
+
+                    return duration * scale;
+                }
+            }
+            public static Material CloneMaterial (GameObject gameObject) {
+                SpriteRenderer render = gameObject.GetComponent<SpriteRenderer> ();
+                Material material = render.material;
+                render.material = GameObject.Instantiate (material);
+                return render.material;
+            }
+
+            public static void SetSpriteMaterialTexture (GameObject gameObject, Texture2D texture) {
                 SpriteRenderer spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer> ();
                 spriteRenderer.material
                     .SetTexture (textureAttribute, texture);
@@ -24,16 +64,16 @@ namespace Global {
                 int texCount = col * row;
                 var ta = textureAnimation;
 
-                SetSpriteTexture (gameobject, textureAnimation.texture);
-                SetAnimateSheet (gameobject, 0, col, row);
+                SetSpriteMaterialTexture (gameobject, textureAnimation.texture);
+                SetAnimateUV (gameobject, 0, col, row);
 
                 Timer.TimerControler timerControler = null;
                 if (texCount > 1) {
                     int count = 1;
                     float updateTime = ta.animationTime / (float) texCount;
                     timerControler = Timer.Loop (updateTime, () => {
-                        SetSpriteTexture (gameobject, textureAnimation.texture);
-                        SetAnimateSheet (gameobject, count, col, row);
+                        SetSpriteMaterialTexture (gameobject, textureAnimation.texture);
+                        SetAnimateUV (gameobject, count, col, row);
                         count++;
                         count = count % texCount;
                     });
@@ -42,7 +82,8 @@ namespace Global {
                 return timerControler;
             }
 
-            public static int SetAnimateSheet (GameObject gameobject, int index, int col, int row) {
+
+            private static int SetAnimateUV (GameObject gameobject, int index, int col, int row) {
                 Material material = gameobject.GetComponentInChildren<SpriteRenderer> ().material;
 
                 Vector4 uvClamp = SheetIndexToUv (index, col, row);
@@ -51,8 +92,6 @@ namespace Global {
 
                 return index;
             }
-
-
 
             public static Vector4 SheetIndexToUv (int index, int column, int row) {
                 float width = 1 / (float) column;
@@ -68,7 +107,7 @@ namespace Global {
         }
 
         [System.Serializable] public class TextureAnimateProfile : IModDataContainer {
-            public Texture2D texture;   
+            public Texture2D texture;
             public int Column = 1;
             public int Row = 1;
             public float animationTime = 1;

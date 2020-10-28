@@ -61,7 +61,7 @@ public class CM_MainCharacter : MonoBehaviour {
                 bool hit = contactComp._ExistNormal (-WalkingDirection, 5);
                 if (hit) {
                     walkingforce.enabled = false;
-                    arriveComp.Destroy ();
+                    arriveComp.DestroySelf ();
                 }
             });
 
@@ -99,7 +99,7 @@ public class CM_MainCharacter : MonoBehaviour {
                     });
                     void Arrive (UnityAction callback) {
                         Vector2 dir = Gravity.Rotate (90);
-                        arriveComp.Destroy ();
+                        arriveComp.DestroySelf ();
                         var distance = walkSetting.advance.arriveTriggerDistance;
                         arriveComp = CallFn (this).OnArrive (gameObject, target, dir, distance, true, callback);
                         temp.AddObject = arriveComp;

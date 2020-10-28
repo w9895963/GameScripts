@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -17,9 +18,7 @@ public static class ObjectExtention {
             GameObject.Destroy (obj, timeWait);
         }
     }
-    public static void Destroy (this Component component) {
-        GameObject.Destroy (component);
-    }
+   
     public static void Destroy (this Object[] objects) {
         foreach (var obj in objects) {
             GameObject.Destroy (obj);
@@ -28,18 +27,35 @@ public static class ObjectExtention {
 
 
 
-    public static GameObject AddChild (this GameObject gameObject, string name) {
+    public static GameObject CreateChild (this GameObject gameObject, string name) {
         GameObject obj = new GameObject (name);
         obj.transform.parent = gameObject.transform;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localRotation = Quaternion.Euler (0, 0, 0);
         return obj;
-
     }
+    public static GameObject CreateChild (this GameObject gameObject, GameObject prefab) {
+        GameObject obj = GameObject.Instantiate (prefab, gameObject.transform);
+        return obj;
+    }
+    public static GameObject CreateChildFrom (this GameObject gameObject, string resourcePath) {
+        GameObject prefab = Resources.Load (resourcePath, typeof (GameObject)) as GameObject;
+        GameObject obj = GameObject.Instantiate (prefab, gameObject.transform);
+        return obj;
+    }
+
+
     public static GameObject FindChild (this GameObject gameObject, string name) {
         List<GameObject> list = new List<GameObject> ();
         for (int i = 0; i < gameObject.transform.childCount; i++) {
             list.Add (gameObject.transform.GetChild (i).gameObject);
         }
         return list.Find ((x) => x.name == name);
+    }
+    public static bool HasChild (this GameObject gameObject, GameObject child) {
+        List<GameObject> objs = gameObject.GetComponentsInChildren<Transform> ().Select ((t) => t.gameObject).ToList ();
+        return objs.Contains (child);
     }
     public static void SetParent (this GameObject gameObject, GameObject parent) {
         gameObject.transform.SetParent (parent.transform);
@@ -71,6 +87,10 @@ public static class ObjectExtention {
         Vector2 position = p;
         gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
     }
+    public static void SetPosition (this GameObject gameObject, float x, float y) {
+        Vector2 position = new Vector2 (x, y);
+        gameObject.transform.position = new Vector3 (position.x, position.y, gameObject.transform.position.z);
+    }
     public static void SetPosition (this GameObject gameObject, Vector3 p) {
         gameObject.transform.position = p;
     }
@@ -88,8 +108,20 @@ public static class ObjectExtention {
         BasicEvent basicEvent = gameObject.AddComponent<BasicEvent> ();
         basicEvent.onUpdate.AddListener (() => {
             call ();
-            basicEvent.Destroy ();
+            basicEvent.DestroySelf ();
         });
+    }
+    public static void WaitLateUpdate (this GameObject gameObject, UnityAction call) {
+        BasicEvent basicEvent = gameObject.AddComponent<BasicEvent> ();
+        basicEvent.onLateUpdate.AddListener (() => {
+            call ();
+            basicEvent.DestroySelf ();
+        });
+    }
+    public static BasicEvent OnLateUpdate (this GameObject gameObject, UnityAction call) {
+        BasicEvent basicEvent = gameObject.AddComponent<BasicEvent> ();
+        basicEvent.onLateUpdate.AddListener (call);
+        return basicEvent;
     }
 
 }

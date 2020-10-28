@@ -4,9 +4,8 @@ using Global;
 using Global.Physic;
 using static Global.Physic.PhysicUtility;
 using System.Linq;
-using Global.Animation;
+using Global.Animate;
 using Global.Mods;
-using Global.Visible;
 using UnityEngine;
 using static Global.Timer;
 using UnityEngine.Events;
@@ -39,10 +38,10 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
         }
         public Animation animation = new Animation ();
         [System.Serializable] public class Animation : IModDataContainer {
-            public AnimationObject walking;
+            public CharacterAnimation walking;
             public TextureAnimateProfile walkingTexture = new TextureAnimateProfile ();
 
-            public AnimationObject standing;
+            public CharacterAnimation standing;
             public TextureAnimateProfile standingTexture = new TextureAnimateProfile ();
 
         }
@@ -78,8 +77,6 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
     }
 
     private void OnEnable () {
-        InputUtility.MoveInput.Enable ();
-        InputUtility.JumpInput.Enable ();
         AddPhysicAction (gameObject, PhysicOrder.Movement, WalkAction);
         AddPhysicAction (gameObject, PhysicOrder.Jump, JumpAction);
         collisionEvent = AddColliderAction (gameObject, onStay : HitGround);
@@ -87,8 +84,6 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
 
     }
     private void OnDisable () {
-        InputUtility.MoveInput.Disable ();
-        InputUtility.JumpInput.Disable ();
         RemovePhysicAction (gameObject, WalkAction);
         RemovePhysicAction (gameObject, JumpAction);
         collisionEvent.RemoveEvent ();
@@ -131,7 +126,7 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
             holder.DestroyChildren ();
 
             if (moveButton.x != 0) {
-                GameObject obj = holder.CreateChildrenFrom (setting.animation.walking.gameObject);
+                GameObject obj = holder.CreateChild (setting.animation.walking.gameObject);
                 bool v = (moveButton.x < 0) ? true : false;
                 obj.WaitUpdate (() => {
 
@@ -141,7 +136,7 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
 
 
             } else {
-                GameObject obj = holder.CreateChildrenFrom (setting.animation.standing.gameObject);
+                GameObject obj = holder.CreateChild (setting.animation.standing.gameObject);
                 animationTimer = AnimateUtility.SetTextureAnimate (obj, setting.animation.standingTexture);
                 bool v = (lastMoveButtonX < 0) ? true : false;
                 obj.WaitUpdate (() => {

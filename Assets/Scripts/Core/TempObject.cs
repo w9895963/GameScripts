@@ -16,7 +16,7 @@ using UnityEngine.EventSystems;
             if (comp) {
                 comp.triggers.Remove (entry);
                 if (comp.triggers.Count == 0) {
-                    comp.Destroy ();
+                    comp.DestroySelf ();
                 }
             }
 

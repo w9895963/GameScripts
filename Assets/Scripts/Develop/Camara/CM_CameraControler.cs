@@ -46,7 +46,7 @@ public class CM_CameraControler : MonoBehaviour {
     private void MainAction () {
         if (camTemp == null) {
             var cam = Camera.main.gameObject;
-            cam.GetComponent<CM_Camera> ().Destroy ();
+            cam.GetComponent<CM_Camera> ().DestroySelf ();
             camTemp = cam.AddComponent<CM_Camera> ();
             temps.Add (camTemp);
             camTemp.action = action;

@@ -12,7 +12,7 @@ public class C_Hide : MonoBehaviour {
     }
     public void Show () {
         transform.position = defaultPosition;
-        this.Destroy ();
+        this.DestroySelf ();
     }
 
 
@@ -35,6 +35,6 @@ public static class Extension_C_Hide {
     }
     public static void Ex_Show (this GameObject gameObject) {
         C_Hide comp = gameObject.GetComponent<C_Hide> ();
-        comp.Destroy ();
+        comp.DestroySelf ();
     }
 }

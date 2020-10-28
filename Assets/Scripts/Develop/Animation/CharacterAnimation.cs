@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnimationObject : MonoBehaviour
+public class CharacterAnimation : MonoBehaviour
 {
+    
+
 }
