@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Global;
+using Global.Character;
 using Global.Visible;
 using TMPro;
 using UnityEngine;
@@ -103,14 +104,13 @@ namespace Global {
         }
 
         [System.Serializable] public class DialoguoItem {
-            public CharacterType speaker;
+            public CharacterClass speaker;
             public string content;
             public List<string> options;
 
 
 
         }
-
 
 
 

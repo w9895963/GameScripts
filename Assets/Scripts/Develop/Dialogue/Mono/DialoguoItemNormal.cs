@@ -2,4 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterType : MonoBehaviour { }
+public class DialoguoItemNormal : MonoBehaviour {
+    public string content;
+}
