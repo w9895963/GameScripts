@@ -21,7 +21,7 @@ public class Test : MonoBehaviour {
     public Object obj;
 
     private void Start () {
-
+        GameObject topLayer = InputUtility.TopLayer;
 
 
     }

@@ -19,7 +19,7 @@ public class Ctrl_UIAction : MonoBehaviour {
     }
 
     public void _SetHelperCameraEnable (bool enable) {
-        GlobalObject.IndicatorCamera.GetComponent<Camera> ().enabled = enable;
+        Global.Find.IndicateCamera.GetComponent<Camera> ().enabled = enable;
     }
 
     public void _CUrsor_VisibleSystemCursor (bool enabled) => CursorCtrl.ShowSystemCursor (enabled);

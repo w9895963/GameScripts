@@ -17,7 +17,7 @@ public static class Extension_Fn {
         if ((start - end).magnitude > 0.1f) {
             GameObject line = Resources.Load ("DebugFile/DotLine", typeof (GameObject)) as GameObject;
             GameObject lineNew = GameObject.Instantiate (line);
-            lineNew.transform.parent = GlobalObject.TempObject.transform;
+            lineNew.transform.parent = Global.Find.TempObject.transform;
             if (time >= 0) lineNew.Ex_AutoDestroy (time);
             lineNew.transform.position = start;
 
@@ -38,7 +38,7 @@ public static class Extension_Fn {
         /////////////////////////////////////////////////////
         GameObject point = Resources.Load ("DebugFile/IndicatePoint", typeof (GameObject)) as GameObject;
         point = GameObject.Instantiate (point, (Vector3) position, Quaternion.Euler (0, 0, 0));
-        point.transform.parent = GlobalObject.TempObject.transform;
+        point.transform.parent = Global.Find.TempObject.transform;
         if (stayTime > 0) point.Ex_AutoDestroy (stayTime);
         float heightUnit = Camera.main.orthographicSize * 2;
         float pixelUnit = Screen.height / heightUnit;

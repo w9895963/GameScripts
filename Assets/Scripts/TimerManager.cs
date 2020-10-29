@@ -48,7 +48,7 @@ namespace Global {
     public static class Timer {
         public static TimerManager TimerManager {
             get {
-                GameObject tempObject = GlobalObject.TempObject;
+                GameObject tempObject = Global.Find.TempObject;
                 TimerManager timerManager = tempObject.GetComponentInChildren<TimerManager> ();
                 if (timerManager == null) {
                     var timerObj = tempObject.CreateChild ("TimerManager");

@@ -17,11 +17,12 @@ public class DialogueManager : MonoBehaviour {
             IDialogueTarget dialogueTarget = other.GetComponent<IDialogueTarget> ();
             bool isDialoguoTarget = false;
             if (dialogueTarget != null) {
-                if (!dialogueTarget.EnaDialoguo) {
-                    dialoguoTargets.Add (other.gameObject);
+                if (dialogueTarget.EnabaleDialoguo) {
                     isDialoguoTarget = true;
+                    dialoguoTargets.Add (other.gameObject);
                 }
             }
+
             if (isDialoguoTarget) {
                 dialoguoTargets.Sort ((o) => (o.GetPosition2d () - Find.Player.GetPosition2d ()).magnitude);
                 GameObject focusObj = dialoguoTargets[0];
@@ -41,7 +42,7 @@ public class DialogueManager : MonoBehaviour {
 
             DialoguoTipAnimation tip = other.GetComponentInChildren<DialoguoTipAnimation> ();
             if (tip != null) {
-                VisibleUtility.HideDialoguoTip (other.gameObject);
+                other.gameObject.GetComponentInChildren<DialoguoTipAnimation> ().DestroyObject ();
             }
 
 
@@ -50,8 +51,12 @@ public class DialogueManager : MonoBehaviour {
 
         InputUtility.InteractInput.performed += (d) => {
             if (DialogueUtility.FocuseTarget != null) {
-                Debug.Log (999);
-                DialogueUtility.StartConversation (DialogueUtility.FocuseTarget);
+                GameObject focuseTarget = DialogueUtility.FocuseTarget;
+                IDialogueTarget target = focuseTarget.GetComponent<IDialogueTarget> ();
+                DialoguoGroup dialoguo = target.DialoguoGroup;
+                if (dialoguo != null) {
+                    dialoguo.StartConversation ();
+                }
             }
         };
 

@@ -11,6 +11,8 @@ namespace Global {
             private static GameObject DialoguoTip => dialoguoTip?dialoguoTip : dialoguoTip = Resources.Load (
                 DialoguoTipPrefabPath, typeof (GameObject)) as GameObject;
 
+
+
             public static GameObject ShowDialoguoTip (GameObject target) {
                 IDialogueTarget dialogueTarget = target.GetComponent<IDialogueTarget> ();
                 Vector2 dialoguoTipPosition = new Vector2 (0.5f, 0.9f);
@@ -22,13 +24,16 @@ namespace Global {
                 return obj;
 
             }
-            public static void HideDialoguoTip (GameObject obj) {
-                obj.GetComponentInChildren<DialoguoTipAnimation> ().DestroyObject ();
-            }
+
+            public static void ShowNormalDialoguo (GameObject speaker, string v) { }
+
+            public static void ShowOptionalDialoguo (List<string> contents) { }
 
 
 
 
         }
+
+    
     }
 }

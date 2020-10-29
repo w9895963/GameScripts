@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Global;
+using Global.Visible;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Global {
     namespace Dialogue {
@@ -12,9 +14,7 @@ namespace Global {
             public static List<GameObject> dialoguoTargets = new List<GameObject> ();
             public static GameObject FocuseTarget => dialoguoTargets.Count > 0 ? dialoguoTargets[0] : null;
 
-            public static void StartConversation (GameObject focuseTarget) {
-                throw new NotImplementedException ();
-            }
+
         }
 
         public static class TMPutility {
@@ -83,6 +83,36 @@ namespace Global {
 
 
         }
+
+        [System.Serializable] public class DialoguoGroup {
+            public List<DialoguoItem> dialoguos = new List<DialoguoItem> ();
+            private int currentIndex = 0;
+
+            public void StartConversation () {
+                if (dialoguos.Count > currentIndex) {
+                    DialoguoItem dialoguo = dialoguos[currentIndex];
+                    if (dialoguo.content != null) {
+                        VisibleUtility.ShowNormalDialoguo (((MonoBehaviour) dialoguo.speaker).gameObject, dialoguo.content);
+                    }
+                    if (dialoguo.options != null) {
+                        VisibleUtility.ShowOptionalDialoguo (dialoguo.options);
+                    }
+
+                }
+            }
+        }
+
+        [System.Serializable] public class DialoguoItem {
+            public CharacterType speaker;
+            public string content;
+            public List<string> options;
+
+
+
+        }
+
+
+
 
     }
 }

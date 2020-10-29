@@ -164,10 +164,10 @@ public static class Extension_GlobalPointerEvent {
         UnityAction<PointerData> action) {
 
         const string Name = "Pointer Event";
-        GameObject obj = GlobalObject.TempObject.FindChild (Name);
+        GameObject obj = Global.Find.TempObject.FindChild (Name);
         if (obj == null) {
             obj = new GameObject (Name);
-            obj.SetParent (GlobalObject.TempObject);
+            obj.SetParent (Global.Find.TempObject);
         }
         C0_GlobalPointerEvent comp = obj.AddComponent<C0_GlobalPointerEvent> ();
         comp.createBy = fn.callBy;

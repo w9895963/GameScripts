@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Global;
 using Global.Animate;
 using UnityEngine;
 
-public class Character : MonoBehaviour {
+public class Character : CharacterType {
     public CharacterAnimation Animation;
     void Start () {
         CharacterAnimation cha = gameObject.CreateChild (Animation.gameObject).GetComponentInChildren<CharacterAnimation> ();

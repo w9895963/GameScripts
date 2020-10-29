@@ -136,27 +136,10 @@ public class M_Cursor : MonoBehaviour, IModable {
     public bool EnableWriteModDatas => saveToMod;
     public System.Object ModableObjectData => setting;
 
-    public List<Sprite> ModableSprites {
-        get =>
-            setting.states.SelectMany ((x) => new List<Sprite> { x.unpress, x.pressed }).ToList ();
-        set =>
-            SetSprites (value);
-    }
     public void LoadModData (ModObjectData loader) {
         loader.LoadObjectDataTo<Setting> (setting);
-        // loader.LoadSprites ();
 
         UpdateCursorImage ();
-    }
-
-
-    private void SetSprites (List<Sprite> value) {
-        for (int i = 0; i < value.Count; i++) {
-            if (value[i] != null) {
-                if (i % 2 == 0) setting.states[i / 2].unpress = value[i];
-                else if (i % 2 == 1) setting.states[i / 2].pressed = value[i];
-            }
-        }
     }
 
 

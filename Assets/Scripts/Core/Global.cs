@@ -112,7 +112,7 @@ namespace Global {
         public static void AddKey (int curveIndex, float index, float value,
             Color color = default, Vector2 position = default, float angleLimit = 1
         ) {
-            GameObject temp = GlobalObject.TempObject;
+            GameObject temp = Global.Find.TempObject;
             Vector2 point = new Vector2 (index, value);
             var list = temp.GetComponentsInChildren<LineRenderer> ().ToList ();
             list = list.FindAll ((x) => x.name == objectName);
@@ -168,7 +168,7 @@ namespace Global {
         }
 
         public static void Create (Color color = default, Vector2 position = default) {
-            GameObject temp = GlobalObject.TempObject;
+            GameObject temp = Global.Find.TempObject;
 
             GameObject obj = GameObject.Instantiate (Resources.Load (lineTemplate, typeof (GameObject)) as GameObject);
             obj.name = objectName;

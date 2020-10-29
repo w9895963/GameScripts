@@ -193,7 +193,7 @@ public class CustonPointer : MonoBehaviour {
     }
 
     private void SetCursorPosition (Vector2 p) {
-        GlobalObject.Cursor.SetPosition (p);
+        Global.Find.Cursor.SetPosition (p);
         pointerData.position = p;
         cursorPosition = p;
     }
