@@ -12,10 +12,37 @@ using UnityEngine.Events;
 namespace Global {
     namespace Dialogue {
         public static class DialogueUtility {
+            public static List<DialoguoGroup> dialoguoGroups = new List<DialoguoGroup> ();
             public static List<GameObject> dialoguoTargets = new List<GameObject> ();
-            public static GameObject FocuseTarget => dialoguoTargets.Count > 0 ? dialoguoTargets[0] : null;
+            public static GameObject FocuseTarget {
+                get {
+                    if (dialoguoTargets.Count > 0) {
+                        dialoguoTargets.Sort ((o) => (o.GetPosition2d () - Find.Player.GetPosition2d ()).magnitude);
+                        return dialoguoTargets[0];
+                    }
+                    return null;
+                }
+            }
 
+            public static List<DialoguoGroup> GetDialoguoGroups (GameObject gameObject) {
+                ICharacter character = gameObject.GetComponent<ICharacter> ();
+                if (character != null) {
+                    string id = character.ID;
+                    List<DialoguoGroup> lists = dialoguoGroups.FindAll ((x) => x.enabled | x.targetID == id);
+                    if (lists.Count > 0) {
+                        return lists;
+                    }
+                }
+                return new List<DialoguoGroup> ();
+            }
 
+            public static void UpdateDialoguoGroups () {
+                ConversationGroup[] groups = GameObject.FindObjectsOfType<ConversationGroup> ();
+                groups.ForEach ((groupObj) => {
+                    DialoguoGroup group = new DialoguoGroup (groupObj);
+                    dialoguoGroups.Add (group);
+                });
+            }
         }
 
         public static class TMPutility {
@@ -87,13 +114,30 @@ namespace Global {
 
         [System.Serializable] public class DialoguoGroup {
             public List<DialoguoItem> dialoguos = new List<DialoguoItem> ();
+            public string targetID;
+            public bool enabled = true;
             private int currentIndex = 0;
 
-            public void StartConversation () {
+
+            public DialoguoGroup (ConversationGroup groupObj) {
+                targetID = groupObj.conversationTarget.id;
+                groupObj.FindAllChild ().ForEach ((child) => {
+                    DialoguoItemNormal normalDialoguo = child.GetComponent<DialoguoItemNormal> ();
+                    if (normalDialoguo) {
+                        dialoguos.Add (new DialoguoItem (normalDialoguo));
+                    }
+                    DialoguoItemOption optionDialoguo = child.GetComponent<DialoguoItemOption> ();
+                    if (optionDialoguo) {
+                        dialoguos.Add (new DialoguoItem (optionDialoguo));
+                    }
+                });
+            }
+
+            public void StartDialoguo () {
                 if (dialoguos.Count > currentIndex) {
                     DialoguoItem dialoguo = dialoguos[currentIndex];
                     if (dialoguo.content != null) {
-                        VisibleUtility.ShowNormalDialoguo (((MonoBehaviour) dialoguo.speaker).gameObject, dialoguo.content);
+                        VisibleUtility.ShowNormalDialoguo (dialoguo.speaker.gameObject, dialoguo.content);
                     }
                     if (dialoguo.options != null) {
                         VisibleUtility.ShowOptionalDialoguo (dialoguo.options);
@@ -104,12 +148,22 @@ namespace Global {
         }
 
         [System.Serializable] public class DialoguoItem {
+            public Type type;
             public CharacterClass speaker;
             public string content;
             public List<string> options;
 
-
-
+            public DialoguoItem (DialoguoItemNormal item) {
+                type = Type.NormalTalk;
+                content = item.content;
+                speaker = item.speaker;
+            }
+            public DialoguoItem (DialoguoItemOption item) {
+                type = Type.Option;
+                options = item.options;
+                speaker = item.speaker;
+            }
+            public enum Type { NormalTalk, Option }
         }
 
 

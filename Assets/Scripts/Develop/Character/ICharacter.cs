@@ -6,7 +6,8 @@ using UnityEngine;
 namespace Global {
     namespace Character {
         public interface ICharacter {
-            
+            string ID { get; }
+
         }
     }
 }

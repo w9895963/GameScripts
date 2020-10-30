@@ -39,7 +39,14 @@ public static class ExtensionMethod {
         source.Sort ((x, y) => selector (x).CompareTo (selector (y)));
     }
 
-
+    public static bool NotEmpty<T> (this List<T> source) {
+        if (source != null) {
+            if (source.Count > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     public static List<T> ExpendTo<T> (this List<T> source, int index) where T : new () {
@@ -63,11 +70,14 @@ public static class ExtensionMethod {
     public static List<string> ToList (this string source) {
         return new List<string> { source };
     }
+
+
     public static void ForEach<T> (this T[] source, System.Action<T> action) {
         foreach (var t in source) {
             action (t);
         }
     }
+
     public static void LogAll<T> (this List<T> source) {
         for (int i = 0; i < source.Count; i++) {
             Debug.Log ($"index:{i};content:{source[i]}", source[i] as UnityEngine.Object);

@@ -7,6 +7,14 @@ public static class MonoBehaviour_Extension {
         GameObject gameObject = GameObject.Instantiate (source, mono.transform);
         return gameObject;
     }
+
+    public static List<GameObject> FindAllChild (this MonoBehaviour mono) {
+        List<GameObject> list = new List<GameObject> ();
+        for (int i = 0; i < mono.transform.childCount; i++) {
+            list.Add (mono.transform.GetChild (i).gameObject);
+        }
+        return list;
+    }
     public static void DestroyChildren (this MonoBehaviour mono) {
         int childCount = mono.
         transform.

@@ -15,8 +15,6 @@ namespace Global {
         public static GameObject Player => FindObj<PlayerMnager> (ref player);
         public static PlayerMnager PlayerComp => Player.GetComponent<PlayerMnager> ();
 
-        public static GameObject Cursor => FindObj<M_Cursor> (ref cursor);
-        public static M_Cursor CursorComp => Cursor.GetComponent<M_Cursor> ();
 
         public static GameObject IndicateCamera => FindObj (ref indicateCamera, Tag.IndicateCamera);
         public static GameObject UI => FindObj (ref ui, Tag.UI);

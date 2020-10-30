@@ -18,7 +18,7 @@ public static class ObjectExtention {
             GameObject.Destroy (obj, timeWait);
         }
     }
-   
+
     public static void Destroy (this Object[] objects) {
         foreach (var obj in objects) {
             GameObject.Destroy (obj);
@@ -44,14 +44,15 @@ public static class ObjectExtention {
         GameObject obj = GameObject.Instantiate (prefab, gameObject.transform);
         return obj;
     }
-
-
-    public static GameObject FindChild (this GameObject gameObject, string name) {
+    public static List<GameObject> FindAllChild (this GameObject gameObject) {
         List<GameObject> list = new List<GameObject> ();
         for (int i = 0; i < gameObject.transform.childCount; i++) {
             list.Add (gameObject.transform.GetChild (i).gameObject);
         }
-        return list.Find ((x) => x.name == name);
+        return list;
+    }
+    public static GameObject FindChild (this GameObject gameObject, string name) {
+        return gameObject.FindAllChild ().Find ((x) => x.name == name);
     }
     public static bool HasChild (this GameObject gameObject, GameObject child) {
         List<GameObject> objs = gameObject.GetComponentsInChildren<Transform> ().Select ((t) => t.gameObject).ToList ();
@@ -60,7 +61,6 @@ public static class ObjectExtention {
     public static void SetParent (this GameObject gameObject, GameObject parent) {
         gameObject.transform.SetParent (parent.transform);
     }
-
     public static List<GameObject> GetParentsAndSelf (this GameObject gameObject) {
         List<GameObject> all = GetParents (gameObject);
         if (gameObject) all.Add (gameObject);

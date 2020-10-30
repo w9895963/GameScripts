@@ -8,8 +8,12 @@ namespace Global {
         public static class VisibleUtility {
             private const string DialoguoTipPrefabPath = "Animation/Dialogue/DialoguoTip";
             private static GameObject dialoguoTip;
-            private static GameObject DialoguoTip => dialoguoTip?dialoguoTip : dialoguoTip = Resources.Load (
-                DialoguoTipPrefabPath, typeof (GameObject)) as GameObject;
+            private static GameObject DialoguoTip {
+                get {
+                    return dialoguoTip?dialoguoTip : dialoguoTip =
+                        Resources.Load (DialoguoTipPrefabPath, typeof (GameObject)) as GameObject;
+                }
+            }
 
 
 
@@ -30,10 +34,8 @@ namespace Global {
             public static void ShowOptionalDialoguo (List<string> contents) { }
 
 
-
-
         }
 
-    
+
     }
 }

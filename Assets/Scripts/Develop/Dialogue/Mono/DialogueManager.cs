@@ -9,23 +9,21 @@ using UnityEngine;
 public class DialogueManager : MonoBehaviour {
 
     void Start () {
+        DialogueUtility.UpdateDialoguoGroups ();
+
+
+
         var dialoguoTargets = DialogueUtility.dialoguoTargets;
         DialoguoTipTrigger trigger = GameObject.FindObjectOfType<DialoguoTipTrigger> ();
         PhysicUtility.AddTriggerAction (trigger.gameObject, onEnter, onExist);
 
-        void onEnter (Collider2D other) {
-            IDialogueTarget dialogueTarget = other.GetComponent<IDialogueTarget> ();
-            bool isDialoguoTarget = false;
-            if (dialogueTarget != null) {
-                if (dialogueTarget.EnabaleDialoguo) {
-                    isDialoguoTarget = true;
-                    dialoguoTargets.Add (other.gameObject);
-                }
-            }
 
-            if (isDialoguoTarget) {
-                dialoguoTargets.Sort ((o) => (o.GetPosition2d () - Find.Player.GetPosition2d ()).magnitude);
-                GameObject focusObj = dialoguoTargets[0];
+        void onEnter (Collider2D other) {
+            List<DialoguoGroup> dialoguos = DialogueUtility.GetDialoguoGroups (other.gameObject);
+
+            if (dialoguos.Count > 0) {
+                dialoguoTargets.Add (other.gameObject);
+                GameObject focusObj = DialogueUtility.FocuseTarget;
                 DialoguoTipAnimation tip = focusObj.GetComponentInChildren<DialoguoTipAnimation> ();
                 if (tip == null) {
                     VisibleUtility.ShowDialoguoTip (focusObj);
@@ -50,12 +48,11 @@ public class DialogueManager : MonoBehaviour {
         }
 
         InputUtility.InteractInput.performed += (d) => {
-            if (DialogueUtility.FocuseTarget != null) {
-                GameObject focuseTarget = DialogueUtility.FocuseTarget;
-                IDialogueTarget target = focuseTarget.GetComponent<IDialogueTarget> ();
-                DialoguoGroup dialoguo = target.DialoguoGroup;
-                if (dialoguo != null) {
-                    dialoguo.StartConversation ();
+            GameObject fucos = DialogueUtility.FocuseTarget;
+            if (fucos != null) {
+                List<DialoguoGroup> groups = DialogueUtility.GetDialoguoGroups (fucos);
+                if (groups.NotEmpty ()) {
+                    groups[0].StartDialoguo ();
                 }
             }
         };

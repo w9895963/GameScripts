@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Global {
     namespace Character {
-        public class CharacterClass : MonoBehaviour {
+        public class CharacterClass : MonoBehaviour, ICharacter {
             public string id;
+
+            public string ID => id;
         }
     }
 
