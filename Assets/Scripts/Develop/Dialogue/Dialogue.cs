@@ -8,6 +8,7 @@ using Global.Visible;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
 namespace Global {
     namespace Dialogue {
@@ -117,7 +118,7 @@ namespace Global {
             public string targetID;
             public bool enabled = true;
             private int currentIndex = 0;
-
+            private InputUtility.GlobalpointerEvent eventObj;
 
             public DialoguoGroup (ConversationGroup groupObj) {
                 targetID = groupObj.conversationTarget.id;
@@ -134,10 +135,15 @@ namespace Global {
             }
 
             public void StartDialoguo () {
+                eventObj = InputUtility.AddGlobalPointerEvent (EventTriggerType.PointerClick, (d) => { });
+
+                
                 if (dialoguos.Count > currentIndex) {
                     DialoguoItem dialoguo = dialoguos[currentIndex];
                     if (dialoguo.content != null) {
                         VisibleUtility.ShowNormalDialoguo (dialoguo.speaker.gameObject, dialoguo.content);
+
+
                     }
                     if (dialoguo.options != null) {
                         VisibleUtility.ShowOptionalDialoguo (dialoguo.options);

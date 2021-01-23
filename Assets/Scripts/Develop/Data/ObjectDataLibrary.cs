@@ -13,7 +13,7 @@ public class ObjectDataLibrary : MonoBehaviour {
 namespace Global {
 
     public static class ObjectData {
-        public static void Add (GameObject gameObject, string key, Object obj) {
+        public static DataInstance Add (GameObject gameObject, string key, System.Object obj) {
             var comp = gameObject.GetComponent<ObjectDataLibrary> ();
             if (comp == null) {
                 comp = gameObject.AddComponent<ObjectDataLibrary> ();
@@ -26,25 +26,38 @@ namespace Global {
             dataInstance.key = key;
             dataInstance.obj = obj;
 
+            return dataInstance;
+
         }
 
-        public static T Get<T> (GameObject gameObject, string key) where T : class {
+        public static DataInstance Get (GameObject gameObject, string key) {
             var comp = gameObject.GetComponent<ObjectDataLibrary> ();
             if (comp != null) {
                 DataInstance data = comp.data.Find ((x) => x.key == key);
                 if (data != null) {
-                    if (typeof (T) == data.obj.GetType ()) {
-                        return data.obj as T;
-                    }
+                    return data;
                 }
-
             }
             return null;
+        }
+        public static DataInstance Get (GameObject gameObject, string key, System.Object initialData) {
+            DataInstance data = Get (gameObject, key);
+            if (data == null) {
+                data = Add (gameObject, key, initialData);
+            }
+            return data;
         }
 
         [System.Serializable] public class DataInstance {
             public string key;
-            public Object obj;
+            public System.Object obj;
+
+            public T Read<T> () {
+                return (T) System.Convert.ChangeType (obj, typeof (T));
+            }
+            public void Set (System.Object data) {
+                obj = data;
+            }
         }
     }
 }

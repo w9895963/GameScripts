@@ -1,17 +1,20 @@
 ﻿using Global;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Test : MonoBehaviour {
-    public Object log;
+    public new Object print;
 
     private void Start () {
-        GameObject topLayer = InputUtility.TopLayer;
 
 
     }
 
+
+    private void Update () { }
+
     private void OnValidate () {
-        if (log != null) Debug.Log (log);
+
 
     }
 

@@ -18,9 +18,11 @@ namespace Global {
 
         public static InputAction MoveInput => Asset.InputActionAsset.FindAction ("Move");
         public static InputAction JumpInput => Asset.InputActionAsset.FindAction ("Jump");
+        public static InputAction AttackInput => Asset.InputActionAsset.FindAction ("Attack");
+
         public static InputAction InteractInput => Asset.InputActionAsset.FindAction ("Interact");
         public static InputAction Pointer => Asset.InputActionAsset.FindAction ("Point");
-        
+
         public static GameObject TopLayer {
             get {
                 const string Name = "TopLayer";
@@ -38,7 +40,7 @@ namespace Global {
 
 
 
-        public static (EventTrigger, EventTrigger.Entry) AddPointerEvent (GameObject target,
+        public static (EventTrigger triger, EventTrigger.Entry entry) AddPointerEvent (GameObject target,
             EventTriggerType type, UnityAction<BaseEventData> action) {
             // * ---------------------------------- 
             EventTrigger trigger = target.GetComponent<EventTrigger> ();
@@ -52,33 +54,44 @@ namespace Global {
             trigger.triggers.Add (entry);
             return (trigger, entry);
         }
-        public static (EventTrigger, EventTrigger.Entry) AddGlobalPointerEvent (GameObject souce,
-            EventTriggerType type, UnityAction<BaseEventData> action) {
+        public static GlobalpointerEvent AddGlobalPointerEvent (EventTriggerType type, UnityAction<BaseEventData> action) {
             // * ---------------------------------- 
+            GlobalpointerEvent evet = new GlobalpointerEvent ();
+            var eventObj = AddPointerEvent (TopLayer, EventTriggerType.PointerClick, action);
+            evet.eventComp = eventObj.triger;
+            evet.entry = eventObj.entry;
 
-
-            EventTrigger trigger = souce.GetComponent<EventTrigger> ();
-            if (trigger == null) {
-                trigger = souce.AddComponent<EventTrigger> ();
-            }
-
-            EventTrigger.Entry entry = new EventTrigger.Entry ();
-            entry.eventID = type;
-            entry.callback.AddListener (action);
-            trigger.triggers.Add (entry);
-            return (trigger, entry);
+            return evet;
         }
 
         public static void EnableAll () {
             MoveInput.Enable ();
             JumpInput.Enable ();
+            AttackInput.Enable ();
             InteractInput.Enable ();
         }
 
         public static void DisableAll () {
             MoveInput.Disable ();
             JumpInput.Disable ();
+            AttackInput.Disable ();
             InteractInput.Disable ();
+        }
+
+
+        public class GlobalpointerEvent {
+            public EventTrigger eventComp;
+            public EventTrigger.Entry entry;
+
+            public void Destroy () {
+                eventComp.triggers.Remove (entry);
+                int count = eventComp.triggers.Count;
+                if (count == 0) {
+                    eventComp.gameObject.Destroy ();
+                }
+            }
+
+
         }
     }
 

@@ -46,6 +46,7 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
 
         }
     }
+
     public bool saveMod;
     private Vector2 moveButton;
     private float jumpButton;
@@ -59,7 +60,6 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
     public int LayerIndex => LayerUtility.Lead.Index;
     public string ModTitle => ModUtility.GenerateTitle (this);
     public bool EnableWriteModDatas => saveMod;
-
     public object ModableObjectData => setting;
 
 
@@ -70,7 +70,9 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
         };
         InputUtility.JumpInput.performed += (d) => {
             jumpButton = d.ReadValue<float> ();
-
+        };
+        InputUtility.AttackInput.performed += (d) => {
+            Debug.Log(123);
         };
 
 
