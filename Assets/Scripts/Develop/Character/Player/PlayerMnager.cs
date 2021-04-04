@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Global;
+using Global.AttackSystem;
 using Global.Physic;
 using static Global.Physic.PhysicUtility;
 using System.Linq;
@@ -55,13 +56,14 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
     private Vector2 force;
     private float lastMoveButtonX;
     private TimerControler animationTimer;
+    private Vector2 faceDirection;
 
     public Vector2 Gravity => setting.gravity;
     public int LayerIndex => LayerUtility.Lead.Index;
+    public Rigidbody2D RigidBody => GetComponent<Rigidbody2D> ();
     public string ModTitle => ModUtility.GenerateTitle (this);
     public bool EnableWriteModDatas => saveMod;
     public object ModableObjectData => setting;
-
 
     private void Awake () {
 
@@ -72,7 +74,8 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
             jumpButton = d.ReadValue<float> ();
         };
         InputUtility.AttackInput.performed += (d) => {
-            Debug.Log(123);
+            AttackUtility.Shoot (gameObject.GetPosition2d (), Vector2.Angle (Vector2.right, faceDirection));
+            // Attack.Shoot ();
         };
 
 
@@ -116,6 +119,13 @@ public class PlayerMnager : MonoBehaviour, ILayer, IGravity, IModable {
                     vChaned = deaccele * delx.Sign ();
                 }
                 action.SetForce (VelosityToForce (new Vector2 (vChaned, 0)));
+            }
+        }
+
+        FaceDirection ();
+        void FaceDirection () {
+            if (moveButton.x != 0) {
+                faceDirection = new Vector2 (moveButton.x, 0);
             }
         }
 

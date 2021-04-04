@@ -23,6 +23,12 @@ namespace Global {
         public static InputAction InteractInput => Asset.InputActionAsset.FindAction ("Interact");
         public static InputAction Pointer => Asset.InputActionAsset.FindAction ("Point");
 
+       
+
+
+
+
+
         public static GameObject TopLayer {
             get {
                 const string Name = "TopLayer";
