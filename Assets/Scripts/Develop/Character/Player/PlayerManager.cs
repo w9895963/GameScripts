@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Global;
 using Global.Animate;
-using Global.FunctionManager;
+using Global.FunctionModule;
 using static Global.Function;
 using UnityEngine;
 using UnityEngine.Events;
@@ -11,12 +11,17 @@ using UnityEngine.InputSystem;
 using Global.Physic;
 
 public class PlayerManager : MonoBehaviour, IFunctionManager
+
 {
+
+    public StateFunction.Data stateData = new StateFunction.Data();
     public GravityFunction.Data gravityData = new GravityFunction.Data();
-    public WalkingFuncion.Data walkingData = new WalkingFuncion.Data();
-    public GroundTestFunction.Data contactData = new GroundTestFunction.Data();
+    public MoveFunction.Data walkingData = new MoveFunction.Data();
+    public GroundTestFunction.Data groundTest = new GroundTestFunction.Data();
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
-    public AttackFunction.Data attackFunctionData = new AttackFunction.Data();
+    public ShotFunc.Data ShotData = new ShotFunc.Data();
+    public AttackFunction.Data attackData = new AttackFunction.Data();
+    public ControlFunction.Data ControlManager = new ControlFunction.Data();
 
 
 
@@ -27,40 +32,22 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
     private void Awake()
     {
         functionManager = new FunctionManager(gameObject);
+        // functionManager.FastBuildUp<PlayerBuild, PlayerBuild.Data>(data);
 
-
-        GroundTestFunction groundTestFunction = new GroundTestFunction();
-        functionManager.AddFunction<GroundTestFunction>(groundTestFunction);
-        functionManager.AddData<GroundTestFunction.Data>(contactData);
-        groundTestFunction.Initial(functionManager);
-
-
-
-
-        GravityFunction gravityFunction = new GravityFunction();
-        functionManager.AddFunction<GravityFunction>(gravityFunction);
-        functionManager.AddData<GravityFunction.Data>(gravityData);
-        gravityFunction.Initial(functionManager);
-
-
-
-        WalkingFuncion walkingFunction = new WalkingFuncion();
-        functionManager.AddFunction<WalkingFuncion>(walkingFunction);
-        functionManager.AddData<WalkingFuncion.Data>(walkingData);
-        walkingFunction.Initial(functionManager);
-
-
-        JumpFuntion jumpFuntion = new JumpFuntion();
-        functionManager.AddFunction<JumpFuntion>(jumpFuntion);
-        functionManager.AddData<JumpFuntion.Data>(jumpFuntionData);
-        jumpFuntion.Initial(functionManager);
-
-
-        functionManager.FastBuildUp<AttackFunction, AttackFunction.Data>(attackFunctionData);
-
+        var fm = functionManager;
+        fm.CreateFunction<StateFunction>(stateData);
+        fm.CreateFunction<GroundTestFunction>(groundTest);
+        fm.CreateFunction<GravityFunction>(gravityData);
+        fm.CreateFunction<MoveFunction>(walkingData);
+        fm.CreateFunction<AttackFunction>(attackData);
+        fm.CreateFunction<ShotFunc>(ShotData);
+        fm.CreateFunction<JumpFuntion>(jumpFuntionData);
+        fm.CreateFunction<ControlFunction>(ControlManager);
 
 
     }
+
+
 
 
 

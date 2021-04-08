@@ -9,19 +9,20 @@ using System;
 public static class ExtensionForRigidBody2D
 {
     public static VelosityChanger VelosityChangeTo(this Rigidbody2D rigidBody, Vector2 targetVelosity,
-     float maxForce = 10000f, Vector2 direction = default)
+     float maxForce = 10000f, Vector2 direction = default, System.Action beforeApplyForce = null)
     {
         GameObject gameObject = rigidBody.gameObject;
         VelosityChanger velosityChanger = new VelosityChanger();
         velosityChanger.Function(rigidBody, targetVelosity, maxForce, direction);
+        velosityChanger.updaAction = beforeApplyForce;
 
         return velosityChanger;
 
     }
 
-    public static SustainForce AddForceSustain(this Rigidbody2D rigidBody, Vector2 force, UnityAction callback = null)
+    public static Global.Physic.ConstantForce AddConstantForce(this Rigidbody2D rigidBody, Vector2 force, UnityAction beforeApplyForce = null)
     {
-        return new SustainForce(rigidBody, force, callback);
+        return new Global.Physic.ConstantForce(rigidBody, force, beforeApplyForce);
     }
 
 }
@@ -32,12 +33,13 @@ namespace Global
     {
         public class VelosityChanger
         {
-            private Rigidbody2D rigidbody;
-            private float mass;
-            private Vector2 targetVelosity;
-            private float maxForce;
-            private bool keepVelosity;
-            private Vector2 direction = default;
+            public Rigidbody2D rigidbody;
+            public float mass;
+            public Vector2 targetVelosity;
+            public float maxForce;
+            public bool keepVelosity;
+            public Vector2 direction = default;
+            public Action updaAction;
 
             public void Function(Rigidbody2D rigidbody, Vector2 targetVelosity, float maxForce,
             Vector2 direction = default, bool keepVelosity = true)
@@ -49,10 +51,7 @@ namespace Global
                 this.maxForce = maxForce;
                 this.keepVelosity = keepVelosity;
 
-                if (direction != default)
-                {
-                    this.targetVelosity = this.targetVelosity.Project(direction);
-                }
+
 
                 UnityEventPort.AddFixedUpdateAction(rigidbody.gameObject, 0, ApplyForce);
 
@@ -64,8 +63,10 @@ namespace Global
                 Vector2 currV = rigidbody.velocity;
                 if (direction != default)
                 {
+                    this.targetVelosity = this.targetVelosity.Project(direction);
                     currV = currV.Project(direction);
                 }
+
                 Vector2 deltaV = targetVelosity - currV;
                 Vector2 forceTotalNeed = deltaV / Time.fixedDeltaTime * mass;
                 Vector2 outForce = forceTotalNeed.ClampMax(maxForce);
@@ -74,6 +75,10 @@ namespace Global
 
             private void ApplyForce(UnityEventPort.CallbackData data)
             {
+                if (updaAction != null)
+                {
+                    updaAction();
+                }
                 Vector2 force = CalcForce();
                 rigidbody.AddForce(force);
 
@@ -87,6 +92,8 @@ namespace Global
 
             }
 
+            // * ---------------------------------- 
+
             public void StopFunction()
             {
                 if (rigidbody != null)
@@ -94,38 +101,42 @@ namespace Global
             }
         }
 
-        public class SustainForce
+        public class ConstantForce
         {
             private Vector2 force;
             private UnityAction callback;
             private Rigidbody2D rigidbody;
 
-            public SustainForce(Rigidbody2D rigidbody, Vector2 force, UnityAction callback)
+            public ConstantForce(Rigidbody2D rigidbody, Vector2 force, UnityAction callback)
             {
                 this.rigidbody = rigidbody;
                 this.force = force;
                 this.callback = callback;
 
-                UnityEventPort.AddFixedUpdateAction(rigidbody.gameObject, 0, ApplyForce);
+                Enable();
+
             }
 
-
-
-            private void ApplyForce(UnityEventPort.CallbackData data)
+            private void ApplyForceAction(UnityEventPort.CallbackData data)
             {
                 if (callback != null) callback();
                 rigidbody.AddForce(force);
             }
-            public void SetForce(Vector2 force)
+            public Vector2 Force
             {
-                this.force = force;
+                get => force;
+                set => force = value;
             }
 
             public void Disable()
             {
-                UnityEventPort.RemoveAction(rigidbody.gameObject, ApplyForce);
-
+                UnityEventPort.RemoveAction(rigidbody.gameObject, ApplyForceAction);
             }
+            public void Enable()
+            {
+                UnityEventPort.AddFixedUpdateAction(rigidbody.gameObject, 0, ApplyForceAction);
+            }
+
 
         }
     }

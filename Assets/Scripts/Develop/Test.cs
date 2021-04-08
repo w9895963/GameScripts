@@ -2,26 +2,36 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Test : MonoBehaviour {
+public class Test : MonoBehaviour
+{
     public new Object print;
+    public la laa;
 
-    private void Start () {
+    public enum la
+    {
+        a, b
+    }
+
+    private void Start()
+    {
 
 
     }
 
 
-    private void Update () { }
+    private void Update() { }
 
-    private void OnValidate () {
+    private void OnValidate()
+    {
 
 
     }
 
-    private void Reset () {
+    private void Reset()
+    {
 
     }
 
 
-    private void LateUpdate () { }
+    private void LateUpdate() { }
 }

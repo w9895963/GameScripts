@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class InputManagerCM : MonoBehaviour
 {
+    public InputManager.InputActionState keyState = new InputManager.InputActionState();
 
     private void Awake()
     {
-        InputManager.Initial();
+        InputManager.Initial(keyState);
     }
     private void OnEnable()
     {

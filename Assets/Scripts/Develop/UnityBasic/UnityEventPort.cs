@@ -171,5 +171,9 @@ namespace Global
             }
         }
 
+        internal static void AddFixedUpdateAction(object fixedUpdateAction)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
