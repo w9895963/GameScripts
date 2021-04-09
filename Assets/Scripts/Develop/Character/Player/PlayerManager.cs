@@ -15,13 +15,16 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 {
 
     public StateFunction.Data stateData = new StateFunction.Data();
+    public ShareDataFunction.Data shareDataFunction = new ShareDataFunction.Data();
+    public ShareActionFunction.Data shareActionFunction = new ShareActionFunction.Data();
+    public ReferenceFunction.Data referenceFunction = new ReferenceFunction.Data();
     public GravityFunction.Data gravityData = new GravityFunction.Data();
     public MoveFunction.Data walkingData = new MoveFunction.Data();
     public GroundTestFunction.Data groundTest = new GroundTestFunction.Data();
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
     public ShotFunc.Data ShotData = new ShotFunc.Data();
     public AttackFunction.Data attackData = new AttackFunction.Data();
-    public ControlFunction.Data ControlManager = new ControlFunction.Data();
+    public InputFunction.Data ControlManager = new InputFunction.Data();
 
 
 
@@ -32,17 +35,20 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
     private void Awake()
     {
         functionManager = new FunctionManager(gameObject);
-        // functionManager.FastBuildUp<PlayerBuild, PlayerBuild.Data>(data);
 
         var fm = functionManager;
         fm.CreateFunction<StateFunction>(stateData);
+        fm.CreateFunction<ShareDataFunction>(shareDataFunction);
+        fm.CreateFunction<ShareActionFunction>(shareActionFunction);
+        fm.CreateFunction<ReferenceFunction>(referenceFunction);
+
         fm.CreateFunction<GroundTestFunction>(groundTest);
         fm.CreateFunction<GravityFunction>(gravityData);
         fm.CreateFunction<MoveFunction>(walkingData);
         fm.CreateFunction<AttackFunction>(attackData);
         fm.CreateFunction<ShotFunc>(ShotData);
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
-        fm.CreateFunction<ControlFunction>(ControlManager);
+        fm.CreateFunction<InputFunction>(ControlManager);
 
 
     }

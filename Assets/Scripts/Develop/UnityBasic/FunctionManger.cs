@@ -21,9 +21,9 @@ namespace Global
         {
             FunctionManager Manager { get; }
         }
-        public interface IFunctionManagerInitial
+        public interface IAwake
         {
-            void Initial(FunctionManager functionManager);
+            void Awake(FunctionManager functionManager);
         }
 
 
@@ -78,60 +78,283 @@ namespace Global
                 f.data = data;
                 functionList.Add(f);
 
-                if (function is IFunctionManagerInitial)
+                if (function is IAwake)
                 {
-                    IFunctionManagerInitial ini = (IFunctionManagerInitial)function;
-                    ini.Initial(this);
+                    IAwake ini = (IAwake)function;
+                    ini.Awake(this);
                 }
+
+
 
                 return function;
             }
         }
 
 
-
-        public class StateFunction : IFunctionManagerInitial
+        public class TemplateFunction : IAwake
         {
             [System.Serializable]
             public class Data
             {
-                public List<string> states = new List<string>();
+                public Setting setting = new Setting();
+                [System.Serializable]
+                public class Setting
+                {
+                }
+
+                public Variables variables = new Variables();
+                [System.Serializable]
+                public class Variables
+                {
+
+                }
+
+            }
+            private FunctionManager functionManager;
+            private GameObject gameObject;
+            private Data.Setting set;
+            private Data.Variables vrs;
+
+            public void Awake(FunctionManager functionManager)
+            {
+                this.functionManager = functionManager;
+                var fm = functionManager;
+                gameObject = fm.gameObject;
+                Data data = fm.GetData<Data>(this);
+                data = data == null ? new Data() : data;
+                set = data.setting;
+                vrs = data.variables;
+                Initial();
+
+            }
+
+            private void Initial()
+            {
+
+            }
+        }
+
+
+        public class ShareActionFunction : IAwake
+        {
+            [System.Serializable]
+            public class Data
+            {
+                public Setting setting = new Setting();
+                [System.Serializable]
+                public class Setting
+                {
+                }
+
+                public Variables variables = new Variables();
+                [System.Serializable]
+                public class Variables
+                {
+                    public List<ActionInstance> actionList = new List<ActionInstance>();
+                }
+
+            }
+            private FunctionManager functionManager;
+            private GameObject gameObject;
+            private Data.Setting set;
+            private Data.Variables vrs;
+
+            public void Awake(FunctionManager functionManager)
+            {
+                this.functionManager = functionManager;
+                var fm = functionManager;
+                gameObject = fm.gameObject;
+                Data data = fm.GetData<Data>(this);
+                data = data == null ? new Data() : data;
+                set = data.setting;
+                vrs = data.variables;
+                Initial();
+
+            }
+
+            private void Initial()
+            {
+
+            }
+            [System.Serializable]
+            public class ActionInstance
+            {
+                public string name;
+                public System.Action action;
+            }
+
+            public void AddAction(System.Enum name, System.Action action)
+            {
+                ActionInstance a = new ActionInstance();
+                a.name = name.ToString();
+                a.action = action;
+                vrs.actionList.Add(a);
+            }
+            public bool RunAction(System.Enum name)
+            {
+                ActionInstance actionInstance = vrs.actionList.Find((x) => x.name == name.ToString());
+                if (actionInstance != null)
+                {
+                    actionInstance.action();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        public class ReferenceFunction : IAwake
+        {
+            public enum ShareData { Rigidbody2D }
+            [System.Serializable]
+            public class Data
+            {
+                public Setting setting = new Setting();
+                [System.Serializable]
+                public class Setting
+                {
+                    public Rigidbody2D rigidbody;
+                }
+
+                public Variables variables = new Variables();
+                [System.Serializable]
+                public class Variables
+                {
+
+                }
+
+            }
+            private FunctionManager functionManager;
+            private GameObject gameObject;
+            private Data.Setting set;
+            private Data.Variables vrs;
+
+            public void Awake(FunctionManager functionManager)
+            {
+                this.functionManager = functionManager;
+                var fm = functionManager;
+                gameObject = fm.gameObject;
+                Data data = fm.GetData<Data>(this);
+                set = data.setting;
+                vrs = data.variables;
+                Initial();
+
+            }
+
+            private void Initial()
+            {
+                if (set.rigidbody == null)
+                {
+                    set.rigidbody = gameObject.GetComponentInChildren<Rigidbody2D>();
+                }
+                ShareDataFunction shareDataFunction = functionManager.GetFunction<ShareDataFunction>();
+                if (shareDataFunction != null)
+                {
+                    shareDataFunction.AddDateMap(ShareData.Rigidbody2D, () => set.rigidbody);
+                }
+            }
+        }
+        public class ShareDataFunction : IAwake
+        {
+            [System.Serializable]
+            public class Data
+            {
+                public Setting setting = new Setting();
+                [System.Serializable]
+                public class Setting
+                {
+                }
+
+                public Variables variables = new Variables();
+                [System.Serializable]
+                public class Variables
+                {
+                    public List<DataInst> dataList = new List<DataInst>();
+                }
+
+
+
+            }
+            private FunctionManager functionManager;
+            private FunctionManager fm;
+            private GameObject gameObject;
+            private Data.Setting set;
+            private Data.Variables vrs;
+
+            public void Awake(FunctionManager functionManager)
+            {
+                this.functionManager = functionManager;
+                this.fm = functionManager;
+                gameObject = fm.gameObject;
+                Data data = fm.GetData<Data>(this);
+                set = data.setting;
+                vrs = data.variables;
+                Initial();
+
+            }
+            private void Initial()
+            {
+
+            }
+            [System.Serializable]
+            public class DataInst
+            {
+                public string dataName;
+                public System.Func<System.Object> dataMap;
+            }
+            public void AddDateMap(System.Enum name, System.Func<System.Object> dataMap)
+            {
+                DataInst a = new DataInst();
+                a.dataName = name.ToString();
+                a.dataMap = dataMap;
+                vrs.dataList.Add(a);
+            }
+            public T GetData<T>(System.Enum name)
+            {
+                T data;
+                DataInst dataInst = vrs.dataList.Find((x) => x.dataName == name.ToString());
+                data = (T)dataInst.dataMap();
+                return data;
+            }
+
+        }
+        public class StateFunction : IAwake
+        {
+            [System.Serializable]
+            public class Data
+            {
+                public List<State> stateList = new List<State>();
             }
             private Data data;
             private System.Action onChangeAction;
-            private List<ConditionAction> conditionActions = new List<ConditionAction>();
+            private (string state, Action action) currChanged;
 
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 data = functionManager.GetData<Data>(this);
-                onChangeAction += OnConditionActions;
+                onChangeAction += null;
 
             }
 
-            private void OnConditionActions()
-            {
-                conditionActions.ForEach((con) =>
-                {
-                    if (HasAll(con.exist.ToArray()))
-                    {
-                        if (HasNot(con.noExist.ToArray()))
-                        {
-                            con.action();
-                        }
-                    }
-                });
-            }
 
             // * ---------------------------------- 
 
-            public class ConditionAction
+            public class OnAddActionClass
             {
                 public System.Action action;
-                public List<string> exist;
-                public List<string> noExist;
+                public string state;
 
             }
+            [System.Serializable]
+            public class State
+            {
+                public string name;
+                public System.Object data;
+
+            }
+            public enum Action { add, remove }
             // * ---------------------------------- 
 
             public System.Action OnChangeAction
@@ -142,54 +365,93 @@ namespace Global
             // * ---------------------------------- 
 
 
-            public void Add(string st, bool keepOnly = true)
+            public void Add(string st, bool keepOnly = true, System.Object stateData = null)
             {
                 if (keepOnly)
                 {
-                    bool exist = data.states.Contains(st);
+                    bool exist = data.stateList.Exists((x) => x.name == st);
                     if (exist)
                     {
                         return;
                     }
                 }
-                data.states.Add(st);
+                State sta = new State();
+                sta.name = st;
+                sta.data = stateData;
+                data.stateList.Add(sta);
+                currChanged = (st, Action.add);
+
                 onChangeAction.Invoke();
             }
             public void Add(System.Enum st, bool keepOnly = true)
             {
                 Add(st.ToString(), keepOnly);
             }
-            public void Remove(string st)
+            public void Remove(string st, System.Object stateData = null)
             {
-                data.states.Remove(st);
-                onChangeAction.Invoke();
+                State state = data.stateList.Find((x) => x.name == st);
+                if (state != null)
+                {
+                    data.stateList.Remove(state);
+                    currChanged = (st, Action.remove);
+                    onChangeAction.Invoke();
+                }
+
             }
             public void Remove(System.Enum st)
             {
                 Remove(st.ToString());
             }
-            public void RemoveAll(params string[] st)
+            public void Remove(params string[] st)
             {
-                data.states.RemoveAll((x) => st.Contains(x));
-                onChangeAction.Invoke();
+                if (st.Length > 0)
+                {
+                    st.ToList().ForEach((x) =>
+               {
+                   Remove(x);
+               });
+                }
+
             }
-            public void RemoveAll(params System.Enum[] st)
+            public void Remove(params System.Enum[] st)
             {
-                string[] vs = st.ToList().Select((x) => x.ToString()).ToList().ToArray();
-                RemoveAll(vs);
+                if (st.Length > 0)
+                {
+                    string[] vs = st.ToList().Select((x) => x.ToString()).ToList().ToArray();
+                    Remove(vs);
+                }
+
             }
 
-            public bool HasNot(params string[] sts)
+            public bool HasNo(params string[] sts)
             {
-                List<string> list = data.states.FindAll((x) => sts.Contains(x));
+                if (sts == null)
+                {
+                    return true;
+                }
+                if (sts.Length == 0)
+                {
+                    return true;
+                }
+
+                List<string> stateList = data.stateList.Select((x) => x.name).ToList();
+                List<string> list = stateList.FindAll((x) => sts.Contains(x));
                 return list.Count == 0;
             }
             public bool HasAll(params string[] sts)
             {
                 bool re = true;
+                if (sts == null)
+                {
+                    return true;
+                }
+                if (sts.Length == 0)
+                {
+                    return true;
+                }
                 sts.ForEach((m) =>
                 {
-                    bool v = data.states.Contains(m);
+                    bool v = data.stateList.Exists((x) => x.name == m);
                     if (!v)
                     {
                         re = false;
@@ -197,30 +459,17 @@ namespace Global
                 });
                 return re;
             }
-            public bool HasNot(params System.Enum[] sts)
+            public bool HasNo(params System.Enum[] sts)
             {
                 string[] vs = sts.ToList().Select((x) => x.ToString()).ToList().ToArray();
-                return HasNot(vs);
+                return HasNo(vs);
             }
             public bool HasAll(params System.Enum[] sts)
             {
                 string[] vs = sts.ToList().Select((x) => x.ToString()).ToList().ToArray();
                 return HasAll(vs);
             }
-            public void AddConditionAction(List<string> exist, List<string> noExist, System.Action action)
-            {
-                ConditionAction con = new ConditionAction();
-                con.exist = exist;
-                con.noExist = noExist;
-                con.action = action;
-                conditionActions.Add(con);
-            }
-            public void AddConditionAction(List<System.Enum> exist, List<System.Enum> noExist, System.Action action)
-            {
-                var vs = exist.ToList().Select((x) => x.ToString()).ToList();
-                var vs2 = noExist.ToList().Select((x) => x.ToString()).ToList();
-                AddConditionAction(vs, vs2, action);
-            }
+
 
 
         }
@@ -228,8 +477,9 @@ namespace Global
 
 
 
-        public class ControlFunction : IFunctionManagerInitial
+        public class InputFunction : IAwake
         {
+            public enum State { InputLeft, InputRight, InputUp, InputDown }
 
             [System.Serializable]
             public class Data
@@ -252,27 +502,143 @@ namespace Global
 
             private FunctionManager fm;
             private Data.Setting set;
-            public void Initial(FunctionManager functionManager)
+            private StateFunction state;
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 set = fm.GetData<Data>(this).setting;
-                InputManager.GetInputAction(InputManager.InputName.Move).performed += MoveAction;
+                state = fm.GetFunction<StateFunction>();
+                InputManager.GetInputAction(InputManager.InputName.Move).performed += MoveInputAction;
             }
 
-            private void MoveAction(InputAction.CallbackContext d)
+            private void MoveInputAction(InputAction.CallbackContext d)
             {
                 if (set.moveInput == false) return;
                 MoveFunction moveFuncion = fm.GetFunction<MoveFunction>();
                 if (moveFuncion == null) return;
-                moveFuncion.SetInput(d.ReadValue<Vector2>());
+                Vector2 v = d.ReadValue<Vector2>();
+                // moveFuncion.SetInput(v);
+                if (v.x > 0)
+                {
+                    state.Remove(State.InputLeft);
+                    state.Add(State.InputRight);
+                }
+                else if (v.x < 0)
+                {
+                    state.Remove(State.InputRight);
+                    state.Add(State.InputLeft);
+                }
+                else
+                {
+                    state.Remove(State.InputRight, State.InputLeft);
+                }
+                if (v.y > 0)
+                {
+                    state.Remove(State.InputDown);
+                    state.Add(State.InputUp);
+                }
+                else if (v.y < 0)
+                {
+                    state.Remove(State.InputUp);
+                    state.Add(State.InputDown);
+                }
+                else
+                {
+                    state.Remove(State.InputUp, State.InputDown);
+                }
+
 
             }
 
         }
 
 
+        public class GroundTestFunction : IAwake
+        {
+            public enum State { onGround }
+            [System.Serializable]
+            public class Data
+            {
+                public bool onGround = false;
+                public List<ContactObject> contactList = new List<ContactObject>();
+            }
+            private Data data;
+            private GameObject gameObject;
+            private StateFunction state;
+            private FunctionManager fm;
 
-        public class GravityFunction : IFunctionManagerInitial
+
+            public void Awake(FunctionManager functionManager)
+            {
+                fm = functionManager;
+                data = fm.GetData<Data>(this);
+                gameObject = fm.gameObject;
+                state = fm.GetFunction<StateFunction>();
+                UnityEventPort.AddCollisionAction(gameObject, 0,
+                                                 onCollisionEnter: OnCollisionEnter,
+                                                 onCollisionExit: OnCollisionExit);
+            }
+
+
+
+
+            private void OnCollisionEnter(UnityEventPort.CallbackData data)
+            {
+                Collision2D other = data.collisionData;
+                ContactObject contactObj = new ContactObject();
+                contactObj.gameObject = other.gameObject;
+                Vector2 normal = other.contacts[0].normal;
+                contactObj.normal = normal;
+                this.data.contactList.Add(contactObj);
+
+                OnGroundTest();
+
+            }
+
+            private void OnCollisionExit(UnityEventPort.CallbackData data)
+            {
+                Collision2D other = data.collisionData;
+                this.data.contactList.RemoveAll((m) => m.gameObject == other.gameObject);
+
+                OnGroundTest();
+            }
+
+            private void OnGroundTest()
+            {
+                data.onGround = data.contactList.Exists((x) => x.normal.Angle(Vector2.up) < 5);
+                if (data.onGround)
+                {
+                    if (state != null)
+                    {
+                        state.Add(State.onGround);
+                    }
+
+                }
+                else
+                {
+                    if (state != null)
+                    {
+                        state.Remove(State.onGround);
+                    }
+                }
+            }
+
+
+
+
+
+            [System.Serializable]
+            public class ContactObject
+            {
+                public GameObject gameObject;
+                public Vector2 normal;
+
+            }
+
+
+        }
+
+        public class GravityFunction : IAwake
         {
             [System.Serializable]
             public class Data
@@ -296,7 +662,7 @@ namespace Global
             private GameObject gameObject;
             private Physic.ConstantForce gravityForceObject;
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 data = fm.GetData<Data>(this);
@@ -330,7 +696,7 @@ namespace Global
 
         }
 
-        public class MoveFunction : IFunctionManagerInitial
+        public class MoveFunction : IAwake
         {
             public enum State { WalkForce, WalkForceFaceBack }
 
@@ -351,11 +717,10 @@ namespace Global
                 [System.Serializable]
                 public class Varables
                 {
-                    //input
-                    public float inputValue;
-                    //force
+                    //controlstate
                     public bool onattack = false;
                     public float walkState = 0;
+                    //force calc
                     public Vector2 targetV;
                     public Vector2 projectDir;
                     public Vector2 currV;
@@ -374,7 +739,7 @@ namespace Global
             private GameObject gameObject;
 
             // * ---------------------------------- 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 stateFunction = fm.GetFunction<StateFunction>();
@@ -390,26 +755,7 @@ namespace Global
             }
 
             // * ---------------------------------- 
-            private void InputAction(Vector2 d)
-            {
-                //input
-                float x = d.x;
-                vrs.inputValue = x;
 
-                //force
-                vrs.walkState = vrs.inputValue;
-                if (vrs.inputValue == 0)
-                {
-                    Stop();
-                }
-                else
-                {
-                    Walk(vrs.inputValue);
-                }
-
-
-
-            }
 
 
             private void FixedUpdateAction(UnityEventPort.CallbackData d)
@@ -430,61 +776,78 @@ namespace Global
             private void StateCondition()
             {
                 StateFunction st = stateFunction;
-                if (st != null)
+                if (st == null)
                 {
-                    st.OnChangeAction += () =>
-                    {
-                        bool canAnimate = st.HasNot(AttackFunction.AttackState);
-                        if (canAnimate)
-                        {
-                            if (st.HasNot(State.WalkForce))
-                            {
-                                CommomMethod.PlayAnimatioin(gameObject, "Standing");
-                            }
-                            else
-                            {
-                                CommomMethod.PlayAnimatioin(gameObject, "Walking");
-                            }
-
-
-                            // set faceing
-                            var animationHolder = gameObject.GetComponentInChildren<AnimationHolder>();
-                            if (animationHolder == null)
-                            {
-                                return;
-                            }
-
-                            Transform transform = animationHolder.gameObject.transform;
-                            Vector3 localScale = transform.localScale;
-                            if (st.HasAll(State.WalkForceFaceBack))
-                            {
-                                localScale.x = localScale.x.Abs() * -1;
-                            }
-                            else
-                            {
-                                localScale.x = localScale.x.Abs() * 1;
-                            }
-                            transform.localScale = localScale;
-
-                        }
-
-
-                        bool attacking = st.HasAll(AttackFunction.AttackState);
-                        if (attacking)
-                        {
-                            vrs.onattack = true;
-                        }
-                        else
-                        {
-                            vrs.onattack = false;
-                        }
-
-
-
-
-                    };
-
+                    return;
                 }
+
+                st.OnChangeAction += () =>
+                 {
+                     //walk
+                     if (st.HasAll(InputFunction.State.InputRight))
+                     {
+                         Walk(1);
+                     }
+                     if (st.HasAll(InputFunction.State.InputLeft))
+                     {
+                         Walk(-1);
+                     }
+                     if (st.HasNo(InputFunction.State.InputLeft, InputFunction.State.InputRight))
+                     {
+                         Walk(0);
+                     }
+
+
+
+                     bool canAnimate = st.HasNo(AttackFunction.AttackState);
+                     if (canAnimate)
+                     {
+                         if (st.HasNo(State.WalkForce))
+                         {
+                             CommomMethod.PlayAnimatioin(gameObject, "Standing");
+                         }
+                         else
+                         {
+                             CommomMethod.PlayAnimatioin(gameObject, "Walking");
+                         }
+
+
+                         // set faceing
+                         var animationHolder = gameObject.GetComponentInChildren<AnimationHolder>();
+                         if (animationHolder == null)
+                         {
+                             return;
+                         }
+
+                         Transform transform = animationHolder.gameObject.transform;
+                         Vector3 localScale = transform.localScale;
+                         if (st.HasAll(State.WalkForceFaceBack))
+                         {
+                             localScale.x = localScale.x.Abs() * -1;
+                         }
+                         else
+                         {
+                             localScale.x = localScale.x.Abs() * 1;
+                         }
+                         transform.localScale = localScale;
+
+                     }
+
+
+                     bool attacking = st.HasAll(AttackFunction.AttackState);
+                     if (attacking)
+                     {
+                         vrs.onattack = true;
+                     }
+                     else
+                     {
+                         vrs.onattack = false;
+                     }
+
+
+
+
+                 };
             }
             private static Vector2 CalcForce(Vector2 currV, Vector2 direction, Vector2 targetVelosity,
                                                        float maxForce = 1000f, float mass = 1)
@@ -530,11 +893,7 @@ namespace Global
 
 
 
-            // * ---------------------------------- method
-            public void SetInput(Vector2 inputValue)
-            {
-                InputAction(inputValue);
-            }
+
 
 
             // * ---------------------------------- Action
@@ -557,7 +916,7 @@ namespace Global
 
 
         }
-        public class JumpFuntion : IFunctionManagerInitial
+        public class JumpFuntion : IAwake
         {
 
             [System.Serializable]
@@ -592,7 +951,7 @@ namespace Global
             private Physic.ConstantForce jump = null;
 
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 state = fm.GetFunction<StateFunction>();
@@ -687,98 +1046,11 @@ namespace Global
 
         }
 
-        public class GroundTestFunction : IFunctionManagerInitial
-        {
-            public enum State { onGround }
-            [System.Serializable]
-            public class Data
-            {
-                public bool onGround = false;
-                public List<ContactObject> contactList = new List<ContactObject>();
-            }
-            private Data data;
-            private GameObject gameObject;
-            private StateFunction state;
-            private FunctionManager fm;
-
-
-            public void Initial(FunctionManager functionManager)
-            {
-                fm = functionManager;
-                data = fm.GetData<Data>(this);
-                gameObject = fm.gameObject;
-                state = fm.GetFunction<StateFunction>();
-                UnityEventPort.AddCollisionAction(gameObject, 0,
-                                                 onCollisionEnter: OnCollisionEnter,
-                                                 onCollisionExit: OnCollisionExit);
-            }
 
 
 
 
-            private void OnCollisionEnter(UnityEventPort.CallbackData data)
-            {
-                Collision2D other = data.collisionData;
-                ContactObject contactObj = new ContactObject();
-                contactObj.gameObject = other.gameObject;
-                Vector2 normal = other.contacts[0].normal;
-                contactObj.normal = normal;
-                this.data.contactList.Add(contactObj);
-
-                OnGroundTest();
-
-            }
-
-            private void OnCollisionExit(UnityEventPort.CallbackData data)
-            {
-                Collision2D other = data.collisionData;
-                this.data.contactList.RemoveAll((m) => m.gameObject == other.gameObject);
-
-                OnGroundTest();
-            }
-
-            private void OnGroundTest()
-            {
-                data.onGround = data.contactList.Exists((x) => x.normal.Angle(Vector2.up) < 5);
-                if (data.onGround)
-                {
-                    if (state != null)
-                    {
-                        state.Add(State.onGround);
-                    }
-
-                }
-                else
-                {
-                    if (state != null)
-                    {
-                        state.Remove(State.onGround);
-                    }
-                }
-            }
-
-
-            public bool IsOnGround()
-            {
-                return data.onGround;
-            }
-
-
-
-            [System.Serializable]
-            public class ContactObject
-            {
-                public GameObject gameObject;
-                public Vector2 normal;
-
-            }
-
-
-        }
-
-
-
-        public class HitableFunction : IFunctionManagerInitial
+        public class HitableFunction : IAwake
         {
 
 
@@ -809,7 +1081,7 @@ namespace Global
             private GameObject gameObject;
             private Rigidbody2D rigidbody;
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
 
                 fm = functionManager;
@@ -872,7 +1144,7 @@ namespace Global
 
         }
 
-        public class AttackFunction : IFunctionManagerInitial
+        public class AttackFunction : IAwake
         {
             public const string AttackState = "Attack";
 
@@ -911,7 +1183,7 @@ namespace Global
             // * ---------------------------------- 
 
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 dat = functionManager.GetData<AttackFunction.Data>(this);
@@ -937,7 +1209,7 @@ namespace Global
                     var st = stateFunction;
                     if (st != null)
                     {
-                        if (st.HasNot(AttackState))
+                        if (st.HasNo(AttackState))
                         {
                             canAttack = true;
                         }
@@ -988,7 +1260,7 @@ namespace Global
                     stateFunction.Add(AttackState);
                     Timer.Wait(gameObject, set.time, () =>
                     {
-                        stateFunction.RemoveAll(AttackState);
+                        stateFunction.Remove(AttackState);
                     });
                 }
 
@@ -998,7 +1270,7 @@ namespace Global
 
         }
 
-        public class ShotFunc : IFunctionManagerInitial
+        public class ShotFunc : IAwake
         {
 
 
@@ -1024,7 +1296,7 @@ namespace Global
             private GameObject gameObject;
             private Rigidbody2D rigidbody;
 
-            public void Initial(FunctionManager functionManager)
+            public void Awake(FunctionManager functionManager)
             {
                 fm = functionManager;
                 state = fm.GetFunction<StateFunction>();
