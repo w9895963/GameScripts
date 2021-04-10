@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Global.FunctionModule;
+using Global.ObjectDynimicFunction;
 using Global;
 
 public class Enemy : MonoBehaviour, IFunctionManager

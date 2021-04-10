@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Global;
 using Global.Animate;
-using Global.FunctionModule;
+using Global.ObjectDynimicFunction;
 using static Global.Function;
 using UnityEngine;
 using UnityEngine.Events;
@@ -16,7 +16,6 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 
     public StateFunction.Data stateData = new StateFunction.Data();
     public ShareDataFunction.Data shareDataFunction = new ShareDataFunction.Data();
-    public ShareActionFunction.Data shareActionFunction = new ShareActionFunction.Data();
     public ReferenceFunction.Data referenceFunction = new ReferenceFunction.Data();
     public GravityFunction.Data gravityData = new GravityFunction.Data();
     public MoveFunction.Data walkingData = new MoveFunction.Data();
@@ -39,7 +38,6 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         var fm = functionManager;
         fm.CreateFunction<StateFunction>(stateData);
         fm.CreateFunction<ShareDataFunction>(shareDataFunction);
-        fm.CreateFunction<ShareActionFunction>(shareActionFunction);
         fm.CreateFunction<ReferenceFunction>(referenceFunction);
 
         fm.CreateFunction<GroundTestFunction>(groundTest);
@@ -50,7 +48,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
         fm.CreateFunction<InputFunction>(ControlManager);
 
-
+        fm.CallLateCreateAction();
     }
 
 
