@@ -11,16 +11,28 @@ namespace Global
 
         public class FunctionManager
         {
-            private List<Function> functionList = new List<Function>();
+            private List<FunctionData> functionList = new List<FunctionData>();
             public GameObject gameObject;
 
 
             public FunctionManager(GameObject gameObject)
             {
                 this.gameObject = gameObject;
+                UnityEventPort.AddOnDestroyAction(gameObject, 0, (d) =>
+                {
+                    functionList.ForEach((f) =>
+                    {
+                        if (f is IOnDestroy)
+                        {
+                            IOnDestroy f1 = (IOnDestroy)f;
+                            f1.OnDestroy();
+                        }
+                    });
+                });
+
             }
 
-            public class Function
+            public class FunctionData
             {
                 public System.Type type;
                 public System.Object function;
@@ -32,13 +44,11 @@ namespace Global
 
 
 
-
-
             public T CreateFunction<T>(System.Object data = null) where T : new()
             {
                 T function = new T();
 
-                Function f = new Function();
+                FunctionData f = new FunctionData();
                 f.function = function;
                 f.type = typeof(T);
                 f.data = data;
@@ -71,13 +81,13 @@ namespace Global
 
             public T GetFunction<T>()
             {
-                Function f = functionList.Find((x) => x.type == typeof(T));
+                FunctionData f = functionList.Find((x) => x.type == typeof(T));
                 return f == null ? default : (T)f.function;
             }
 
             public T GetData<T>(System.Object function)
             {
-                Function variable = functionList.Find((x) => x.function == function);
+                FunctionData variable = functionList.Find((x) => x.function == function);
                 return (T)variable.data;
             }
 
@@ -88,6 +98,13 @@ namespace Global
                 if (ifun == null)
                 { return null; }
                 return ifun.Manager;
+            }
+            public static T GetFunction<T>(GameObject gameObject) where T : class
+            {
+                FunctionManager functionManager = GetFunctionManager(gameObject);
+                if (functionManager == null)
+                { return null; }
+                return functionManager.GetFunction<T>();
             }
         }
 

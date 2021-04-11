@@ -118,7 +118,7 @@ namespace Global
                 if (Time.time - timer.timeBegin >= time)
                 {
                     callback();
-                    UnityEventPort.RemoveAction(gameObject, action);
+                    UnityEventPort.RemoveFixedUpdateAction(gameObject, action);
                 }
             };
             UnityEventPort.AddFixedUpdateAction(gameObject, 0, action);

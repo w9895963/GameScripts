@@ -155,102 +155,25 @@ namespace Global
                 {
                     set.rigidbody = gameObject.GetComponentInChildren<Rigidbody2D>();
                 }
-                ShareDataFunction shareDataFunction = functionManager.GetFunction<ShareDataFunction>();
-                if (shareDataFunction != null)
-                {
-                    shareDataFunction.AddDateMap(ShareData.Rigidbody2D, () => set.rigidbody);
-                }
             }
 
-            public static Rigidbody2D GetRigidbody2D(GameObject gameObject)
+            public Rigidbody2D Rigidbody2D => set.rigidbody;
+            public static Rigidbody2D GetRigidbody2D(FunctionManager fm)
             {
-                FunctionManager fm = FunctionManager.GetFunctionManager(gameObject);
-                if (fm != null)
+                Rigidbody2D rs = null;
+                ReferenceFunction r = fm.GetFunction<ReferenceFunction>();
+                if (r != null)
                 {
-                    ReferenceFunction refe = fm.GetFunction<ReferenceFunction>();
-                    if (refe != null)
-                    {
-                        return refe.set.rigidbody;
-                    }
+                    rs = r.Rigidbody2D;
                 }
+                if (rs == null)
+                {
+                    rs = fm.gameObject.GetComponentInChildren<Rigidbody2D>();
+                }
+                return rs;
 
-                return gameObject.GetComponentInChildren<Rigidbody2D>();
             }
         }
-        public class InputFunction : IFunctionCreate
-        {
-            public enum State { InputLeft, InputRight, InputUp, InputDown, MoveInput }
-            public enum ShareData { MoveInput }
-
-            [System.Serializable]
-            public class Data
-            {
-                public Setting setting = new Setting();
-                [System.Serializable]
-                public class Setting
-                {
-                    public bool moveInput = true;
-                }
-
-                public Variables variables = new Variables();
-                [System.Serializable]
-                public class Variables
-                {
-                    public Vector2 moveInputValue = Vector2.zero;
-                }
-
-            }
-
-            private FunctionManager fm;
-            private Data.Setting set;
-            private Data.Variables vrs;
-            private StateFunction state;
-            private ShareDataFunction sdata;
-
-            public void OnCreate(FunctionManager functionManager)
-            {
-                fm = functionManager;
-                Data data = fm.GetData<Data>(this);
-                set = data.setting;
-                vrs = data.variables;
-                state = fm.GetFunction<StateFunction>();
-                sdata = fm.GetFunction<ShareDataFunction>();
-                InputManager.GetInputAction(InputManager.InputName.Move).performed += MoveInputAction;
-                sdata.AddDateMap(ShareData.MoveInput, () => vrs.moveInputValue);
-
-            }
-
-            private void MoveInputAction(InputAction.CallbackContext d)
-            {
-                Vector2 pre = vrs.moveInputValue;
-                Vector2 curr = d.ReadValue<Vector2>();
-
-
-                bool currin = curr.magnitude != 0;
-                bool preIn = pre.magnitude != 0;
-                bool stateChange = currin != preIn;
-
-                if (stateChange)
-                {
-                    if (currin)
-                    {
-                        state.Add(State.MoveInput, () => vrs.moveInputValue);
-                    }
-                    else
-                    {
-                        state.Remove(State.MoveInput);
-                    }
-                }
-
-                vrs.moveInputValue = curr;
-                sdata.CallDataUpdateAction(ShareData.MoveInput);
-
-            }
-
-        }
-
-
-
 
 
 
@@ -270,7 +193,6 @@ namespace Global
                     public float moveForce = 50;
                     public float maxSpeed = 10;
                     public float onAttackSpeed = 1;
-                    // public string W
                 }
 
                 public Varables variables = new Varables();
@@ -290,13 +212,12 @@ namespace Global
                 }
             }
 
-            #region Basic Fields  ------------------
+            #region  Fields  ------------------
             private Data.Setting set;
             private Data.Varables vrs;
             private Rigidbody2D rigidbody;
             private FunctionManager fm;
             private StateFunction state;
-            private ShareDataFunction shareData;
             private GameObject gameObject;
             private Func<Vector2> FetchInputValue = () => Vector2.zero;
 
@@ -307,8 +228,6 @@ namespace Global
             public void OnCreate(FunctionManager functionManager)
             {
                 fm = functionManager;
-                state = fm.GetFunction<StateFunction>();
-                shareData = fm.GetFunction<ShareDataFunction>();
                 gameObject = functionManager.gameObject;
                 var data = fm.GetData<Data>(this);
                 set = data.setting;
@@ -317,45 +236,28 @@ namespace Global
             }
             public void LateCreate()
             {
-                rigidbody = ExFunction.GetRigidbody2D(fm);
-                InputSection();
+                state = fm.GetFunction<StateFunction>();
+                rigidbody = ReferenceFunction.GetRigidbody2D(fm);
+                InputSectionV2();
                 StateCheckSection();
-                UnityEventPort.AddFixedUpdateAction(gameObject, 0, FixedUpdateSection);
+                FixedUpdateSection();
                 AnimationConditionSection();
             }
 
-
-
-            private void InputSection()
+            private void InputSectionV2()
             {
-                if (state == null)
+                if (set.enableInputControl == true)
                 {
-                    return;
+                    AddInputAction();
                 }
-                if (shareData == null)
-                { return; }
-
-                const InputFunction.ShareData md = InputFunction.ShareData.MoveInput;
-                shareData.AddDataUpdateAction(md, () =>
+                else
                 {
-                    vrs.moveInput = shareData.GetData<Vector2>(md);
-                    inputStateCheck();
-                });
-
-                void inputStateCheck()
-                {
-                    float input = vrs.moveInput.x;
-                    if (input != 0)
-                    {
-                        Walk(input);
-                    }
-                    else
-                    {
-                        Stop();
-                    }
+                    RemoveInputACtion();
                 }
+
 
             }
+
 
             private void StateCheckSection()
             {
@@ -374,22 +276,40 @@ namespace Global
 
             }
 
-
-            private void FixedUpdateSection(UnityEventPort.CallbackData d)
+            private void FixedUpdateSection()
             {
+                UnityEventPort.AddFixedUpdateAction(gameObject, 0, (d) =>
+                {
+                    float mass = rigidbody.mass;
 
-                float mass = rigidbody.mass;
 
+                    vrs.currV = rigidbody.velocity;
+                    vrs.projectDir = Vector2.right;
+                    float maxSpeed = vrs.onattack ? set.onAttackSpeed : set.maxSpeed;
+                    vrs.targetV = new Vector2(maxSpeed * vrs.walkState, 0);
 
-                vrs.currV = rigidbody.velocity;
-                vrs.projectDir = Vector2.right;
-                float maxSpeed = vrs.onattack ? set.onAttackSpeed : set.maxSpeed;
-                vrs.targetV = new Vector2(maxSpeed * vrs.walkState, 0);
+                    Vector2 force = CalcForce(vrs.currV, vrs.projectDir, vrs.targetV, set.moveForce, mass);
 
-                Vector2 force = CalcForce(vrs.currV, vrs.projectDir, vrs.targetV, set.moveForce, mass);
-
-                rigidbody.AddForce(force);
-
+                    rigidbody.AddForce(force);
+                });
+            }
+            // * ---------------------------------- 
+            private void inputStateCheck()
+            {
+                float input = vrs.moveInput.x;
+                if (input != 0)
+                {
+                    Walk(input);
+                }
+                else
+                {
+                    Stop();
+                }
+            }
+            private void inputAction(InputAction.CallbackContext d)
+            {
+                vrs.moveInput = d.ReadValue<Vector2>();
+                inputStateCheck();
             }
             private static Vector2 CalcForce(Vector2 currV, Vector2 direction, Vector2 targetVelosity,
                                                                  float maxForce = 1000f, float mass = 1)
@@ -484,14 +404,17 @@ namespace Global
                 }
             }
 
+            // * ---------------------------------- Public
 
+            public void RemoveInputACtion()
+            {
+                InputManager.GetInputAction(InputManager.InputName.Move).performed -= inputAction; ;
+            }
 
-
-
-
-
-
-            // * ---------------------------------- Action
+            public void AddInputAction()
+            {
+                InputManager.GetInputAction(InputManager.InputName.Move).performed += inputAction; ;
+            }
 
 
             public void Walk(float direction)
@@ -501,8 +424,6 @@ namespace Global
 
             }
 
-
-
             public void Stop()
             {
                 vrs.walkState = 0;
@@ -511,7 +432,7 @@ namespace Global
 
 
         }
-        public class JumpFuntion : IFunctionCreate
+        public class JumpFuntion : IFunctionCreate, ILateCreate
         {
 
             [System.Serializable]
@@ -522,6 +443,7 @@ namespace Global
                 public class Setting
                 {
                     public bool enabled = true;
+                    public bool enableInput = true;
                     public float force = 200f;
                     public float maxDuration = 0.2f;
                     public float minDuration = 0.1f;
@@ -549,22 +471,35 @@ namespace Global
             public void OnCreate(FunctionManager functionManager)
             {
                 fm = functionManager;
+            }
+            public void LateCreate()
+            {
                 state = fm.GetFunction<StateFunction>();
                 Data data = fm.GetData<Data>(this);
                 set = data.setting;
                 vrs = data.variables;
                 gameObject = fm.gameObject;
-                rigidbody = fm.gameObject.GetComponent<Rigidbody2D>();
+                rigidbody = ReferenceFunction.GetRigidbody2D(fm);
+
+                InputSection();
 
 
-                InputAction inputAction = InputManager.GetInputAction(InputManager.InputName.Jump);
-                inputAction.performed += InputAction;
+            }
+            private void InputSection()
+            {
+                if (set.enableInput)
+                {
+                    AddInputAction();
+                }
+                else
+                {
+                    RemoveInputAction();
+                }
             }
 
-            private void InputAction(InputAction.CallbackContext data)
+            private void JumpInputAction(InputAction.CallbackContext d)
             {
-
-                float buttonState = data.ReadValue<float>();
+                float buttonState = d.ReadValue<float>();
                 if (buttonState == 1)
                 {
                     if (set.enabled == false)
@@ -600,11 +535,9 @@ namespace Global
                     }
 
                 }
-
-
             }
 
-            public bool JumpConditionTest()
+            private bool JumpConditionTest()
             {
                 if (state == null)
                 {
@@ -618,6 +551,18 @@ namespace Global
                 return true;
             }
             // * ---------------------------------- 
+            public void RemoveInputAction()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void AddInputAction()
+            {
+                InputManager.GetInputAction(InputManager.InputName.Jump).performed += JumpInputAction;
+            }
+
+
+
             public Physic.ConstantForce Jump(float timeRate)
             {
                 Data.Setting vrs = fm.GetData<Data>(this).setting;
@@ -645,19 +590,16 @@ namespace Global
 
 
 
-        public class HitableFunction : IFunctionCreate
+        public class HitableFunction : IFunctionCreate, ILateCreate, IOnDestroy
         {
 
+            public static List<GameObject> AllHitableObjects = new List<GameObject>();
 
             [System.Serializable]
             public class Data
             {
-                public Setting setting = new Setting();
-                [System.Serializable]
-                public class Setting
-                {
-                    public List<AttackFunction.AttackerType> receiveAttack = new List<AttackFunction.AttackerType>();
-                }
+                public List<Attack.AttackType> AllowAttackType = new List<Attack.AttackType>();
+
 
                 public Variables variables = new Variables();
                 [System.Serializable]
@@ -670,8 +612,9 @@ namespace Global
 
             }
 
+
             private FunctionManager fm;
-            private Data.Setting set;
+            private Data data;
             private Data.Variables vrs;
             private GameObject gameObject;
             private Rigidbody2D rigidbody;
@@ -680,20 +623,26 @@ namespace Global
             {
 
                 fm = functionManager;
-                set = fm.GetData<Data>(this).setting;
-                vrs = fm.GetData<Data>(this).variables;
+                data = fm.GetData<Data>(this);
+                vrs = data.variables;
                 gameObject = fm.gameObject;
+                AllHitableObjects.Add(gameObject);
+
+            }
+            public void LateCreate()
+            {
                 rigidbody = gameObject.GetComponent<Rigidbody2D>();
-
-
-
                 AttackTriggerAction();
+            }
+            public void OnDestroy()
+            {
+                AllHitableObjects.Remove(gameObject);
             }
 
 
             private void AttackTriggerAction()
             {
-                UnityEventPort.AddTriggerAction(gameObject, 0, (d) =>
+                UnityEventPort.AddTriggerAction(gameObject, 0, (UnityAction<UnityEventPort.CallbackData>)((d) =>
                {
                    vrs.hitSuccess = false;
                    AttackFunction attackFunction;
@@ -705,7 +654,7 @@ namespace Global
                    {
                        vrs.attackInstacne = attackInsObj;
                        vrs.attacker = attackInstanceCom.data.attacker;
-                       HitAction();
+                       this.HitAction();
                    }
 
 
@@ -721,12 +670,18 @@ namespace Global
 
 
 
-               });
+               }));
 
 
             }
 
 
+
+
+            public bool IsHitable(Attack.AttackType attackType)
+            {
+                return data.AllowAttackType.Contains(attackType);
+            }
             public void HitAction()
             {
                 Vector2 vct = gameObject.GetPosition2d() - vrs.attackInstacne.GetPosition2d();
@@ -734,12 +689,13 @@ namespace Global
 
             }
 
+            public void HitAction(Attack attack)
+            {
 
-
-
+            }
         }
 
-        public class AttackFunction : IFunctionCreate
+        public class AttackFunction : IFunctionCreate, ILateCreate
         {
             public enum State { Attack }
 
@@ -753,7 +709,7 @@ namespace Global
                 {
                     public bool enableInput = true;
                     public string animationName = "Attack";
-                    public AttackerType attackerType = AttackerType.Hero;
+                    public AttackType attackerType = AttackType.Hero;
                     public float time = 0.6f;
                 }
 
@@ -782,11 +738,15 @@ namespace Global
             {
                 fm = functionManager;
                 dat = functionManager.GetData<AttackFunction.Data>(this);
-                stateFunction = functionManager.GetFunction<StateFunction>();
+
                 gameObject = functionManager.gameObject;
                 set = dat.setting;
                 vrs = dat.variables;
 
+            }
+            public void LateCreate()
+            {
+                stateFunction = fm.GetFunction<StateFunction>();
                 InputAction inputAction = InputManager.GetInputAction(InputManager.InputName.Attack);
                 inputAction.performed += AttackInputAction;
             }
@@ -820,7 +780,7 @@ namespace Global
             }
 
 
-            public AttackerType GetAttackerClass()
+            public AttackType GetAttackerClass()
             {
                 return set.attackerType;
             }
@@ -836,7 +796,7 @@ namespace Global
                 hitNotes[attackInstance].Add(hitObject);
             }
 
-            public enum AttackerType
+            public enum AttackType
             {
                 Hero,
                 Enemy
@@ -866,28 +826,20 @@ namespace Global
 
         }
 
-        public class ShotFunc : IFunctionCreate
+        public class ShotFunc : IFunctionCreate, ILateCreate
         {
 
 
             [System.Serializable]
             public class Data
             {
-                public Setting setting = new Setting();
-                [System.Serializable]
-                public class Setting
-                {
-                }
-
-                public Variables variables = new Variables();
-                [System.Serializable]
-                public class Variables
-                {
-
-                }
+                public Bullet bulletPrefab;
+                public Attack.AttackType attackType = default;
+                public bool bulletPierce = false;
 
             }
             private FunctionManager fm;
+            private Data data;
             private StateFunction state;
             private GameObject gameObject;
             private Rigidbody2D rigidbody;
@@ -896,43 +848,107 @@ namespace Global
             {
                 fm = functionManager;
                 state = fm.GetFunction<StateFunction>();
+                data = fm.GetData<Data>(this);
                 gameObject = fm.gameObject;
-                rigidbody = gameObject.GetComponent<Rigidbody2D>();
-
-
-
-                InputManager.GetInputAction(InputManager.InputName.Shot).performed += ShotInputAction;
-                StateCondition();
 
             }
-
-            private void StateCondition()
+            public void LateCreate()
             {
-
-                if (state == null) return;
-
-                System.Action onChangeAction = () =>
-                {
-                    ParticleSystem pt = gameObject.GetComponentInChildren<ParticleSystem>();
-                    ParticleSystem.ShapeModule shape = pt.shape;
-                    Vector3 r = shape.rotation;
-                    if (state.HasAll(MoveFunction.State.WalkForceFaceBack))
-                    {
-                        r.y = 180;
-                        shape.rotation = r;
-                    }
-                    else
-                    {
-                        r.y = 0;
-                        shape.rotation = r;
-                    }
-                };
-                state.AddStateChangedAction(onChangeAction);
+                rigidbody = gameObject.GetComponent<Rigidbody2D>();
+                InputManager.GetInputAction(InputManager.InputName.Shot).performed += ShotInputAction;
             }
-
 
             private void ShotInputAction(InputAction.CallbackContext d)
             {
+                Shot();
+            }
+
+            private void SetupParticleSystem(ParticleSystem ptcS)
+            {
+                //*Set Position
+                Vector3 p = default;
+                Quaternion r = default;
+                BulletPoiter blpt = gameObject.GetComponentInChildren<BulletPoiter>();
+                p = blpt.transform.position;
+                r = blpt.transform.rotation;
+                ptcS.gameObject.transform.SetPositionAndRotation(p, r);
+                //* set rotate
+                if (state != null)
+                {
+                    bool v = state.HasAll(MoveFunction.State.WalkForceFaceBack);
+                    ParticleSystem.ShapeModule shape = ptcS.shape;
+                    Vector3 ro = shape.rotation;
+                    if (v)
+                    {
+                        ro.y = 180;
+                        shape.rotation = ro;
+                    }
+                    else
+                    {
+                        ro.y = 0;
+                        shape.rotation = ro;
+                    }
+                }
+                //*Set Triger Objects
+                List<GameObject> allHitableObjects = HitableFunction.AllHitableObjects;
+                allHitableObjects.ForEach((obj) =>
+                {
+                    HitableFunction hitable = FunctionManager.GetFunction<HitableFunction>(obj);
+                    if (hitable.IsHitable(data.attackType))
+                    {
+                        ptcS.trigger.AddCollider(obj.GetComponent<Collider2D>());
+                    }
+                });
+            }
+            private void ParticleTriggerEvent(Bullet.HitData hitData)
+            {
+                List<Component> colliders = hitData.GetColiders();
+                colliders.ForEach((Action<Component>)((cld) =>
+                  {
+                      var hitableFunction = FunctionManager.GetFunction<HitableFunction>(cld.gameObject);
+                      if (hitableFunction == null)
+                      { return; }
+
+                      var particles = hitData.GetParticles(cld);
+                      particles.ForEach((p) =>
+                      {
+                          Attack attack = new Attack();
+                          hitableFunction.HitAction(attack);
+                      });
+
+                  }));
+
+                if (data.bulletPierce == false)
+                {
+                    hitData.SetParticle((p) =>
+                    {
+                        p.remainingLifetime = 0;
+                        return p;
+                    });
+                }
+
+                hitData.ParticleSystem.TriggerSubEmitter(0);
+
+
+
+            }
+            public void Shot()
+            {
+                gameObject.GetComponentInChildren<Animation>().Play("Shot");
+            }
+            public void ShotBullet()
+            {
+                //*Create Particle System
+                GameObject blObj = GameObject.Instantiate(data.bulletPrefab.gameObject);
+                ParticleSystem bulletSystem = blObj.gameObject.GetComponent<ParticleSystem>();
+                Bullet bullet = bulletSystem.GetComponent<Bullet>();
+
+                SetupParticleSystem(bulletSystem);
+                bullet.AddParticleTriggerEnterAction(ParticleTriggerEvent);
+                Timer.Wait(bulletSystem.gameObject, bulletSystem.main.duration, () => { bulletSystem.gameObject.Destroy(); });
+                bullet.Shot();
+
+
                 if (rigidbody != null)
                 {
                     Vector2 f = Vector2.right * 20;
@@ -940,12 +956,9 @@ namespace Global
                     {
                         f.x *= -1;
                     }
-
                     rigidbody.AddForce(f, ForceMode2D.Impulse);
                 }
 
-                ParticleSystem pt = gameObject.GetComponentInChildren<ParticleSystem>();
-                pt.Play();
             }
 
 
@@ -976,24 +989,21 @@ namespace Global
                 return t;
             }
 
-            public static Rigidbody2D GetRigidbody2D(FunctionManager fm)
+
+
+        }
+
+
+
+        public class Attack
+        {
+            public Vector2 force;
+
+
+            public enum AttackType
             {
-                Rigidbody2D rs = null;
-                ShareDataFunction r = fm.GetFunction<ShareDataFunction>();
-                if (r != null)
-                {
-                    rs = r.GetData<Rigidbody2D>(ReferenceFunction.ShareData.Rigidbody2D);
-                }
-                if (rs == null)
-                {
-                    rs = fm.gameObject.GetComponentInChildren<Rigidbody2D>();
-                }
-                return rs;
-
+                HeroNormalShot,
             }
-
-
-
         }
 
 

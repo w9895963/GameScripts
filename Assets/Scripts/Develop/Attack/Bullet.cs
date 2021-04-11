@@ -1,30 +1,163 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Global;
+using Global.ObjectDynimicFunction;
 
 public class Bullet : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
+    private Action<HitData> onParticleTriggerEnter;
+    private new ParticleSystem particleSystem;
 
+
+    private void Awake()
+    {
+        particleSystem = GetComponent<ParticleSystem>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnParticleTrigger()
     {
-
-    }
-    private void OnParticleCollision(GameObject other)
-    {
-        List<ParticleCollisionEvent> particleCollisionEvent = new List<ParticleCollisionEvent>();
-        GetComponent<ParticleSystem>().GetCollisionEvents(other, particleCollisionEvent);
-        Vector2 v = particleCollisionEvent[0].velocity.ToVector2().Project(Vector2.right);
-        Rigidbody2D rb = other.GetComponent<Rigidbody2D>();
-        if (rb == null)
+        ParticleSystem ptc = GetComponent<ParticleSystem>();
+        List<ParticleSystem.Particle> hitLIst = new List<ParticleSystem.Particle>();
+        ParticleSystem.ColliderData cldD;
+        int hitCount = ptc.GetTriggerParticles(ParticleSystemTriggerEventType.Enter, hitLIst, out cldD);
+        if (hitCount > 0)
         {
-            return;
+
+            HitData hitData = new HitData(hitLIst, cldD, ptc);
+
+
+            if (onParticleTriggerEnter != null)
+            {
+                onParticleTriggerEnter.Invoke(hitData);
+            }
+
+
+            if (hitData.IsParticleModified)
+                ptc.SetTriggerParticles(ParticleSystemTriggerEventType.Enter, hitData.Particles);
         }
-        rb.AddForce(v);
+
+    }
+   
+
+
+
+
+    public class HitData
+    {
+        private List<ParticleSystem.Particle> particleList;
+        private ParticleSystem.ColliderData colliderData;
+        private ParticleSystem particleSystem;
+        private Dictionary<Component, List<ParticleSystem.Particle>> colliderHitDic =
+                new Dictionary<Component, List<ParticleSystem.Particle>>();
+        private bool particleModified = false;
+
+
+        public HitData(List<ParticleSystem.Particle> particleList,
+                       ParticleSystem.ColliderData colliderData, ParticleSystem particleSystem)
+        {
+            this.particleList = particleList;
+            this.colliderData = colliderData;
+            this.particleSystem = particleSystem;
+            var cldD = colliderData;
+            var dic = colliderHitDic;
+
+            // *Set colliderData
+            for (int particleIndex = 0; particleIndex < particleList.Count; particleIndex++)
+            {
+                int colliderCount = cldD.GetColliderCount(particleIndex);
+                ParticleSystem.Particle particle = particleList[particleIndex];
+
+                for (int colliderIndex = 0; colliderIndex < colliderCount; colliderIndex++)
+                {
+                    Component coliderCom = cldD.GetCollider(particleIndex, colliderIndex);
+                    if (coliderCom != null)
+                    {
+                        bool keyExist = dic.ContainsKey(coliderCom);
+                        if (keyExist)
+                        {
+                            dic[coliderCom].Add(particle);
+                        }
+                        else
+                        {
+                            dic.Add(coliderCom, new List<ParticleSystem.Particle>());
+                        }
+                    }
+
+                }
+            }
+        }
+
+        public void SetParticle(Func<ParticleSystem.Particle, ParticleSystem.Particle> setAction,
+                                Component hitCollider = null)
+        {
+
+            var cldData = colliderData;
+            for (int ptcI = 0; ptcI < particleList.Count; ptcI++)
+            {
+                if (hitCollider == null)
+                {
+                    particleList[ptcI] = setAction(particleList[ptcI]);
+                    particleModified = true;
+                }
+                else
+                {
+                    int cldC = cldData.GetColliderCount(ptcI);
+                    for (int CldI = 0; CldI < cldC; CldI++)
+                    {
+                        Component cld = cldData.GetCollider(ptcI, CldI);
+                        if (hitCollider == cld)
+                        {
+                            particleList[ptcI] = setAction(particleList[ptcI]);
+                            particleModified = true;
+                        }
+                    }
+                }
+
+
+            }
+        }
+
+        public int GetHitCount(Component collider)
+        {
+            int result = 0;
+            bool v = colliderHitDic.ContainsKey(collider);
+            if (v)
+            {
+                result = colliderHitDic[collider].Count;
+            }
+            return result;
+        }
+
+
+        public bool IsParticleModified => particleModified;
+        public ParticleSystem ParticleSystem => particleSystem;
+        public List<ParticleSystem.Particle> Particles => particleList;
+        public List<Component> GetColiders()
+        {
+            return colliderHitDic.Keys.ToList();
+        }
+        public List<ParticleSystem.Particle> GetParticles(Component collider)
+        {
+            return colliderHitDic[collider];
+        }
+    }
+
+    public void AddParticleTriggerEnterAction(Action<HitData> action)
+    {
+        onParticleTriggerEnter += action;
+    }
+    public void RemoveParticleTriggerEnterAction(Action<HitData> action)
+    {
+        onParticleTriggerEnter -= action;
+    }
+
+    public void Shot()
+    {
+        particleSystem.Play();
     }
 }
+
+

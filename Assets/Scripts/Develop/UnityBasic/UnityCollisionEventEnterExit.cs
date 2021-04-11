@@ -7,10 +7,12 @@ public class UnityCollisionEventEnterExit : MonoBehaviour
 {
     public UnityEventPort unityEventPort;
     UnityEventPort.CallbackData callbackData;
+    public List<UnityEventPort.Event> eventList;//show in inspector
     private void Awake()
     {
         unityEventPort = new UnityEventPort();
         callbackData = new UnityEventPort.CallbackData(gameObject);
+        eventList = unityEventPort.eventList;
     }
     private void OnCollisionEnter2D(Collision2D other)
     {

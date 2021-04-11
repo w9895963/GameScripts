@@ -15,7 +15,6 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 {
 
     public StateFunction.Data stateData = new StateFunction.Data();
-    public ShareDataFunction.Data shareDataFunction = new ShareDataFunction.Data();
     public ReferenceFunction.Data referenceFunction = new ReferenceFunction.Data();
     public GravityFunction.Data gravityData = new GravityFunction.Data();
     public MoveFunction.Data walkingData = new MoveFunction.Data();
@@ -23,7 +22,6 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
     public ShotFunc.Data ShotData = new ShotFunc.Data();
     public AttackFunction.Data attackData = new AttackFunction.Data();
-    public InputFunction.Data ControlManager = new InputFunction.Data();
 
 
 
@@ -37,7 +35,6 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 
         var fm = functionManager;
         fm.CreateFunction<StateFunction>(stateData);
-        fm.CreateFunction<ShareDataFunction>(shareDataFunction);
         fm.CreateFunction<ReferenceFunction>(referenceFunction);
 
         fm.CreateFunction<GroundTestFunction>(groundTest);
@@ -46,14 +43,13 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         fm.CreateFunction<AttackFunction>(attackData);
         fm.CreateFunction<ShotFunc>(ShotData);
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
-        fm.CreateFunction<InputFunction>(ControlManager);
 
         fm.CallLateCreateAction();
     }
 
 
 
-
+    
 
 
 

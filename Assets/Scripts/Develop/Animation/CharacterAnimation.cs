@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CharacterAnimation : MonoBehaviour
 {
-    
 
+    public void Shot()
+    {
+    }
 }

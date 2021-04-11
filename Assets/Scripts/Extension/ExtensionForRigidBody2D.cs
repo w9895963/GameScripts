@@ -86,7 +86,7 @@ namespace Global
                 {
                     if (force.magnitude < maxForce)
                     {
-                        UnityEventPort.RemoveAction(rigidbody.gameObject, ApplyForce);
+                        UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForce);
                     }
                 }
 
@@ -97,7 +97,7 @@ namespace Global
             public void StopFunction()
             {
                 if (rigidbody != null)
-                    UnityEventPort.RemoveAction(rigidbody.gameObject, ApplyForce);
+                    UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForce);
             }
         }
 
@@ -130,7 +130,7 @@ namespace Global
 
             public void Disable()
             {
-                UnityEventPort.RemoveAction(rigidbody.gameObject, ApplyForceAction);
+                UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForceAction);
             }
             public void Enable()
             {

@@ -129,6 +129,7 @@ public static class ObjectExtention
 
     public static Vector2 GetPosition2d(this GameObject gameObject)
     {
+
         return (Vector2)gameObject.transform.position;
     }
     public static Vector2 GetPositionBottomLeft(this GameObject gameObject)

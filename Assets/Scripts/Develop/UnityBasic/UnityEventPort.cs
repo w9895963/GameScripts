@@ -12,7 +12,7 @@ namespace Global
         public List<Event> eventList = new List<Event>();
         public List<UnityAction> delayOneTimeActions = new List<UnityAction>();
 
-        public void AddEventAction(EventType type, int runOrder, UnityAction<CallbackData> action)
+        public void AddEventAction(EventType type, int runOrder, UnityAction<CallbackData> action, bool sort = false)
         {
             if (!eventList.Exists((m) => m.eventType == type))
             {
@@ -27,10 +27,13 @@ namespace Global
             ea.action = action;
             evt.actionList.Add(ea);
 
-            eventList.ForEach((m) =>
+            if (sort)
             {
-                m.actionList.Sort((x, y) => x.runOrder.CompareTo(y.runOrder));
-            });
+                eventList.ForEach((m) =>
+                {
+                    m.actionList.Sort((x, y) => x.runOrder.CompareTo(y.runOrder));
+                });
+            }
 
         }
         public void RemoveEventAction(EventType type, UnityAction<CallbackData> action)
@@ -44,7 +47,6 @@ namespace Global
                 }
             });
         }
-
 
 
         public void RunEventAction(EventType type, CallbackData data)
@@ -89,6 +91,7 @@ namespace Global
         public enum EventType
         {
             FixedUpdate,
+            OnDestroy,
             OnCollisionEnter2D,
             OnCollisionStay2D,
             OnCollisionExit2D,
@@ -124,6 +127,28 @@ namespace Global
             fixedUpdateEvent.unityEventPort.AddEventAction(EventType.FixedUpdate, runOrder, action);
 
         }
+        public static void RemoveFixedUpdateAction(GameObject gameObject, UnityAction<CallbackData> action)
+        {
+
+            FixedUpdateEvent fixedUpdateEvent = gameObject.GetComponent<FixedUpdateEvent>();
+            if (fixedUpdateEvent != null)
+            {
+                fixedUpdateEvent.unityEventPort.RemoveEventAction(EventType.FixedUpdate, action);
+            }
+        }
+        public static void AddOnDestroyAction(GameObject gameObject,
+                                               int runOrder,
+                                               UnityAction<CallbackData> action)
+        {
+            UnityEvent_OnDestroy comp = gameObject.GetComponent<UnityEvent_OnDestroy>();
+            if (comp == null)
+            {
+                comp = gameObject.AddComponent<UnityEvent_OnDestroy>();
+            }
+            comp.unityEventPort.AddEventAction(EventType.OnDestroy, runOrder, action);
+
+        }
+
         public static void AddCollisionAction(GameObject gameObject,
                                                     int runOrder,
                                                     UnityAction<CallbackData> onCollisionEnter = null,
@@ -161,19 +186,8 @@ namespace Global
             port.AddEventAction(EventType.OnTriggerEnter2D, runOrder, onTriggerEnter);
 
         }
-        public static void RemoveAction(GameObject gameObject, UnityAction<CallbackData> action)
-        {
 
-            FixedUpdateEvent fixedUpdateEvent = gameObject.GetComponent<FixedUpdateEvent>();
-            if (fixedUpdateEvent != null)
-            {
-                fixedUpdateEvent.unityEventPort.RemoveEventAction(EventType.FixedUpdate, action);
-            }
-        }
 
-        internal static void AddFixedUpdateAction(object fixedUpdateAction)
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }
