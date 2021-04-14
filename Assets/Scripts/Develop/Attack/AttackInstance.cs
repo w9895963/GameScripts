@@ -1,21 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Global.ObjectDynimicFunction;
 
 public class AttackInstance : MonoBehaviour
 {
-    public Data data = new Data();
-    [System.Serializable]
-    public class Data
-    {
-        public GameObject attacker;
-        public AttackerClass attackerClass = default;
-    }
+    public GameObject attacker;
+    public AttackFunc.AttackProfile attackProfile;
 
-    public enum AttackerClass
-    {
-        Hero,
-        Enemy
-    }
 
 }

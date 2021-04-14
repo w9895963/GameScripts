@@ -25,6 +25,10 @@ public class Enemy : MonoBehaviour, IFunctionManager
         functionManager.CreateFunction<MoveFunction>(walkingFuncionData);
 
 
+        
+        functionManager.CallLateCreateAction();
+
+
 
 
     }

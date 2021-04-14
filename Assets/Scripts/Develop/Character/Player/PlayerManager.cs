@@ -20,8 +20,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
     public MoveFunction.Data walkingData = new MoveFunction.Data();
     public GroundTestFunction.Data groundTest = new GroundTestFunction.Data();
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
-    public ShotFunc.Data ShotData = new ShotFunc.Data();
-    public AttackFunction.Data attackData = new AttackFunction.Data();
+    public AttackFunc.Data AttackData = new AttackFunc.Data();
 
 
 
@@ -40,8 +39,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         fm.CreateFunction<GroundTestFunction>(groundTest);
         fm.CreateFunction<GravityFunction>(gravityData);
         fm.CreateFunction<MoveFunction>(walkingData);
-        fm.CreateFunction<AttackFunction>(attackData);
-        fm.CreateFunction<ShotFunc>(ShotData);
+        fm.CreateFunction<AttackFunc>(AttackData);
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
 
         fm.CallLateCreateAction();
@@ -49,7 +47,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 
 
 
-    
+
 
 
 

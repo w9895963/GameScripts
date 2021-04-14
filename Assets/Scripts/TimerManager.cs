@@ -111,6 +111,11 @@ namespace Global
         }
         public static void Wait(GameObject gameObject, float time, System.Action callback)
         {
+            if (time == 0)
+            {
+                callback();
+                return;
+            }
             TimerIns timer = new TimerIns(Time.time);
             UnityAction<UnityEventPort.CallbackData> action = null;
             action = (d) =>

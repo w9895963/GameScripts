@@ -117,61 +117,76 @@ namespace Global
             [System.Serializable]
             public class Data
             {
-                public Setting setting = new Setting();
-                [System.Serializable]
-                public class Setting
-                {
-                    public Rigidbody2D rigidbody;
-                }
-
-                public Variables variables = new Variables();
-                [System.Serializable]
-                public class Variables
-                {
-
-                }
+                public Rigidbody2D rigidbody;
+                public Animator animator;
 
             }
             private FunctionManager functionManager;
             private GameObject gameObject;
-            private Data.Setting set;
-            private Data.Variables vrs;
+            private Data data;
 
             public void OnCreate(FunctionManager functionManager)
             {
                 this.functionManager = functionManager;
                 var fm = functionManager;
                 gameObject = fm.gameObject;
-                Data data = fm.GetData<Data>(this);
-                set = data.setting;
-                vrs = data.variables;
+                data = fm.GetData<Data>(this);
                 Initial();
 
             }
 
             private void Initial()
             {
-                if (set.rigidbody == null)
-                {
-                    set.rigidbody = gameObject.GetComponentInChildren<Rigidbody2D>();
-                }
+                Rigidbody2D rigidbody = data.rigidbody;
+                data.rigidbody = GetComponent<Rigidbody2D>(rigidbody);
+
+                Animator animator = data.animator;
+                data.animator = GetComponent<Animator>(animator);
+
             }
 
-            public Rigidbody2D Rigidbody2D => set.rigidbody;
-            public static Rigidbody2D GetRigidbody2D(FunctionManager fm)
+            private T GetComponent<T>(T t) where T : Component
             {
-                Rigidbody2D rs = null;
-                ReferenceFunction r = fm.GetFunction<ReferenceFunction>();
-                if (r != null)
+                T result = t;
+                if (result == null)
                 {
-                    rs = r.Rigidbody2D;
+                    result = gameObject.GetComponentInChildren<T>();
                 }
-                if (rs == null)
-                {
-                    rs = fm.gameObject.GetComponentInChildren<Rigidbody2D>();
-                }
-                return rs;
+                return result;
+            }
 
+            public static T GetComponent<T>(GameObject gameObject) where T : Component
+            {
+                T result = null;
+                ReferenceFunction reff = FunctionManager.GetFunction<ReferenceFunction>(gameObject);
+                if (reff != null)
+                {
+                    if (IsType<Rigidbody2D>())
+                    {
+                        Component com = reff.data.rigidbody;
+                        result = (T)com;
+                    }
+                    else if (IsType<Animator>())
+                    {
+                        Component com = reff.data.animator;
+                        result = (T)com;
+                    }
+                }
+
+
+                if (result == null)
+                {
+                    result = gameObject.GetComponentInChildren<T>();
+                }
+
+
+                return result;
+
+
+                bool IsType<O>()
+                {
+                    return typeof(T).Equals(typeof(O));
+                }
             }
         }
 
@@ -237,14 +252,14 @@ namespace Global
             public void LateCreate()
             {
                 state = fm.GetFunction<StateFunction>();
-                rigidbody = ReferenceFunction.GetRigidbody2D(fm);
-                InputSectionV2();
+                rigidbody = ReferenceFunction.GetComponent<Rigidbody2D>(gameObject);
+                InputSection();
                 StateCheckSection();
                 FixedUpdateSection();
                 AnimationConditionSection();
             }
 
-            private void InputSectionV2()
+            private void InputSection()
             {
                 if (set.enableInputControl == true)
                 {
@@ -344,11 +359,11 @@ namespace Global
                       {
                           if (st.HasNo(State.WalkForce))
                           {
-                              ExFunction.PlayAnimatioin(gameObject, "Standing");
+                              Animation.Play(gameObject, Animation.StateName.Stand);
                           }
                           else
                           {
-                              ExFunction.PlayAnimatioin(gameObject, "Walking");
+                              Animation.Play(gameObject, Animation.StateName.Walking);
                           }
 
 
@@ -479,7 +494,7 @@ namespace Global
                 set = data.setting;
                 vrs = data.variables;
                 gameObject = fm.gameObject;
-                rigidbody = ReferenceFunction.GetRigidbody2D(fm);
+                rigidbody = ReferenceFunction.GetComponent<Rigidbody2D>(gameObject);
 
                 InputSection();
 
@@ -598,7 +613,7 @@ namespace Global
             [System.Serializable]
             public class Data
             {
-                public List<Attack.AttackType> AllowAttackType = new List<Attack.AttackType>();
+                public List<AttackFunc.AttackType> AllowAttackType = new List<AttackFunc.AttackType>();
 
 
                 public Variables variables = new Variables();
@@ -606,8 +621,6 @@ namespace Global
                 public class Variables
                 {
                     public GameObject attackInstacne;
-                    public GameObject attacker;
-                    internal bool hitSuccess;
                 }
 
             }
@@ -632,7 +645,7 @@ namespace Global
             public void LateCreate()
             {
                 rigidbody = gameObject.GetComponent<Rigidbody2D>();
-                AttackTriggerAction();
+                AttackTriggerSection();
             }
             public void OnDestroy()
             {
@@ -640,33 +653,13 @@ namespace Global
             }
 
 
-            private void AttackTriggerAction()
+            private void AttackTriggerSection()
             {
                 UnityEventPort.AddTriggerAction(gameObject, 0, (UnityAction<UnityEventPort.CallbackData>)((d) =>
                {
-                   vrs.hitSuccess = false;
-                   AttackFunction attackFunction;
                    GameObject attackInsObj = d.colliderData.gameObject;
                    AttackInstance attackInstanceCom = attackInsObj.GetComponent<AttackInstance>();
 
-                   vrs.hitSuccess = IsHitSuccess(out attackFunction);
-                   if (vrs.hitSuccess)
-                   {
-                       vrs.attackInstacne = attackInsObj;
-                       vrs.attacker = attackInstanceCom.data.attacker;
-                       this.HitAction();
-                   }
-
-
-                   bool IsHitSuccess(out AttackFunction attackFunction)
-                   {
-                       attackFunction = null;
-                       if (attackInstanceCom == null) return false;
-
-
-                       return true;
-
-                   }
 
 
 
@@ -678,7 +671,7 @@ namespace Global
 
 
 
-            public bool IsHitable(Attack.AttackType attackType)
+            public bool IsHitable(AttackFunc.AttackType attackType)
             {
                 return data.AllowAttackType.Contains(attackType);
             }
@@ -689,10 +682,7 @@ namespace Global
 
             }
 
-            public void HitAction(Attack attack)
-            {
 
-            }
         }
 
         public class AttackFunction : IFunctionCreate, ILateCreate
@@ -747,8 +737,8 @@ namespace Global
             public void LateCreate()
             {
                 stateFunction = fm.GetFunction<StateFunction>();
-                InputAction inputAction = InputManager.GetInputAction(InputManager.InputName.Attack);
-                inputAction.performed += AttackInputAction;
+                // InputAction inputAction = InputManager.GetInputAction(InputManager.InputName.Attack);
+                // inputAction.performed += AttackInputAction;  
             }
 
             // * ---------------------------------- 
@@ -820,22 +810,20 @@ namespace Global
                     });
                 }
 
-                ExFunction.PlayAnimatioin(gameObject, set.animationName);
+                Animation.Play(gameObject, Animation.StateName.Attack);
             }
 
 
         }
 
-        public class ShotFunc : IFunctionCreate, ILateCreate
+        public class AttackFunc : IFunctionCreate, ILateCreate
         {
-
-
+            public enum State { Attack }
             [System.Serializable]
             public class Data
             {
-                public Bullet bulletPrefab;
-                public Attack.AttackType attackType = default;
-                public bool bulletPierce = false;
+                public AttackType attackType = default;
+                public List<AttackProfile> attackProfiles = AttackProfile.Default;
 
             }
             private FunctionManager fm;
@@ -854,13 +842,15 @@ namespace Global
             }
             public void LateCreate()
             {
-                rigidbody = gameObject.GetComponent<Rigidbody2D>();
+                rigidbody = ReferenceFunction.GetComponent<Rigidbody2D>(gameObject);
                 InputManager.GetInputAction(InputManager.InputName.Shot).performed += ShotInputAction;
             }
 
+            // * ---------------------------------- 
+
             private void ShotInputAction(InputAction.CallbackContext d)
             {
-                Shot();
+                Attack();
             }
 
             private void SetupParticleSystem(ParticleSystem ptcS)
@@ -868,7 +858,7 @@ namespace Global
                 //*Set Position
                 Vector3 p = default;
                 Quaternion r = default;
-                BulletPoiter blpt = gameObject.GetComponentInChildren<BulletPoiter>();
+                AttackPointer blpt = gameObject.GetComponentInChildren<AttackPointer>();
                 p = blpt.transform.position;
                 r = blpt.transform.rotation;
                 ptcS.gameObject.transform.SetPositionAndRotation(p, r);
@@ -912,54 +902,162 @@ namespace Global
                       var particles = hitData.GetParticles(cld);
                       particles.ForEach((p) =>
                       {
-                          Attack attack = new Attack();
-                          hitableFunction.HitAction(attack);
+
                       });
 
                   }));
 
-                if (data.bulletPierce == false)
-                {
-                    hitData.SetParticle((p) =>
-                    {
-                        p.remainingLifetime = 0;
-                        return p;
-                    });
-                }
+
 
                 hitData.ParticleSystem.TriggerSubEmitter(0);
 
 
 
             }
-            public void Shot()
+
+            private void AttackAction()
             {
-                gameObject.GetComponentInChildren<Animation>().Play("Shot");
-            }
-            public void ShotBullet()
-            {
-                //*Create Particle System
-                GameObject blObj = GameObject.Instantiate(data.bulletPrefab.gameObject);
-                ParticleSystem bulletSystem = blObj.gameObject.GetComponent<ParticleSystem>();
-                Bullet bullet = bulletSystem.GetComponent<Bullet>();
-
-                SetupParticleSystem(bulletSystem);
-                bullet.AddParticleTriggerEnterAction(ParticleTriggerEvent);
-                Timer.Wait(bulletSystem.gameObject, bulletSystem.main.duration, () => { bulletSystem.gameObject.Destroy(); });
-                bullet.Shot();
-
-
-                if (rigidbody != null)
+                GameObject attackObj;
+                AttackProfile profile = AttackProfile.GetProfile(data.attackType, data.attackProfiles);
+                ResouceDynimicLoader.LoadAsync<GameObject>(profile.prefabPath, (loadObj) =>
                 {
-                    Vector2 f = Vector2.right * 20;
-                    if (!state.HasAll(MoveFunction.State.WalkForceFaceBack))
+                    attackObj = GameObject.Instantiate(loadObj);
+                    AfterPrefabLoad();
+                });
+
+                void AfterPrefabLoad()
+                {
+                    ParticleSystem bulletSystem = attackObj.gameObject.GetComponent<ParticleSystem>();
+                    if (bulletSystem != null)
                     {
-                        f.x *= -1;
+                        Bullet bullet = bulletSystem.GetComponent<Bullet>();
+
+                        SetupParticleSystem(bulletSystem);
+                        bullet.AddParticleTriggerEnterAction(ParticleTriggerEvent);
+                        bullet.Shot();
                     }
-                    rigidbody.AddForce(f, ForceMode2D.Impulse);
+                    else
+                    {
+
+                        #region Set Position and Scale.x
+                        Transform transform = attackObj.transform;
+                        Transform transTar = gameObject.GetComponentInChildren<AttackPointer>().transform;
+                        transform.position = transTar.position;
+                        if (state != null)
+                        {
+                            Vector3 localScale = transform.localScale;
+                            float x_abs = localScale.x.Abs();
+                            bool reverse = state.HasAll(MoveFunction.State.WalkForceFaceBack);
+                            localScale.x = reverse ? x_abs * -1 : x_abs;
+                            transform.localScale = localScale;
+                        }
+                        #endregion
+                        // * Region Set Position and Scale.x End---------------------------------- 
+
+                        Timer.Wait(gameObject, profile.slapColliderExistTime, () => attackObj.Destroy());
+
+                        if (state != null)
+                        {
+                            Timer.Wait(gameObject, profile.actionLastTime, () =>
+                            {
+                                state.Remove(State.Attack);
+                            });
+                        }
+
+
+                        AttackInstance attackInstance = attackObj.GetComponentInChildren<AttackInstance>();
+                        attackInstance.attacker = gameObject;
+                        attackInstance.attackProfile = profile;
+
+
+
+
+                    }
+                }
+
+
+
+
+
+            }
+            // * ---------------------------------- 
+            public class AttackProfile
+            {
+                public Animation.StateName playAnimation = Animation.StateName.Attack;
+                public string prefabPath = "Prefab/DefaultHit";
+                public AttackType shotType = default;
+                public float delayTime = 0.4f;
+                public Vector2 backFireForce = default;
+
+                public float actionLastTime = 1f;
+
+                public float slapColliderExistTime = 1f;
+
+                public bool bulletPierce = false;
+
+
+                public AttackProfile(AttackType defaultTypeSetup)
+                {
+                    if (defaultTypeSetup == AttackType.HeroDefaultSlap)
+                    {
+
+                    }
+                    else if (defaultTypeSetup == AttackType.HeroDefaultShot)
+                    {
+
+                    }
+                }
+                public AttackProfile() => new AttackProfile(AttackType.HeroDefaultSlap);
+
+
+
+                public static List<AttackProfile> Default = new List<AttackProfile>()
+                {
+                   new AttackProfile(AttackType.HeroDefaultSlap),
+                   new AttackProfile(AttackType.HeroDefaultShot)
+                };
+
+                public static AttackProfile GetProfile(AttackType shotType, List<AttackProfile> profiles)
+                {
+                    AttackProfile result = null;
+
+                    result = profiles.Find((x) => x.shotType == shotType);
+                    if (result == null)
+                    {
+                        result = Default.Find((x) => x.shotType == shotType);
+                    }
+                    if (result == null)
+                    {
+                        result = new AttackProfile();
+                    }
+
+                    return result;
                 }
 
             }
+
+            public enum AttackType
+            {
+                HeroDefaultSlap,
+                HeroDefaultShot,
+            }
+
+
+            // * ---------------------------------- 
+
+            public void Attack()
+            {
+                AttackProfile attackProfile = AttackProfile.GetProfile(data.attackType, data.attackProfiles);
+                Animation.Play(gameObject, attackProfile.playAnimation);
+                if (state != null)
+                {
+                    state.Add(State.Attack);
+                }
+
+                Timer.Wait(gameObject, attackProfile.delayTime, AttackAction);
+
+            }
+
 
 
         }
@@ -967,16 +1065,7 @@ namespace Global
 
         public static class ExFunction
         {
-            public static void PlayAnimatioin(GameObject parentObject, string animationName)
-            {
-                GameObject gameObject = parentObject;
-                AnimationHolder animationHolder = gameObject.GetComponentInChildren<AnimationHolder>();
-                if (animationHolder == null) return;
 
-                animationHolder.gameObject.GetComponentInChildren<Animation>().Play(animationName);
-
-
-            }
 
             public static T GetFunctionInParent<T>(GameObject gameObject) where T : class
             {
@@ -995,15 +1084,64 @@ namespace Global
 
 
 
-        public class Attack
+
+
+        public static class ResouceDynimicLoader
         {
-            public Vector2 force;
+            public static List<LoadFile> loadFiles = new List<LoadFile>();
 
-
-            public enum AttackType
+            public class LoadFile
             {
-                HeroNormalShot,
+                public System.Object file;
+                public string path;
             }
+
+
+            public static void LoadAsync<T>(string path, Action<T> action) where T : UnityEngine.Object
+            {
+                LoadFile loadFile = loadFiles.Find((x) => x.path == path);
+                if (loadFile != null)
+                {
+                    action((T)loadFile.file);
+                }
+                else
+                {
+                    ResourceRequest resourceRequest = Resources.LoadAsync<T>(path);
+                    Action<AsyncOperation> actionA = (d) =>
+                    {
+                        UnityEngine.Object file = resourceRequest.asset;
+                        LoadFile lf = new LoadFile();
+                        lf.path = path;
+                        lf.file = file;
+                        loadFiles.Add(lf);
+                        action((T)file);
+                    };
+                    resourceRequest.completed += actionA;
+                }
+
+            }
+
+        }
+
+        public class Animation
+        {
+
+            public static string paramaterName = "StateIndex";
+            public enum StateName
+            {
+                Stand = 0,
+                Attack = 3,
+                Walking = 1,
+                Shot = 2,
+            }
+
+            public static void Play(GameObject gameObject, StateName state)
+            {
+                Animator animator = gameObject.GetComponentInChildren<Animator>();
+
+                animator.SetInteger(paramaterName, (int)state);
+            }
+
         }
 
 

@@ -10,35 +10,38 @@ namespace Global
     public class UnityEventPort
     {
         public List<Event> eventList = new List<Event>();
-        public List<UnityAction> delayOneTimeActions = new List<UnityAction>();
 
         public void AddEventAction(EventType type, int runOrder, UnityAction<CallbackData> action, bool sort = false)
         {
-            if (!eventList.Exists((m) => m.eventType == type))
+            OrderRun.AddAction(() =>
             {
-                eventList.Add(new Event(type));
-            }
-
-            Event evt = eventList.Find((m) => m.eventType == type);
-
-
-            Event.EventAction ea = new Event.EventAction();
-            ea.runOrder = runOrder;
-            ea.action = action;
-            evt.actionList.Add(ea);
-
-            if (sort)
-            {
-                eventList.ForEach((m) =>
+                if (!eventList.Exists((m) => m.eventType == type))
                 {
-                    m.actionList.Sort((x, y) => x.runOrder.CompareTo(y.runOrder));
-                });
-            }
+                    eventList.Add(new Event(type));
+                }
+
+                Event evt = eventList.Find((m) => m.eventType == type);
+
+
+                Event.EventAction ea = new Event.EventAction();
+                ea.runOrder = runOrder;
+                ea.action = action;
+                evt.actionList.Add(ea);
+
+                if (sort)
+                {
+                    eventList.ForEach((m) =>
+                    {
+                        m.actionList.Sort((x, y) => x.runOrder.CompareTo(y.runOrder));
+                    });
+                }
+            });
+
 
         }
         public void RemoveEventAction(EventType type, UnityAction<CallbackData> action)
         {
-            delayOneTimeActions.Add(() =>
+            OrderRun.AddAction(() =>
             {
                 Event evt = eventList.Find((m) => m.eventType == type);
                 if (evt != null)
@@ -46,25 +49,25 @@ namespace Global
                     evt.actionList.RemoveAll((x) => x.action == action);
                 }
             });
+
         }
 
 
         public void RunEventAction(EventType type, CallbackData data)
         {
-
-            Event evt = eventList.Find((m) => m.eventType == type);
-            if (evt != null)
+            OrderRun.AddAction(() =>
             {
-                evt.actionList.ForEach((m) =>
+                Event evt = eventList.Find((m) => m.eventType == type);
+                if (evt != null)
                 {
-                    m.action(data);
-                });
-            }
-            delayOneTimeActions.ForEach((e) =>
-            {
-                e();
+                    evt.actionList.ForEach((m) =>
+                    {
+                        m.action(data);
+                    });
+                }
             });
-            delayOneTimeActions.RemoveRange(0, delayOneTimeActions.Count);
+
+
 
 
         }

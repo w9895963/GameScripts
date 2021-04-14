@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class C_OrderRun {
+public class OrderRun {
     private static List<UnityAction> actions = new List<UnityAction> ();
 
 
-    public static void OrderRun (UnityAction action) {
+    public static void AddAction (UnityAction action) {
         actions.Add (() => {
             action ();
             actions.RemoveAt (0);
@@ -25,6 +25,6 @@ public class C_OrderRun {
 
 public static class Extension_C_OrderRun {
     public static void OrderRun (this Global.Function fn, UnityAction action) {
-        C_OrderRun.OrderRun (action);
+        global::OrderRun.AddAction (action);
     }
 }
