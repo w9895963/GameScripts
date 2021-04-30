@@ -14,13 +14,15 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 
 {
 
-    public StateFunction.Data stateData = new StateFunction.Data();
+    public StateFunc.Data stateData = new StateFunc.Data();
     public ReferenceFunction.Data referenceFunction = new ReferenceFunction.Data();
     public GravityFunction.Data gravityData = new GravityFunction.Data();
-    public MoveFunction.Data walkingData = new MoveFunction.Data();
+    public WalkFunc.Data walkingData = new WalkFunc.Data();
     public GroundTestFunction.Data groundTest = new GroundTestFunction.Data();
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
     public AttackFunc.Data AttackData = new AttackFunc.Data();
+    public PlayerAttackFunc.Data playerAttack = new PlayerAttackFunc.Data();
+    public HitableFunction.Data hittable = new HitableFunction.Data();
 
 
 
@@ -33,13 +35,15 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         functionManager = new FunctionManager(gameObject);
 
         var fm = functionManager;
-        fm.CreateFunction<StateFunction>(stateData);
+        fm.CreateFunction<StateFunc>(stateData);
         fm.CreateFunction<ReferenceFunction>(referenceFunction);
 
         fm.CreateFunction<GroundTestFunction>(groundTest);
         fm.CreateFunction<GravityFunction>(gravityData);
-        fm.CreateFunction<MoveFunction>(walkingData);
+        fm.CreateFunction<WalkFunc>(walkingData);
         fm.CreateFunction<AttackFunc>(AttackData);
+        fm.CreateFunction<PlayerAttackFunc>(playerAttack);
+        fm.CreateFunction<HitableFunction>(hittable);
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
 
         fm.CallLateCreateAction();
@@ -49,7 +53,10 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
 
 
 
-
+    private void OnParticleTrigger()
+    {
+        Debug.Log(123);
+    }
 
 
 

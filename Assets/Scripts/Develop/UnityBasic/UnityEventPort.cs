@@ -139,18 +139,6 @@ namespace Global
                 fixedUpdateEvent.unityEventPort.RemoveEventAction(EventType.FixedUpdate, action);
             }
         }
-        public static void AddOnDestroyAction(GameObject gameObject,
-                                               int runOrder,
-                                               UnityAction<CallbackData> action)
-        {
-            UnityEvent_OnDestroy comp = gameObject.GetComponent<UnityEvent_OnDestroy>();
-            if (comp == null)
-            {
-                comp = gameObject.AddComponent<UnityEvent_OnDestroy>();
-            }
-            comp.unityEventPort.AddEventAction(EventType.OnDestroy, runOrder, action);
-
-        }
 
         public static void AddCollisionAction(GameObject gameObject,
                                                     int runOrder,
@@ -176,19 +164,8 @@ namespace Global
             }
 
         }
-        public static void AddTriggerAction(GameObject gameObject,
-                                                    int runOrder,
-                                                    UnityAction<CallbackData> onTriggerEnter)
-        {
-            UnityTriggerEventEnter comp = gameObject.GetComponent<UnityTriggerEventEnter>();
-            if (comp == null)
-            {
-                comp = gameObject.AddComponent<UnityTriggerEventEnter>();
-            }
-            UnityEventPort port = comp.unityEventPort;
-            port.AddEventAction(EventType.OnTriggerEnter2D, runOrder, onTriggerEnter);
 
-        }
+     
 
 
 

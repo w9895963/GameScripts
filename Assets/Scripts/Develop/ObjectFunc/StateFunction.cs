@@ -9,7 +9,7 @@ namespace Global
 {
     namespace ObjectDynimicFunction
     {
-        public class StateFunction : IFunctionCreate
+        public class StateFunc : IFunctionCreate
         {
             [System.Serializable]
             public class Data
@@ -40,7 +40,6 @@ namespace Global
                 public System.Func<System.Object> dataMapper = () => null;
 
             }
-            public enum Action { add, remove }
 
             // * ----------------------------------  Core
 
@@ -164,7 +163,7 @@ namespace Global
             {
                 onStateChangeAction -= action;
             }
-            public void AddStateAction_Add(System.Enum state, System.Action action)
+            public void AddStateAddAction(System.Enum state, System.Action action)
             {
                 (string state, System.Action action) a = (state.ToString(), action);
                 onStateAddActions.Add(a);
@@ -174,7 +173,7 @@ namespace Global
             {
                 onStateAddActions.RemoveAll((x) => x.action == action);
             }
-            public void AddStateAction_Remove(System.Enum state, System.Action action)
+            public void AddStateRemoveAction(System.Enum state, System.Action action)
             {
                 (string state, System.Action action) a = (state.ToString(), action);
                 onStateRemoveActions.Add(a);
@@ -184,16 +183,7 @@ namespace Global
             {
                 onStateRemoveActions.RemoveAll((x) => x.action == action);
             }
-            public System.Func<T> GetStateDataMapper<T>(System.Enum state)
-            {
-                System.Func<T> t = () => default;
-                State st = data.stateList.Find((s) => s.name == state.ToString());
-                if (st != null)
-                {
-                    t = () => (T)st.dataMapper();
-                }
-                return t;
-            }
+          
 
 
         }

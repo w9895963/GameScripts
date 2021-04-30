@@ -118,7 +118,7 @@ public static class ExtensionMethod
 
     #endregion //*endregion
 
-
+  
 
 
     #region //*Vector
@@ -329,7 +329,7 @@ public static class ExtensionMethod
     {
         return f == 1 ? true : false;
     }
-    
+
 
 
     public static Vector2 ToVector2(this float fl)

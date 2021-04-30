@@ -1,38 +1,35 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Global;
 using UnityEngine;
-using System;
 
-public class UnityEvent_OnDestroy : MonoBehaviour
+public class UnityEvent_FixedUpdate : MonoBehaviour
 {
     private Action action;
 
-    private void OnDestroy()
+
+    private void FixedUpdate()
     {
         action.Invoke();
     }
-   
+
 
     public static void AddEvent(GameObject gameObject, Action action)
     {
 
-        UnityEvent_OnDestroy com = gameObject.GetComponent<UnityEvent_OnDestroy>();
+        UnityEvent_FixedUpdate com = gameObject.GetComponent<UnityEvent_FixedUpdate>();
         if (com == null)
         {
-            com = gameObject.AddComponent<UnityEvent_OnDestroy>();
+            com = gameObject.AddComponent<UnityEvent_FixedUpdate>();
         }
         com.action += action;
     }
     public static void RemoveEvent(GameObject gameObject, Action action)
     {
-        UnityEvent_OnDestroy com = gameObject.GetComponent<UnityEvent_OnDestroy>();
+        UnityEvent_FixedUpdate com = gameObject.GetComponent<UnityEvent_FixedUpdate>();
         if (com != null)
         {
             com.action -= action;
         }
     }
-
-
-
 }

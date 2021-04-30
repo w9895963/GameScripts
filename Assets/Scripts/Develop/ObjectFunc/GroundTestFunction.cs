@@ -12,7 +12,6 @@ namespace Global
     {
         public class GroundTestFunction : IFunctionCreate
         {
-            public enum State { onGround }
             [System.Serializable]
             public class Data
             {
@@ -21,7 +20,7 @@ namespace Global
             }
             private Data data;
             private GameObject gameObject;
-            private StateFunction state;
+            private StateFunc state;
             private FunctionManager fm;
 
 
@@ -30,7 +29,7 @@ namespace Global
                 fm = functionManager;
                 data = fm.GetData<Data>(this);
                 gameObject = fm.gameObject;
-                state = fm.GetFunction<StateFunction>();
+                state = fm.GetFunction<StateFunc>();
                 UnityEventPort.AddCollisionAction(gameObject, 0,
                                                  onCollisionEnter: OnCollisionEnter,
                                                  onCollisionExit: OnCollisionExit);
@@ -67,7 +66,8 @@ namespace Global
                 {
                     if (state != null)
                     {
-                        state.Add(State.onGround);
+                        state.Add(AllState.OnGround);
+
                     }
 
                 }
@@ -75,7 +75,7 @@ namespace Global
                 {
                     if (state != null)
                     {
-                        state.Remove(State.onGround);
+                        state.Remove(AllState.OnGround);
                     }
                 }
             }

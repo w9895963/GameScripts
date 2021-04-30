@@ -8,13 +8,25 @@ using Global.ObjectDynimicFunction;
 
 public class Bullet : MonoBehaviour
 {
+    public static List<Bullet> AllBullets { get => allBullets; }
+    public ParticleSystem ParticleSystem { get => particleSystem; }
+
+    private static List<Bullet> allBullets = new List<Bullet>();
+    // * ---------------------------------- 
     private Action<HitData> onParticleTriggerEnter;
     private new ParticleSystem particleSystem;
+
 
 
     private void Awake()
     {
         particleSystem = GetComponent<ParticleSystem>();
+        allBullets.Add(this);
+
+    }
+    private void OnDestroy()
+    {
+        allBullets.Remove(this);
     }
 
     private void OnParticleTrigger()
@@ -36,11 +48,14 @@ public class Bullet : MonoBehaviour
 
 
             if (hitData.IsParticleModified)
+            {
+
                 ptc.SetTriggerParticles(ParticleSystemTriggerEventType.Enter, hitData.Particles);
+            }
         }
 
     }
-   
+
 
 
 
@@ -91,24 +106,26 @@ public class Bullet : MonoBehaviour
         }
 
         public void SetParticle(Func<ParticleSystem.Particle, ParticleSystem.Particle> setAction,
-                                Component hitCollider = null)
+                                List<Component> hitColliders = null)
         {
 
             var cldData = colliderData;
             for (int ptcI = 0; ptcI < particleList.Count; ptcI++)
             {
-                if (hitCollider == null)
+                if (hitColliders == null)
                 {
+                    Debug.Log(0);
                     particleList[ptcI] = setAction(particleList[ptcI]);
                     particleModified = true;
                 }
                 else
                 {
+                    Debug.Log(9);
                     int cldC = cldData.GetColliderCount(ptcI);
                     for (int CldI = 0; CldI < cldC; CldI++)
                     {
                         Component cld = cldData.GetCollider(ptcI, CldI);
-                        if (hitCollider == cld)
+                        if (hitColliders.Contains(cld))
                         {
                             particleList[ptcI] = setAction(particleList[ptcI]);
                             particleModified = true;
@@ -143,6 +160,7 @@ public class Bullet : MonoBehaviour
         {
             return colliderHitDic[collider];
         }
+
     }
 
     public void AddParticleTriggerEnterAction(Action<HitData> action)

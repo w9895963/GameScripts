@@ -6,11 +6,13 @@ using Global;
 
 public class Enemy : MonoBehaviour, IFunctionManager
 {
+    private FunctionManager functionManager;
 
     public HitableFunction.Data hitableFunctionData = new HitableFunction.Data();
-    public MoveFunction.Data walkingFuncionData = new MoveFunction.Data();
-    public StateFunction.Data StateFunctionData = new StateFunction.Data();
-    private FunctionManager functionManager;
+    public WalkFunc.Data walkingFuncionData = new WalkFunc.Data();
+    public StateFunc.Data StateFunctionData = new StateFunc.Data();
+    public AttackFunc.Data attack = new AttackFunc.Data();
+    public AutoAttackFunc.Data autoAttack = new AutoAttackFunc.Data();
 
     public FunctionManager Manager => functionManager;
 
@@ -20,12 +22,14 @@ public class Enemy : MonoBehaviour, IFunctionManager
 
 
 
-        functionManager.CreateFunction<StateFunction>(StateFunctionData);
+        functionManager.CreateFunction<StateFunc>(StateFunctionData);
         functionManager.CreateFunction<HitableFunction>(hitableFunctionData);
-        functionManager.CreateFunction<MoveFunction>(walkingFuncionData);
+        functionManager.CreateFunction<WalkFunc>(walkingFuncionData);
+        functionManager.CreateFunction<AttackFunc>(attack);
+        functionManager.CreateFunction<AutoAttackFunc>(autoAttack);
 
 
-        
+
         functionManager.CallLateCreateAction();
 
 

@@ -18,17 +18,6 @@ namespace Global
             public FunctionManager(GameObject gameObject)
             {
                 this.gameObject = gameObject;
-                UnityEventPort.AddOnDestroyAction(gameObject, 0, (d) =>
-                {
-                    functionList.ForEach((f) =>
-                    {
-                        if (f is IOnDestroy)
-                        {
-                            IOnDestroy f1 = (IOnDestroy)f;
-                            f1.OnDestroy();
-                        }
-                    });
-                });
 
             }
 
@@ -101,6 +90,10 @@ namespace Global
             }
             public static T GetFunction<T>(GameObject gameObject) where T : class
             {
+                if (gameObject == null)
+                {
+                    return null;
+                }
                 FunctionManager functionManager = GetFunctionManager(gameObject);
                 if (functionManager == null)
                 { return null; }
