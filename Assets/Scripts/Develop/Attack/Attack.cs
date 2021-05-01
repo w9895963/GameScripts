@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Global.ObjectDynimicFunction;
+using Global.ResouceBundle;
+using System;
 
 namespace Global
 {
-    namespace Attack
+    namespace AttackBundle
     {
         public enum AttackType
         {
             HeroDefaultSlap,
             HeroDefaultShot,
+        }
+        public enum AttackBasictype
+        {
+            Slap,
+            Shot
         }
 
 
@@ -20,8 +27,15 @@ namespace Global
         {
             public static List<AttackProfile> AllProfiles = DefaultAllProfiles;
             // * ---------------------------------- 
-            public string prefabPath = "Prefab/DefaultHit";
+            //Key
             public AttackType attackType = default;
+
+            //PreBuild
+            public string prefabPath = "Prefab/DefaultSlap";
+
+
+            public AttackBasictype attackBasictype = AttackBasictype.Slap;
+
             public float delayTime = 0.2f;
             public float attackBackForce = 0;
             public float hitBackForce = 0;
@@ -33,6 +47,8 @@ namespace Global
             public float slapObjectExistTime = 0.2f;
 
             public bool bulletPierce = false;
+
+
 
             public AttackProfile(AttackType defaultTypeSetup)
             {
@@ -59,7 +75,7 @@ namespace Global
 
 
 
-            public static AttackProfile GetProfile(AttackType type)
+            public static AttackProfile GetGlobalProfile(AttackType type)
             {
                 AttackProfile result = null;
 
@@ -74,30 +90,67 @@ namespace Global
             }
 
         }
-        public static class AttackUtility
+
+
+        public static class Attack
         {
             public static void CharacterAttack(GameObject gameObject, AttackType type)
             {
-                AttackProfile profile = AttackProfile.GetProfile(type);
-                string prefabPath = profile.prefabPath;
-                AttackType attackType = profile.attackType;
+                PrepareAttackObject(gameObject, type,
+                RunAttack);
 
-                AttackManagerCM cm = gameObject.GetComponentsInChildren<AttackManagerCM>().First((x) =>
-                {
-                    AttackManagerCM.AttackBuildFunc attackBuildFunc = FunctionManager.GetFunction<AttackManagerCM.AttackBuildFunc>(x.gameObject);
-                    AttackType atype = attackBuildFunc.AttackProfile.attackType;
-                    bool v = atype == type;
-                    return true;
-                });
 
-                bool hasManager = cm != null;
-                if (hasManager)
+
+                #region Local Method
+
+                static void PrepareAttackObject(GameObject gameObject, AttackType type, Action<GameObject> callbackAction)
                 {
-                    cm.GetComponent<Animator>().Play("Attack", 0, 0);
+                    GameObject attackObj = null;
+
+                    AttackProfile profile = AttackProfile.GetGlobalProfile(type);
+                    string prefabPath = profile.prefabPath;
+                    AttackType attackType = type;
+
+                    AttackManagerCM cm = gameObject.GetComponentsInChildren<AttackManagerCM>().ToList().Find((x) =>
+                    {
+                        AttackManagerCM.AttackBuildFunc attackBuildFunc = FunctionManager.GetFunction<AttackManagerCM.AttackBuildFunc>(x.gameObject);
+                        AttackType atype = attackBuildFunc.AttackProfile.attackType;
+                        return atype == type;
+                    });
+
+                    attackObj = cm?.gameObject;
+
+                    if (attackObj != null)
+                    {
+                        callbackAction(attackObj);
+                        return;
+                    }
+
+                    ResouceDynimicLoader.LoadAsync<GameObject>(prefabPath, (loadObj) =>
+                    {
+
+                        callbackAction(loadObj);
+                    });
+
                 }
 
 
+                static void RunAttack(GameObject obj)
+                {
+                    Debug.Log(obj);
+                    Slap slap = obj.GetComponent<Slap>();
+                    if (slap != null)
+                    {
+                        slap.DoSlap();
+                    }
+
+                }
+                #endregion
+                // * Region Local Method End---------------------------------- 
+
             }
+
+
 
         }
 

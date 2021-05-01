@@ -4,7 +4,7 @@ using UnityEngine;
 using Global.ObjectDynimicFunction;
 using System;
 using Global;
-using Global.Attack;
+using Global.AttackBundle;
 
 public class AttackManagerCM : MonoBehaviour, IFunctionManager
 {
@@ -87,7 +87,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
             //*Set Position
             Vector3 p = default;
             Quaternion r = default;
-            AttackPointer blpt = attacker.GetComponentInChildren<AttackPointer>();
+            AttackPointerLo blpt = attacker.GetComponentInChildren<AttackPointerLo>();
             if (blpt != null)
             {
                 p = blpt.transform.position;
@@ -186,7 +186,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
 
             #region Set Position and parent and Scale.x
             Transform transform = gameObject.transform;
-            AttackPointer attackPointer = attacker.GetComponentInChildren<AttackPointer>();
+            AttackPointerLo attackPointer = attacker.GetComponentInChildren<AttackPointerLo>();
 
             Transform transTar;
             if (attackPointer != null)

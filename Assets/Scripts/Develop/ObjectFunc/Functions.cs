@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Global.ObjectDynimicFunction;
 using Global.Physic;
-using Global.Attack;
+using Global.ResouceBundle;
+using Global.AttackBundle;
+using Global.CharacterBundle;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
 using Global.Animate;
@@ -380,16 +382,16 @@ namespace Global
                       {
                           if (st.HasNo(AllState.WalkForceLeft, AllState.WalkForceRight))
                           {
-                              Animation.Play(gameObject, Animation.StateName.Stand);
+                              CharacterAnimation.Play(gameObject, CharacterAnimation.State.Stand);
                           }
                           else
                           {
-                              Animation.Play(gameObject, Animation.StateName.Walking);
+                              CharacterAnimation.Play(gameObject, CharacterAnimation.State.Walking);
                           }
 
 
                           // set faceing
-                          var animationHolder = gameObject.GetComponentInChildren<AnimationHolder>();
+                          var animationHolder = gameObject.GetComponentInChildren<CharacterAnimatorLo>();
                           if (animationHolder == null)
                           {
                               return;
@@ -786,8 +788,8 @@ namespace Global
 
             public void Attack()
             {
-                attackProfile = AttackProfile.GetProfile(data.attackType);
-                Animation.Play(gameObject, Animation.StateName.Attack);
+                attackProfile = AttackProfile.GetGlobalProfile(data.attackType);
+                CharacterAnimation.Play(gameObject, CharacterAnimation.State.Attack);
 
 
 
@@ -871,7 +873,7 @@ namespace Global
                     bool exist = contrl.animationClips.First((clip) => clip.name == "Attack") != null;
                     if (exist)
                     {
-                        Animation.Play(gameObject, Animation.StateName.Attack);
+                        CharacterAnimation.Play(gameObject, CharacterAnimation.State.Attack);
 
                     }
                     #endregion
@@ -886,7 +888,7 @@ namespace Global
                     // * Region State Update End---------------------------------- 
 
 
-                    AttackUtility.CharacterAttack(gameObject, AttackType.HeroDefaultSlap);
+                    Attack.CharacterAttack(gameObject, AttackType.HeroDefaultSlap);
 
 
                 }
@@ -957,70 +959,9 @@ namespace Global
 
 
 
-        public static class ResouceDynimicLoader
-        {
-            public static List<LoadFile> loadFiles = new List<LoadFile>();
-
-            public class LoadFile
-            {
-                public System.Object file;
-                public string path;
-            }
 
 
-            public static void LoadAsync<T>(string path, Action<T> action) where T : UnityEngine.Object
-            {
-                LoadFile loadFile = loadFiles.Find((x) => x.path == path);
-                if (loadFile != null)
-                {
-                    action((T)loadFile.file);
-                }
-                else
-                {
-                    ResourceRequest resourceRequest = Resources.LoadAsync<T>(path);
-                    Action<AsyncOperation> actionA = (d) =>
-                    {
-                        UnityEngine.Object file = resourceRequest.asset;
-                        LoadFile lf = new LoadFile();
-                        lf.path = path;
-                        lf.file = file;
-                        loadFiles.Add(lf);
-                        action((T)file);
-                    };
-                    resourceRequest.completed += actionA;
-                }
 
-            }
-
-        }
-
-        public class Animation
-        {
-
-            public static string paramaterName = "StateIndex";
-            public enum StateName
-            {
-                Stand = 0,
-                Attack = 3,
-                Walking = 1,
-                Shot = 2,
-            }
-
-            public static void Play(GameObject gameObject, StateName state)
-            {
-                Animator animator = gameObject.GetComponentInChildren<Animator>();
-                string stateName = state.ToString();
-                if (animator == null)
-                { return; }
-                AnimationClip[] animationClips = animator.runtimeAnimatorController.animationClips;
-                bool animationExist = animationClips.Any((clip) => clip.name == stateName);
-                if (animationExist)
-                {
-                    animator.Play(stateName);
-                }
-            }
-
-        }
 
         public enum AllState
         {

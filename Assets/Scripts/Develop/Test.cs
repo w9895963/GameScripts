@@ -13,8 +13,9 @@ public class Test : MonoBehaviour
     }
     private void Reset()
     {
-        Action a = cl ;
+        Action a = cl;
         Debug.Log(a);
+
     }
 
 

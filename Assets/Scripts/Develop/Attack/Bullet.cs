@@ -10,7 +10,7 @@ public class Bullet : MonoBehaviour
 {
     public static List<Bullet> AllBullets { get => allBullets; }
     public ParticleSystem ParticleSystem { get => particleSystem; }
-
+    // * ---------------------------------- 
     private static List<Bullet> allBullets = new List<Bullet>();
     // * ---------------------------------- 
     private Action<HitData> onParticleTriggerEnter;

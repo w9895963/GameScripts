@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Global.CharacterBundle;
 using Global.ObjectDynimicFunction;
-public class AnimationHolder : MonoBehaviour
+public class CharacterAnimatorLo : MonoBehaviour
 {
 
 

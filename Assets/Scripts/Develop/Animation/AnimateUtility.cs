@@ -19,7 +19,7 @@ namespace Global
             {
                 if (animation != null)
                 {
-                    GameObject animationHolder = gameObject.GetComponentInChildren<AnimationHolder>().gameObject;
+                    GameObject animationHolder = gameObject.GetComponentInChildren<CharacterAnimatorLo>().gameObject;
                     animationHolder.FindAllChild().Destroy();
                     GameObject aniObj = animationHolder.CreateChild(animation);
                     Vector3 localScale = aniObj.transform.localScale;
