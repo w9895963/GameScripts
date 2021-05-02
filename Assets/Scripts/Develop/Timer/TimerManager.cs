@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using static Global.Timer;
+using static Global.TimerMgr;
 
 public class TimerManager : MonoBehaviour
 {
@@ -58,7 +58,7 @@ public class TimerManager : MonoBehaviour
 namespace Global
 {
 
-    public static class Timer
+    public static class TimerMgr
     {
         public static TimerManager TimerManager
         {

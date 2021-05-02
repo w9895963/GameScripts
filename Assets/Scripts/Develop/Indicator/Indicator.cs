@@ -33,6 +33,11 @@ public class Indicator : MonoBehaviour
         {
             render.enabled = Show;
         }
+        SpriteShapeController spriteShapeController = x.GetComponent<SpriteShapeController>();
+        if (spriteShapeController != null)
+        {
+            spriteShapeController.enabled = Show;
+        }
     }
     public static void ToggleIndicator(bool? enabled = null)
     {

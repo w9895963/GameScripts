@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Global;
+using Global.AttackBundle;
+using Global.ResouceBundle;
 using UnityEngine;
 
 public class Slap : MonoBehaviour
@@ -12,39 +14,47 @@ public class Slap : MonoBehaviour
     [System.Serializable]
     public class Data
     {
-
+        public AttackType attackType = AttackType.HeroDefaultSlap;
+        public float lifeTime = 0.6f;
     }
-    public Event events = new Event();
-    public class Event
+
+
+
+    private void Start()
     {
-
+        RunSlayAnimation();
     }
+
 
 
 
     private void RunSlayAnimation()
     {
         string runState = AnimationName.Run.ToString();
-        string stopState = AnimationName.Stop.ToString();
         Animator animator = GetComponent<Animator>();
-        Debug.Log(animator);
-        Debug.Log(animator.gameObject);
-        Debug.Log(animator.gameObject.activeSelf);
-        animator.Play(runState);
-        animator.SetBool("Bool", true);
-        // animator.GetCurrentAnimatorStateInfo().
-        // Timer.Wait(gameObject, length, () =>
-        // {
-        //     animator.Play(stopState, 0, 0);
-        // });
+        animator.Play(runState, 0, 0);
+        float length = animator.GetCurrentAnimatorStateInfo(0).length;
+        TimerMgr.Wait(gameObject, length, () =>
+        {
+            gameObject.Destroy();
+        });
 
 
     }
 
-    public void DoSlap()
-    {
-        RunSlayAnimation();
 
+
+
+    public static void CreateAttack(AttackType type,
+                Vector2? position = null, float? angle = null)
+    {
+        AttackProfile attackProfile = AttackProfile.GetGlobalProfile(type);
+        string path = attackProfile.prefabPath;
+        Action<GameObject> LoadAction = (attack) =>
+        {
+            GameObject.Instantiate(attack);
+        };
+        ResouceDynimicLoader.LoadAsync<GameObject>(path, LoadAction);
     }
 
 

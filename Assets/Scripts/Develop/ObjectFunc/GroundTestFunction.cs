@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using CharacterBundle;
 using Global;
 using Global.ObjectDynimicFunction;
 using UnityEngine;
@@ -66,7 +67,7 @@ namespace Global
                 {
                     if (state != null)
                     {
-                        state.Add(AllState.OnGround);
+                        state.Add(CharacterState.OnGround);
 
                     }
 
@@ -75,7 +76,7 @@ namespace Global
                 {
                     if (state != null)
                     {
-                        state.Remove(AllState.OnGround);
+                        state.Remove(CharacterState.OnGround);
                     }
                 }
             }

@@ -11,7 +11,6 @@ using UnityEngine.InputSystem;
 using Global.Physic;
 
 public class PlayerManager : MonoBehaviour, IFunctionManager
-
 {
 
     public StateFunc.Data stateData = new StateFunc.Data();
@@ -20,8 +19,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
     public WalkFunc.Data walkingData = new WalkFunc.Data();
     public GroundTestFunction.Data groundTest = new GroundTestFunction.Data();
     public JumpFuntion.Data jumpFuntionData = new JumpFuntion.Data();
-    public AttackFunc.Data AttackData = new AttackFunc.Data();
-    public PlayerAttackFunc.Data playerAttack = new PlayerAttackFunc.Data();
+    public PlayerAttack.Data playerAttack = new PlayerAttack.Data();
     public HitableFunction.Data hittable = new HitableFunction.Data();
 
 
@@ -41,8 +39,7 @@ public class PlayerManager : MonoBehaviour, IFunctionManager
         fm.CreateFunction<GroundTestFunction>(groundTest);
         fm.CreateFunction<GravityFunction>(gravityData);
         fm.CreateFunction<WalkFunc>(walkingData);
-        fm.CreateFunction<AttackFunc>(AttackData);
-        fm.CreateFunction<PlayerAttackFunc>(playerAttack);
+        fm.CreateFunction<PlayerAttack>(playerAttack);
         fm.CreateFunction<HitableFunction>(hittable);
         fm.CreateFunction<JumpFuntion>(jumpFuntionData);
 

@@ -49,8 +49,8 @@ public static class Extension_Fn {
     }
 
     public static GameObject WaitToCall (this Function fn, float time, UnityAction action) {
-        Timer.TimerControler timerControler = Timer.BasicTimer (time, action, fn.callBy);
-        return Timer.TimerManager.gameObject;
+        TimerMgr.TimerControler timerControler = TimerMgr.BasicTimer (time, action, fn.callBy);
+        return TimerMgr.TimerManager.gameObject;
     }
 
 

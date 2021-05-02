@@ -126,6 +126,12 @@ public static class ObjectExtention
     {
         gameObject.transform.position = p;
     }
+    public static void SetRotation(this GameObject gameObject, float angle)
+    {
+        Quaternion rotation = gameObject.transform.rotation;
+        rotation.z = angle;
+        gameObject.transform.rotation = rotation;
+    }
 
     public static Vector2 GetPosition2d(this GameObject gameObject)
     {
@@ -139,29 +145,8 @@ public static class ObjectExtention
         return position;
     }
 
-    public static void WaitUpdate(this GameObject gameObject, UnityAction call)
-    {
-        BasicEvent basicEvent = gameObject.AddComponent<BasicEvent>();
-        basicEvent.onUpdate.AddListener(() =>
-        {
-            call();
-            basicEvent.DestroySelf();
-        });
-    }
-    public static void WaitLateUpdate(this GameObject gameObject, UnityAction call)
-    {
-        BasicEvent basicEvent = gameObject.AddComponent<BasicEvent>();
-        basicEvent.onLateUpdate.AddListener(() =>
-        {
-            call();
-            basicEvent.DestroySelf();
-        });
-    }
-    public static BasicEvent OnLateUpdate(this GameObject gameObject, UnityAction call)
-    {
-        BasicEvent basicEvent = gameObject.AddComponent<BasicEvent>();
-        basicEvent.onLateUpdate.AddListener(call);
-        return basicEvent;
-    }
+
+
+
 
 }

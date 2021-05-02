@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Global;
-using static Global.Timer;
+using static Global.TimerMgr;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,27 +15,17 @@ namespace Global
             public const string uvClampAttribute = "UVClamp";
             public const string textureAttribute = "SpriteTexture";
 
-            public static void ChangeAnimation(GameObject gameObject, GameObject animation, float facing)
-            {
-                if (animation != null)
-                {
-                    GameObject animationHolder = gameObject.GetComponentInChildren<CharacterAnimatorLo>().gameObject;
-                    animationHolder.FindAllChild().Destroy();
-                    GameObject aniObj = animationHolder.CreateChild(animation);
-                    Vector3 localScale = aniObj.transform.localScale;
-                    aniObj.transform.localScale = new Vector3(localScale.x * facing, localScale.y, localScale.z);
-                }
-            }
+           
 
             public static TimerControler AnimateInt(int start, int end, float duration, UnityAction<int> callcack, AnimationCurve timeCurve = null)
             {
                 int currIndex = start;
-                Timer.TimerControler timerControler = null;
+                TimerMgr.TimerControler timerControler = null;
                 timeCurve = timeCurve != null ? timeCurve : Curve.ZeroOne;
 
                 callcack(start);
 
-                timerControler = Timer.DynimicLoop(DurationCalc, Callback);
+                timerControler = TimerMgr.DynimicLoop(DurationCalc, Callback);
 
                 return timerControler;
 
@@ -87,12 +77,12 @@ namespace Global
                 SetSpriteMaterialTexture(gameobject, textureAnimation.texture);
                 SetAnimateUV(gameobject, 0, col, row);
 
-                Timer.TimerControler timerControler = null;
+                TimerMgr.TimerControler timerControler = null;
                 if (texCount > 1)
                 {
                     int count = 1;
                     float updateTime = ta.animationTime / (float)texCount;
-                    timerControler = Timer.Loop(updateTime, () =>
+                    timerControler = TimerMgr.Loop(updateTime, () =>
                     {
                         SetSpriteMaterialTexture(gameobject, textureAnimation.texture);
                         SetAnimateUV(gameobject, count, col, row);

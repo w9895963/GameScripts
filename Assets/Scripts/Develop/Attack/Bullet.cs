@@ -114,13 +114,11 @@ public class Bullet : MonoBehaviour
             {
                 if (hitColliders == null)
                 {
-                    Debug.Log(0);
                     particleList[ptcI] = setAction(particleList[ptcI]);
                     particleModified = true;
                 }
                 else
                 {
-                    Debug.Log(9);
                     int cldC = cldData.GetColliderCount(ptcI);
                     for (int CldI = 0; CldI < cldC; CldI++)
                     {

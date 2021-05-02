@@ -5,12 +5,12 @@ using Global.ObjectDynimicFunction;
 using Global.Physic;
 using Global.ResouceBundle;
 using Global.AttackBundle;
-using Global.CharacterBundle;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
 using Global.Animate;
 using System.Linq;
 using System;
+using CharacterBundle;
 
 namespace Global
 {
@@ -205,14 +205,14 @@ namespace Global
                 {
                     new Setting(),
                     new Setting(){
-                        state = AllState.Attack,
+                        state = CharacterState.Attack,
                         maxSpeed =1,
                     }
                 };
                 [System.Serializable]
                 public class Setting
                 {
-                    public AllState state = default;
+                    public CharacterState state = default;
                     public bool enableInputControl = true;
                     public float moveForce = 50;
                     public float maxSpeed = 10;
@@ -255,7 +255,7 @@ namespace Global
                 fm = functionManager;
                 gameObject = functionManager.gameObject;
                 data = fm.GetData<Data>(this) ?? new Data();
-                set = data.settings.Find((x) => x.state == AllState.Default);
+                set = data.settings.Find((x) => x.state == CharacterState.Default);
                 vrs = data.variables;
 
             }
@@ -306,7 +306,7 @@ namespace Global
                     }
                     if (!hasBreak)
                     {
-                        set = settings.Find((x) => x.state == AllState.Default) ?? set;
+                        set = settings.Find((x) => x.state == CharacterState.Default) ?? set;
                     }
 
 
@@ -369,29 +369,25 @@ namespace Global
             {
                 StateFunc st = state;
                 if (st == null)
-                {
                     return;
-                }
 
                 System.Action stateChangeAction = () =>
                   {
-
-
-                      bool canAnimate = st.HasNo(AllState.Attack);
+                      bool canAnimate = st.HasNo(CharacterState.Attack);
                       if (canAnimate)
                       {
-                          if (st.HasNo(AllState.WalkForceLeft, AllState.WalkForceRight))
+                          if (st.HasNo(CharacterState.WalkForceLeft, CharacterState.WalkForceRight))
                           {
-                              CharacterAnimation.Play(gameObject, CharacterAnimation.State.Stand);
+                              Player.Animation.Play(Player.AnimationState.Stand);
                           }
                           else
                           {
-                              CharacterAnimation.Play(gameObject, CharacterAnimation.State.Walking);
+                              Player.Animation.Play(Player.AnimationState.Walk);
                           }
 
 
                           // set faceing
-                          var animationHolder = gameObject.GetComponentInChildren<CharacterAnimatorLo>();
+                          var animationHolder = Player.Data.GameObject;
                           if (animationHolder == null)
                           {
                               return;
@@ -399,7 +395,7 @@ namespace Global
 
                           Transform transform = animationHolder.gameObject.transform;
                           Vector3 localScale = transform.localScale;
-                          if (st.HasAll(AllState.FaceLeft))
+                          if (st.HasAll(CharacterState.FaceLeft))
                           {
                               localScale.x = localScale.x.Abs() * -1;
                           }
@@ -423,34 +419,34 @@ namespace Global
                 {
                     if (vrs.walkState > 0)
                     {
-                        state.Add(AllState.WalkForceRight);
+                        state.Add(CharacterState.WalkForceRight);
                     }
                     else
                     {
-                        state.Remove(AllState.WalkForceLeft, AllState.WalkForceRight);
+                        state.Remove(CharacterState.WalkForceLeft, CharacterState.WalkForceRight);
                     }
 
 
 
                     if (vrs.walkState < 0)
                     {
-                        state.Add(AllState.WalkForceLeft);
+                        state.Add(CharacterState.WalkForceLeft);
                     }
                     else
                     {
-                        state.Remove(AllState.WalkForceLeft, AllState.WalkForceRight);
+                        state.Remove(CharacterState.WalkForceLeft, CharacterState.WalkForceRight);
                     }
 
 
                     if (vrs.walkState < 0)
                     {
-                        state.Add(AllState.FaceLeft);
-                        state.Remove(AllState.FaceRight);
+                        state.Add(CharacterState.FaceLeft);
+                        state.Remove(CharacterState.FaceRight);
                     }
                     else if (vrs.walkState > 0)
                     {
-                        state.Add(AllState.FaceRight);
-                        state.Remove(AllState.FaceLeft);
+                        state.Add(CharacterState.FaceRight);
+                        state.Remove(CharacterState.FaceLeft);
                     }
                 }
             }
@@ -569,7 +565,7 @@ namespace Global
                     {
                         if (Time.time - vrs.beginJumpTime < set.minDuration)
                         {
-                            Timer.BasicTimer(vrs.beginJumpTime + set.minDuration - Time.time, () =>
+                            TimerMgr.BasicTimer(vrs.beginJumpTime + set.minDuration - Time.time, () =>
                             {
                                 if (jump == null) return;
                                 jump.Disable();
@@ -594,7 +590,7 @@ namespace Global
                 {
                     return true;
                 }
-                if (!state.HasAll(AllState.OnGround))
+                if (!state.HasAll(CharacterState.OnGround))
                 {
                     return false;
                 }
@@ -621,7 +617,7 @@ namespace Global
                 float time = timeRate.Map(0, 1, vrs.minDuration, vrs.maxDuration);
 
                 jump = rigidbody.AddConstantForce(vrs.force * Vector2.up);
-                Timer.BasicTimer(vrs.maxDuration, () =>
+                TimerMgr.BasicTimer(vrs.maxDuration, () =>
                 {
                     if (jump == null)
                     {
@@ -730,249 +726,19 @@ namespace Global
 
 
 
-        public class AttackFunc : IFunctionCreate, ILateCreate
-        {
 
-            [System.Serializable]
-            public class Data
-            {
-                public AttackType attackType = default;
 
-            }
 
-            #region Privat Fields
-            private FunctionManager fm;
-            private Data data;
-            private StateFunc state;
-            private GameObject gameObject;
-            private Rigidbody2D rigidbody;
-            private AttackProfile attackProfile;
-            private bool reverseFacing = false;
-            #endregion
-            // * Region Privat Fields End---------------------------------- 
 
 
-            public void OnCreate(FunctionManager functionManager)
-            {
-                fm = functionManager;
-                state = fm.GetFunction<StateFunc>();
-                data = fm.GetData<Data>(this);
-                gameObject = fm.gameObject;
 
-            }
-            public void LateCreate()
-            {
-                rigidbody = ReferenceFunction.GetComponent<Rigidbody2D>(gameObject);
-            }
 
 
 
 
-            // * ---------------------------------- 
 
-            private void AttackAction()
-            {
-                GameObject attackManagerObj;
-                AttackProfile profile = attackProfile;
-                ResouceDynimicLoader.LoadAsync<GameObject>(profile.prefabPath, (loadObj) =>
-                {
-                    attackManagerObj = GameObject.Instantiate(loadObj);
-                    FunctionManager.GetFunction<AttackManagerCM.AttackBuildFunc>(attackManagerObj)?.BuildAttack(gameObject, profile);
-                });
 
-            }
 
-
-
-            // * ---------------------------------- 
-
-            public void Attack()
-            {
-                attackProfile = AttackProfile.GetGlobalProfile(data.attackType);
-                CharacterAnimation.Play(gameObject, CharacterAnimation.State.Attack);
-
-
-
-                #region Set and Remove State
-                if (state != null)
-                {
-                    state.Add(AllState.Attack);
-                    reverseFacing = state.HasAll(AllState.FaceLeft);
-                }
-                else
-                {
-                    reverseFacing = false;
-                }
-                Timer.Wait(gameObject, attackProfile.delayTime + attackProfile.actionLastTime, () =>
-                {
-                    state.Remove(AllState.Attack);
-                });
-                #endregion
-                // * Region Set and Remove State End---------------------------------- 
-
-
-
-
-                Timer.Wait(gameObject, attackProfile.delayTime, AttackAction);
-
-            }
-
-
-
-
-        }
-
-        public class PlayerAttackFunc : IFunctionCreate, ILateCreate
-        {
-            [System.Serializable]
-            public class Data
-            {
-
-
-            }
-
-
-            #region Basic Fields ------------
-            private FunctionManager fm;
-            private AttackFunc attackFunc;
-            private StateFunc state;
-            private GameObject gameObject;
-            private Data data;
-            #endregion
-            // ** ---------------------------------- 
-
-
-            public void OnCreate(FunctionManager functionManager)
-            {
-                this.fm = functionManager;
-                var fm = functionManager;
-                gameObject = fm.gameObject;
-
-
-                data = fm.GetData<Data>(this);
-                data = data == null ? new Data() : data;
-
-            }
-
-
-            public void LateCreate()
-            {
-                InputManager.GetInputAction(InputManager.InputName.Shot).performed += ShotInputAction;
-                attackFunc = fm.GetFunction<AttackFunc>();
-                state = fm.GetFunction<StateFunc>();
-            }
-
-            private void ShotInputAction(InputAction.CallbackContext d)
-            {
-                bool stateAllowAttack = state.HasNo(AllState.Attack);
-                if (stateAllowAttack)
-                {
-                    #region Play Animation
-                    Animator animator = gameObject.GetComponentInChildren<Animator>();
-                    RuntimeAnimatorController contrl = animator.runtimeAnimatorController;
-                    bool exist = contrl.animationClips.First((clip) => clip.name == "Attack") != null;
-                    if (exist)
-                    {
-                        CharacterAnimation.Play(gameObject, CharacterAnimation.State.Attack);
-
-                    }
-                    #endregion
-                    // * Region Play Animation End---------------------------------- 
-
-
-
-                    #region State Update
-                    state.Add(AllState.Attack);
-                    Timer.Wait(gameObject, 0.5f, () => { state.Remove(AllState.Attack); });
-                    #endregion
-                    // * Region State Update End---------------------------------- 
-
-
-                    Attack.CharacterAttack(gameObject, AttackType.HeroDefaultSlap);
-
-
-                }
-            }
-
-        }
-        public class AutoAttackFunc : IFunctionCreate, ILateCreate
-        {
-            [System.Serializable]
-            public class Data
-            {
-
-            }
-
-
-            #region Basic Fields ------------
-            private FunctionManager fm;
-            private AttackFunc attackFunc;
-            private GameObject gameObject;
-            private Data data;
-            #endregion
-            // ** ---------------------------------- 
-
-
-            public void OnCreate(FunctionManager functionManager)
-            {
-                this.fm = functionManager;
-                var fm = functionManager;
-                gameObject = fm.gameObject;
-
-                attackFunc = fm.GetFunction<AttackFunc>();
-
-                data = fm.GetData<Data>(this);
-                data = data == null ? new Data() : data;
-
-            }
-
-
-            public void LateCreate()
-            {
-                void ShotOnTime()
-                {
-                    Timer.Wait(gameObject, 0.5f, () =>
-                    {
-                        AttackFunc attack = fm.GetFunction<AttackFunc>();
-                        if (attack != null)
-                        {
-                            attack.Attack();
-                            ShotOnTime();
-                        }
-                    });
-                }
-                ShotOnTime();
-            }
-
-        }
-
-
-        public static class ExFunction
-        {
-
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-        public enum AllState
-        {
-            Default,
-            OnGround,
-            WalkForceLeft,
-            WalkForceRight,
-            FaceLeft,
-            FaceRight,
-            Attack,
-        }
 
 
     }

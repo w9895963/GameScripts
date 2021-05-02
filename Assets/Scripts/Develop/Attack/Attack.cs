@@ -15,7 +15,7 @@ namespace Global
             HeroDefaultSlap,
             HeroDefaultShot,
         }
-        public enum AttackBasictype
+        public enum AttackBasicType
         {
             Slap,
             Shot
@@ -32,13 +32,11 @@ namespace Global
 
             //PreBuild
             public string prefabPath = "Prefab/DefaultSlap";
+            public AttackBasicType attackBasictype = AttackBasicType.Slap;
 
-
-            public AttackBasictype attackBasictype = AttackBasictype.Slap;
 
             public float delayTime = 0.2f;
-            public float attackBackForce = 0;
-            public float hitBackForce = 0;
+
             public bool setParent = true;
 
 
@@ -94,63 +92,38 @@ namespace Global
 
         public static class Attack
         {
-            public static void CharacterAttack(GameObject gameObject, AttackType type)
+
+
+            public static void CreateAttack(AttackType type,
+             Vector2 position = default, float angle = 0, bool flipX = false)
             {
-                PrepareAttackObject(gameObject, type,
-                RunAttack);
+                AttackProfile attackProfile = AttackProfile.GetGlobalProfile(type);
+                string path = attackProfile.prefabPath;
 
+                ResouceDynimicLoader.LoadAsync<GameObject>(path, LoadAction);
 
-
-                #region Local Method
-
-                static void PrepareAttackObject(GameObject gameObject, AttackType type, Action<GameObject> callbackAction)
+                void LoadAction(GameObject attackPrefab)
                 {
-                    GameObject attackObj = null;
+                    GameObject attackObject = CreateAttackObject(attackPrefab);
+                    attackObject.SetPosition(position);
+                    attackObject.SetRotation(angle);
 
-                    AttackProfile profile = AttackProfile.GetGlobalProfile(type);
-                    string prefabPath = profile.prefabPath;
-                    AttackType attackType = type;
-
-                    AttackManagerCM cm = gameObject.GetComponentsInChildren<AttackManagerCM>().ToList().Find((x) =>
-                    {
-                        AttackManagerCM.AttackBuildFunc attackBuildFunc = FunctionManager.GetFunction<AttackManagerCM.AttackBuildFunc>(x.gameObject);
-                        AttackType atype = attackBuildFunc.AttackProfile.attackType;
-                        return atype == type;
-                    });
-
-                    attackObj = cm?.gameObject;
-
-                    if (attackObj != null)
-                    {
-                        callbackAction(attackObj);
-                        return;
-                    }
-
-                    ResouceDynimicLoader.LoadAsync<GameObject>(prefabPath, (loadObj) =>
-                    {
-
-                        callbackAction(loadObj);
-                    });
+                    SetFlipX(attackObject, flipX);
 
                 }
-
-
-                static void RunAttack(GameObject obj)
+                static GameObject CreateAttackObject(GameObject attack)
                 {
-                    Debug.Log(obj);
-                    Slap slap = obj.GetComponent<Slap>();
-                    if (slap != null)
-                    {
-                        slap.DoSlap();
-                    }
-
+                    GameObject obj = GameObject.Instantiate(attack);
+                    return obj;
                 }
-                #endregion
-                // * Region Local Method End---------------------------------- 
-
+                static void SetFlipX(GameObject obj, bool flipX)
+                {
+                    Vector3 localScale = obj.transform.localScale;
+                    float x = localScale.x;
+                    localScale.x = x.Abs() * (flipX == true ? -1 : 1);
+                    obj.transform.localScale = localScale;
+                }
             }
-
-
 
         }
 

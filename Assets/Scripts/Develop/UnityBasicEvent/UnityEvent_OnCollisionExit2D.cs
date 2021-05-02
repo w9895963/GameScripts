@@ -1,27 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using BasicEvent.Component;
-using System;
 
 namespace BasicEvent
 {
     namespace Component
     {
 
-        public class UnityEvent_FixedUpdate : BasicEvent.Component.BaseClass
+        public class UnityEvent_OnCollisionExit2D : BaseClass
         {
-            private void FixedUpdate()
+            private void OnCollisionExit2D(Collision2D other)
             {
-                Invoke(BasicEvent.EventType.FixedUpdate);
+                Invoke(EventType.OnCollisionExit2D,other);
             }
-
-
 
         }
     }
 
-
-
-
+   
 }

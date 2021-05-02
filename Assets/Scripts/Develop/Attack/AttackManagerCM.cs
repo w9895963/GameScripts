@@ -5,6 +5,7 @@ using Global.ObjectDynimicFunction;
 using System;
 using Global;
 using Global.AttackBundle;
+using CharacterBundle;
 
 public class AttackManagerCM : MonoBehaviour, IFunctionManager
 {
@@ -87,7 +88,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
             //*Set Position
             Vector3 p = default;
             Quaternion r = default;
-            AttackPointerLo blpt = attacker.GetComponentInChildren<AttackPointerLo>();
+            AttackLocatorLo blpt = attacker.GetComponentInChildren<AttackLocatorLo>();
             if (blpt != null)
             {
                 p = blpt.transform.position;
@@ -104,7 +105,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
 
             if (state != null)
             {
-                bool faceLeft = state.HasAll(AllState.FaceLeft);
+                bool faceLeft = state.HasAll(CharacterState.FaceLeft);
                 ParticleSystem.ShapeModule shape = ptcS.shape;
                 Vector3 ro = shape.rotation;
                 if (faceLeft)
@@ -186,7 +187,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
 
             #region Set Position and parent and Scale.x
             Transform transform = gameObject.transform;
-            AttackPointerLo attackPointer = attacker.GetComponentInChildren<AttackPointerLo>();
+            AttackLocatorLo attackPointer = attacker.GetComponentInChildren<AttackLocatorLo>();
 
             Transform transTar;
             if (attackPointer != null)
@@ -222,7 +223,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
                 float x_abs = localScale.x.Abs();
                 bool reverseFacing = false;
                 if (state != null)
-                    reverseFacing = state.HasAll(AllState.FaceLeft);
+                    reverseFacing = state.HasAll(CharacterState.FaceLeft);
                 localScale.x = reverseFacing ? x_abs * -1 : x_abs;
                 transform.localScale = localScale;
             }
@@ -233,7 +234,7 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
 
 
 
-            Timer.Wait(gameObject, profile.slapObjectExistTime, () => gameObject.Destroy());
+            TimerMgr.Wait(gameObject, profile.slapObjectExistTime, () => gameObject.Destroy());
         }
 
         public void BuildAttack(GameObject attackerObj, AttackProfile profile)
