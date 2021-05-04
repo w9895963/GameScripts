@@ -108,6 +108,15 @@ public static class ObjectExtention
         Transform parent = gameObject == null ? null : gameObject.transform.parent;
         return parent ? parent.gameObject : null;
     }
+    public static T GetOrAddComponent<T>(this GameObject gameObject) where T : MonoBehaviour
+    {
+        T com = gameObject.GetComponent<T>();
+        if (com == null)
+        {
+            com = gameObject.AddComponent<T>();
+        }
+        return com;
+    }
 
 
 

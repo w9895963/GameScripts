@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Global;
 using Global.AttackBundle;
-using Global.ResouceBundle;
 using UnityEngine;
 
 public class Slap : MonoBehaviour
@@ -54,7 +53,7 @@ public class Slap : MonoBehaviour
         {
             GameObject.Instantiate(attack);
         };
-        ResouceDynimicLoader.LoadAsync<GameObject>(path, LoadAction);
+        ResouceLoader.LazyLoad<GameObject>(path, LoadAction);
     }
 
 

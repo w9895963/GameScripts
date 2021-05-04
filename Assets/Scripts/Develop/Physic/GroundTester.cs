@@ -7,50 +7,33 @@ using UnityEngine;
 
 public class GroundTester : MonoBehaviour
 {
-    #region class
-    [System.Serializable]
-    public class ContactObject
-    {
-        public GameObject gameObject;
-        public Vector2 normal;
-
-    }
-    [System.Serializable]
-    public class Preference
-    {
-        public GameObject gameObject;
-        public Vector2 groundNormal = Vector2.up;
-        public float goundNormalAngleAllow = 5;
-    }
-    [System.Serializable]
-    public class Datas
-    {
-        public List<ContactObject> contactList = new List<ContactObject>();
-        public bool onGround = false;
-    }
-    #endregion
-
 
     #region Fields
 
 
-    private Preference pref;
-    private Vector2 groundNormal => pref.groundNormal;
-    private float goundNormalAngleAllow => pref.goundNormalAngleAllow;
+    public Vector2 standardNormal = Vector2.up;
+    public float goundNormalAngleAllow = 5f;
+    public Vector2 groundNormal;
 
-    private Datas data = new Datas();
-    public Datas Data => data;
-    private List<ContactObject> contactList { set => data.contactList = value; get => data.contactList; }
-    private bool onGround { set => data.onGround = value; get => data.onGround; }
+    public bool isOnGround = false;
+    public List<ContactObject> contactList = new List<ContactObject>();
+
     #endregion
+    // * ---------------------------------- 
 
 
-    public GroundTester(Preference pref)
+    private void OnEnable()
     {
-        this.pref = pref;
+        BasicEvent.OnCollision2D_Enter.Add(gameObject, OnCollisionEnter2DAction);
+        BasicEvent.OnCollision2D_Exit.Add(gameObject, OnCollisionExit2DAction);
+    }
+    private void OnDisable()
+    {
+        BasicEvent.OnCollision2D_Enter.Remove(gameObject, OnCollisionEnter2DAction);
+        BasicEvent.OnCollision2D_Exit.Remove(gameObject, OnCollisionExit2DAction);
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnCollisionEnter2DAction(Collision2D other)
     {
         ContactObject contactObj = new ContactObject();
         contactObj.gameObject = other.gameObject;
@@ -60,40 +43,66 @@ public class GroundTester : MonoBehaviour
 
         OnGroundTest();
     }
-    private void OnCollisionExit2D(Collision2D other)
+    private void OnCollisionExit2DAction(Collision2D other)
     {
         contactList.RemoveAll((m) => m.gameObject == other.gameObject);
 
         OnGroundTest();
     }
 
-
-
     private void OnGroundTest()
     {
-        var groundNormal = this.groundNormal;
-        onGround = contactList.Exists((x) =>
+        var baseNormal = this.standardNormal;
+        bool lastOnGround = isOnGround;
+        ContactObject contact = contactList.Find((x) =>
         {
-            return x.normal.Angle(groundNormal) < goundNormalAngleAllow;
+            return x.normal.Angle(baseNormal) < goundNormalAngleAllow;
         });
-        if (onGround)
+
+        bool currOnGround = contact != null;
+
+        if (currOnGround != lastOnGround)
         {
+            isOnGround = currOnGround;
+            StateUpdate();
+        }
+
+        groundNormal = contact?.normal ?? Vector2.zero;
+        DataUPdate();
 
 
+    }
+
+
+
+    private void StateUpdate()
+    {
+        if (isOnGround)
+        {
+            ObjectState.State.Add(gameObject, StateName.OnGround);
         }
         else
         {
-
+            ObjectState.State.Remove(gameObject, StateName.OnGround);
         }
-    }
-    public void Enable()
-    {
 
     }
-    public void Disable()
+
+    private void DataUPdate()
     {
+        ObjectDate.UpdateDate(gameObject, ObjectDataName.GroundNormal, groundNormal);
+    }
+
+    #region class
+    [System.Serializable]
+    public class ContactObject
+    {
+        public GameObject gameObject;
+        public Vector2 normal;
 
     }
+    #endregion
+
 
 }
 

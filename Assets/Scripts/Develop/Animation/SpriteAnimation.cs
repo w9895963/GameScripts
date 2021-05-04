@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Global;
-using Global.GlobalData;
 using UnityEngine;
 using UnityEngine.Events;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Global.ObjectDynimicFunction;
 using Global.Physic;
-using Global.ResouceBundle;
 using Global.AttackBundle;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
@@ -316,7 +315,7 @@ namespace Global
 
             private void FixedUpdateSection()
             {
-                UnityEventPort.AddFixedUpdateAction(gameObject, 0, (d) =>
+                BasicEvent.OnFixedUpdate.Add(gameObject, () =>
                 {
                     float mass = rigidbody.mass;
 
@@ -691,7 +690,7 @@ namespace Global
                 rigidbody = gameObject.GetComponent<Rigidbody2D>();
                 AttackTriggerSection();
                 AddAllHitableList(gameObject);
-                UnityEvent_OnDestroy.AddEvent(gameObject, () =>
+                BasicEvent.OnDestroyEvent.Add(gameObject, () =>
                 {
                     RemoveAllHitableList(gameObject);
                 });
@@ -701,7 +700,7 @@ namespace Global
 
             private void AttackTriggerSection()
             {
-                UnityEvent_TriggerEnter2d.AddEvent(gameObject, (d) =>
+               BasicEvent.OnTrigger2D_Enter.Add(gameObject, (d) =>
                 {
                     GameObject attackInsObj = d.gameObject;
                     AttackManagerCM attackInstanceCom = attackInsObj.GetComponent<AttackManagerCM>();

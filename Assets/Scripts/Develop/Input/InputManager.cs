@@ -7,97 +7,79 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using static Global.Function;
 
-namespace Global
+
+public static class InputManager
 {
-    public static class InputManager
+    // * ---------------------------------- edit
+    private static string inputActionAssetPath = "Profile/Input/InputActions";
+    private static bool enabled = false;
+
+    public enum InputName
     {
-        // * ---------------------------------- edit
-        private static string inputActionAssetPath = "Profile/Input/InputActions";
-        [System.Serializable]
-        public class InputActionState
-        {
-            public Vector2 move;
-            public float down;
-            public float jump;
-            public float attack;
-            public float shot;
-        }
-        public enum InputName
-        {
-            Move,
-            Jump,
-            Attack,
-            Shot
-        }
-        // * ---------------------------------- 
-        private static InputActionAsset inputActionAsset;
-        public static InputActionState keyState;
-
-
-
-        // * ---------------------------------- 
-
-
-
-
-        public static void Initial(InputActionState keyState)
-        {
-            InputManager.keyState = keyState;
-            inputActionAsset = (InputActionAsset)Resources.Load(inputActionAssetPath);
-
-            GetInputAction(InputName.Move).performed += (d) =>
-            {
-                keyState.move = d.ReadValue<Vector2>();
-
-            };
-            GetInputAction(InputName.Jump).performed += (d) =>
-            {
-                keyState.jump = d.ReadValue<float>();
-            };
-            GetInputAction(InputName.Attack).performed += (d) =>
-            {
-                keyState.attack = d.ReadValue<float>();
-            };
-
-        }
-
-
-
-        // * ---------------------------------- 
-
-
-        public static void EnableAll()
-        {
-            foreach (string name in Enum.GetNames(typeof(InputName)))
-            {
-                inputActionAsset.FindAction(name).Enable();
-            }
-
-
-
-        }
-
-        public static void DisableAll()
-        {
-            foreach (string name in Enum.GetNames(typeof(InputName)))
-            {
-                inputActionAsset.FindAction(name).Disable();
-            }
-        }
-
-        public static InputAction GetInputAction(InputName inputName)
-        {
-            return inputActionAsset.FindAction(inputName.ToString());
-        }
-
-
-
-
-
-
-
-
-
-
+        Move,
+        Jump,
+        Attack,
+        Shot
     }
+    // * ---------------------------------- 
+    private static InputActionAsset inputActionAsset;
+
+    public static InputActionAsset InputActionAsset
+    {
+        get
+        {
+            if (inputActionAsset == null)
+            {
+                inputActionAsset = (InputActionAsset)Resources.Load(inputActionAssetPath); ;
+            }
+            return inputActionAsset;
+        }
+    }
+
+
+
+    public static void EnableAll()
+    {
+        if (enabled == true)
+        {
+            return;
+        }
+
+        foreach (string name in Enum.GetNames(typeof(InputName)))
+        {
+            InputActionAsset.FindAction(name).Enable();
+        }
+
+        enabled = true;
+    }
+
+    public static void DisableAll()
+    {
+        if (enabled == false)
+        {
+            return;
+        }
+        foreach (string name in Enum.GetNames(typeof(InputName)))
+        {
+            InputActionAsset.FindAction(name).Disable();
+        }
+        enabled = false;
+    }
+
+
+    // * ---------------------------------- 
+    public static InputAction GetInputAction(InputName inputName)
+    {
+        if (enabled == false)
+        {
+            EnableAll();
+        }
+        return InputActionAsset.FindAction(inputName.ToString());
+    }
+
+
+
+
+
 }
+

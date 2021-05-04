@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Global.ObjectDynimicFunction;
-using Global.ResouceBundle;
 using System;
 
 namespace Global
@@ -100,7 +99,7 @@ namespace Global
                 AttackProfile attackProfile = AttackProfile.GetGlobalProfile(type);
                 string path = attackProfile.prefabPath;
 
-                ResouceDynimicLoader.LoadAsync<GameObject>(path, LoadAction);
+                ResouceLoader.LazyLoad<GameObject>(path, LoadAction);
 
                 void LoadAction(GameObject attackPrefab)
                 {

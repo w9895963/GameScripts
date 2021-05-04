@@ -31,17 +31,15 @@ namespace Global
                 data = fm.GetData<Data>(this);
                 gameObject = fm.gameObject;
                 state = fm.GetFunction<StateFunc>();
-                UnityEventPort.AddCollisionAction(gameObject, 0,
-                                                 onCollisionEnter: OnCollisionEnter,
-                                                 onCollisionExit: OnCollisionExit);
+                BasicEvent.OnCollision2D_Enter.Add(gameObject, OnCollisionEnter);
+                BasicEvent.OnCollision2D_Exit.Add(gameObject, OnCollisionEnter);
             }
 
 
 
 
-            private void OnCollisionEnter(UnityEventPort.CallbackData data)
+            private void OnCollisionEnter(Collision2D other)
             {
-                Collision2D other = data.collisionData;
                 ContactObject contactObj = new ContactObject();
                 contactObj.gameObject = other.gameObject;
                 Vector2 normal = other.contacts[0].normal;
@@ -52,9 +50,8 @@ namespace Global
 
             }
 
-            private void OnCollisionExit(UnityEventPort.CallbackData data)
+            private void OnCollisionExit(Collision2D other)
             {
-                Collision2D other = data.collisionData;
                 this.data.contactList.RemoveAll((m) => m.gameObject == other.gameObject);
 
                 OnGroundTest();

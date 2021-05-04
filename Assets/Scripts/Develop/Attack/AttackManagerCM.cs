@@ -147,7 +147,8 @@ public class AttackManagerCM : MonoBehaviour, IFunctionManager
                 }
             };
             HitableFunction.OnAllHitableListAdd += action;
-            UnityEvent_OnDestroy.AddEvent(gameObject, () =>
+            
+            BasicEvent.OnDestroyEvent.Add(gameObject, () =>
             {
                 HitableFunction.OnAllHitableListAdd -= action;
             });

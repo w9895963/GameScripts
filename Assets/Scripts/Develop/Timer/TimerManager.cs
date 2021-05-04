@@ -117,16 +117,16 @@ namespace Global
                 return;
             }
             TimerIns timer = new TimerIns(Time.time);
-            UnityAction<UnityEventPort.CallbackData> action = null;
-            action = (d) =>
+            System.Action action = null;
+            action = () =>
             {
                 if (Time.time - timer.timeBegin >= time)
                 {
                     callback();
-                    UnityEventPort.RemoveFixedUpdateAction(gameObject, action);
+                    BasicEvent.OnFixedUpdate.Remove(gameObject, action);
                 }
             };
-            UnityEventPort.AddFixedUpdateAction(gameObject, 0, action);
+            BasicEvent.OnFixedUpdate.Add(gameObject, action);
 
         }
 

@@ -53,7 +53,7 @@ namespace Global
 
 
 
-                UnityEventPort.AddFixedUpdateAction(rigidbody.gameObject, 0, ApplyForce);
+                BasicEvent.OnFixedUpdate.Add(rigidbody.gameObject, ApplyForce);
 
             }
 
@@ -73,7 +73,7 @@ namespace Global
                 return outForce;
             }
 
-            private void ApplyForce(UnityEventPort.CallbackData data)
+            private void ApplyForce()
             {
                 if (updaAction != null)
                 {
@@ -86,7 +86,7 @@ namespace Global
                 {
                     if (force.magnitude < maxForce)
                     {
-                        UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForce);
+                        BasicEvent.OnFixedUpdate.Remove(rigidbody.gameObject, ApplyForce);
                     }
                 }
 
@@ -97,7 +97,7 @@ namespace Global
             public void StopFunction()
             {
                 if (rigidbody != null)
-                    UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForce);
+                    BasicEvent.OnFixedUpdate.Remove(rigidbody.gameObject, ApplyForce);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Global
 
             }
 
-            private void ApplyForceAction(UnityEventPort.CallbackData data)
+            private void ApplyForceAction()
             {
                 if (callback != null) callback();
                 rigidbody.AddForce(force);
@@ -130,11 +130,11 @@ namespace Global
 
             public void Disable()
             {
-                UnityEventPort.RemoveFixedUpdateAction(rigidbody.gameObject, ApplyForceAction);
+                BasicEvent.OnFixedUpdate.Remove(rigidbody.gameObject, ApplyForceAction);
             }
             public void Enable()
             {
-                UnityEventPort.AddFixedUpdateAction(rigidbody.gameObject, 0, ApplyForceAction);
+                BasicEvent.OnFixedUpdate.Add(rigidbody.gameObject, ApplyForceAction);
             }
 
 

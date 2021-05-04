@@ -7,14 +7,14 @@ public class AttackCollider : MonoBehaviour
 {
     private void OnEnable()
     {
-        UnityEvent_TriggerEnter2d.AddEvent(gameObject, TriggerAction);
+        BasicEvent.OnTrigger2D_Enter.Add(gameObject, TriggerAction);
     }
 
 
 
     private void OnDisable()
     {
-        UnityEvent_TriggerEnter2d.RemoveEvent(gameObject, TriggerAction);
+        BasicEvent.OnTrigger2D_Enter.Remove(gameObject, TriggerAction);
     }
 
 

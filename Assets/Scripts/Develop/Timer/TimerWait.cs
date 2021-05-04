@@ -18,7 +18,7 @@ namespace Timer
             if (TimerManager == null)
             {
                 TimerManager = new GameObject(TimerObjectName);
-                UnityEventFixedUpdate.AddEvent(TimerManager, OnFixedUpdateAction);
+                BasicEvent.OnFixedUpdate.Add(TimerManager, OnFixedUpdateAction);
             }
 
         }
