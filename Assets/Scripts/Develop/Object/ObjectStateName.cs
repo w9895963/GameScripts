@@ -9,4 +9,6 @@ using UnityEngine;
 public enum StateName
 {
     OnGround,
+    Gravity,
+    Jump,
 }

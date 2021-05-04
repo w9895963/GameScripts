@@ -155,6 +155,12 @@ public static class ObjectExtention
     }
 
 
+    public static Rigidbody2D Rigidbody2D(this GameObject gameObject)
+    {
+        return gameObject.GetComponent<Rigidbody2D>();
+    }
+
+
 
 
 

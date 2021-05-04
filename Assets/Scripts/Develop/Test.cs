@@ -7,8 +7,11 @@ using UnityEngine.InputSystem;
 
 public class Test : MonoBehaviour
 {
-    public Action<float> action;
-    private Action<Vector2> actions;
+    public int i = 0;
+    private float currP;
+    public float dist;
+
+    private Rigidbody2D body => gameObject.Rigidbody2D();
 
     private void Awake()
     {
@@ -16,6 +19,20 @@ public class Test : MonoBehaviour
     private void Reset()
     {
 
+    }
+    private void OnEnable()
+    {
+
+    }
+    private void OnDisable()
+    {
+
+    }
+
+
+    private void FixedUpdate()
+    {
+       
     }
 
 

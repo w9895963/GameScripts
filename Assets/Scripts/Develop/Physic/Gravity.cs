@@ -11,14 +11,29 @@ namespace Physic
     {
         public Vector2 gravityForce = new Vector2(0, -80);
 
+
+        private void Awake()
+        {
+            ObjectState.OnStateAdd.Add(gameObject, StateName.Jump, () =>
+            {
+                enabled = false;
+            });
+            ObjectState.OnStateRemove.Add(gameObject, StateName.Jump, () =>
+            {
+                enabled = true;
+            });
+        }
+
         private void OnEnable()
         {
             BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
+            ObjectState.State.Add(gameObject, StateName.Gravity);
         }
 
         private void OnDisable()
         {
             BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
+            ObjectState.State.Remove(gameObject, StateName.Gravity);
         }
 
         private void FixedUpdateAction()
