@@ -79,11 +79,11 @@ public class GroundTester : MonoBehaviour
     {
         if (isOnGround)
         {
-            ObjectState.State.Add(gameObject, StateName.OnGround);
+            ObjectState.State.Add(gameObject, ObjectStateName.OnGround);
         }
         else
         {
-            ObjectState.State.Remove(gameObject, StateName.OnGround);
+            ObjectState.State.Remove(gameObject, ObjectStateName.OnGround);
         }
 
     }

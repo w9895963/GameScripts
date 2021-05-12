@@ -1,72 +1,116 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Jump : MonoBehaviour
 {
-    public float maxHeight = 3;
-    public float minHeight = 1;
-    public float jumpForce = 100;
-    public float deForce = 40;
-    public float maxSpeed = 20;
-    public Vector2 jumpDirection = Vector2.up;
-    public float remainDist;
-    public float currV;
-
-
-
-    private PhysicMathBundle.PhysicMath_DistanceToForce dtf;
-
-    private Rigidbody2D body => gameObject.GetComponent<Rigidbody2D>();
-    private float mass => body.mass;
+    public Core core = new Core();
 
     private void Awake()
     {
-        ObjectState.OnStateAdd.Add(gameObject, StateName.OnGround, () =>
+        core.gameObject = gameObject;
+        InputManager.GetInputAction(InputManager.InputName.Jump).performed += (d) =>
         {
-            Stop();
-        });
+            float v = d.ReadValue<float>();
+            if (v == 1)
+            {
+                core.StartJump();
+            }
+            else
+            {
+                core.StopJump();
+            }
+
+        };
     }
 
 
-    private void FixedUpdateAction()
+
+
+    [System.Serializable]
+    public class Core
     {
-        float v;
-        currV = body.velocity.ProjectToFloat(jumpDirection);
-        v = PhysicMath.DistanceToForce(ref dtf, maxHeight, maxSpeed, jumpForce, deForce, currV, mass);
-        body.AddForce(jumpDirection * v);
+        public GameObject gameObject;
+        public float jumpSpeed = 20;
+        public float jumpHeight = 4f;
+        public float slowDownHeight = 1;
+        public float maxJumpForce = 600;
+        public float maxSlowDownForce = 200;
+        public float slowDownRate = 0.5f;
+        public Vector2 jumpDirection = Vector2.up;
+        public float stopSpeedCondition = 0.1f;
+        public Action onJumpFinished;
 
-        remainDist = dtf.remainDist;
+        public int step = 0;
+        public Vector2 startPosition;
+        public float CurrHeight => (body.position - startPosition).ProjectToFloat(jumpDirection);
+        public float RemainHeight => jumpHeight - CurrHeight;
 
-        if (remainDist < 0.01f)
+        public Rigidbody2D body => gameObject.Rigidbody2D();
+        public float currSpeed => body.velocity.ProjectToFloat(jumpDirection);
+        public float mass => body.mass;
+
+
+
+
+        private bool jumpEnabled = false;
+
+
+        public void JumpInitial()
         {
-            Stop();
+            step = 0;
+            startPosition = body.position;
         }
+
+        public void FixedUpdateAction()
+        {
+            float currForce = 0;
+
+            if (CurrHeight < slowDownHeight)
+            {
+                float forceNeed = MathPh.ChangeSpeedToForce(currSpeed, jumpSpeed, mass);
+                currForce = forceNeed.Clamp(0, maxJumpForce);
+            }
+            else
+            {
+                float targetSpeed = (RemainHeight.ClampMin(0) / (jumpHeight - slowDownHeight)).PowSafe(slowDownRate) * jumpSpeed;
+                float forceNeed = MathPh.ChangeSpeedToForce(currSpeed, targetSpeed, mass);
+                currForce = forceNeed.Clamp(-maxSlowDownForce, maxSlowDownForce);
+                if ((body.velocity).magnitude < stopSpeedCondition)
+                {
+                    StopJump();
+                }
+            }
+
+
+
+
+            body.AddForce(currForce * jumpDirection.normalized);
+            step++;
+        }
+
+
+        public void StartJump()
+        {
+            if (jumpEnabled == false)
+            {
+                jumpEnabled = true;
+                JumpInitial();
+                BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
+            }
+        }
+
+        public void StopJump()
+        {
+            if (jumpEnabled == true)
+            {
+                jumpEnabled = false;
+                BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
+                onJumpFinished?.Invoke();
+            }
+        }
+
+
     }
-
-    private void Stop()
-    {
-        ObjectState.State.Remove(gameObject, StateName.Jump);
-        BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
-        dtf = null;
-        enabled = false;
-    }
-
-    private void OnEnable()
-    {
-        dtf = null;
-        BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
-        ObjectState.State.Add(gameObject, StateName.Jump);
-
-    }
-    private void OnDisable()
-    {
-        if (dtf == null) { return; }
-        dtf.targetDistance = minHeight;
-    }
-
-
-
-
-
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 
 
-public enum StateName
+public enum ObjectStateName
 {
     OnGround,
     Gravity,

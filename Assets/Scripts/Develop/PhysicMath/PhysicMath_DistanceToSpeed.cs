@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-namespace PhysicMathBundle
+namespace PhysicMath
 {
     public static class PhysicMath_DistanceToSpeed
     {

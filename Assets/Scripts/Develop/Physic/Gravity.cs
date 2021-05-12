@@ -14,11 +14,11 @@ namespace Physic
 
         private void Awake()
         {
-            ObjectState.OnStateAdd.Add(gameObject, StateName.Jump, () =>
+            ObjectState.OnStateAdd.Add(gameObject, ObjectStateName.Jump, () =>
             {
                 enabled = false;
             });
-            ObjectState.OnStateRemove.Add(gameObject, StateName.Jump, () =>
+            ObjectState.OnStateRemove.Add(gameObject, ObjectStateName.Jump, () =>
             {
                 enabled = true;
             });
@@ -27,13 +27,13 @@ namespace Physic
         private void OnEnable()
         {
             BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
-            ObjectState.State.Add(gameObject, StateName.Gravity);
+            ObjectState.State.Add(gameObject, ObjectStateName.Gravity);
         }
 
         private void OnDisable()
         {
             BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
-            ObjectState.State.Remove(gameObject, StateName.Gravity);
+            ObjectState.State.Remove(gameObject, ObjectStateName.Gravity);
         }
 
         private void FixedUpdateAction()

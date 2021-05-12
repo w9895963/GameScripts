@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace Physic
 {
-    public class VelosityChanger : MonoBehaviour
+    public class VelocityChanger : MonoBehaviour
     {
 
-        public Vector2 targetVelosity;
+        public Vector2 targetVelocity;
 
         public float maxForce = 100f;
         public Vector2 singleDirection = Vector2.zero;
@@ -27,7 +27,7 @@ namespace Physic
             core.onBeforeUpdate += () =>
               {
                   onBeforeUpdate?.Invoke();
-                  c.targetVelosity = targetVelosity;
+                  c.targetVelocity = targetVelocity;
                   c.maxForce = maxForce;
                   c.singleDirection = singleDirection;
               };
@@ -55,7 +55,7 @@ namespace Physic
             public Rigidbody2D rigidbody;
             public GameObject gameObject => rigidbody.gameObject;
 
-            public Vector2 targetVelosity;
+            public Vector2 targetVelocity;
 
             public float maxForce = 100f;
             public Vector2 singleDirection = Vector2.zero;
@@ -76,8 +76,8 @@ namespace Physic
             public void FixedUpdateAction()
             {
                 onBeforeUpdate?.Invoke();
-                Vector2 currentVelosity = rigidbody.velocity;
-                Vector2 delV = targetVelosity - currentVelosity;
+                Vector2 currentVelocity = rigidbody.velocity;
+                Vector2 delV = targetVelocity - currentVelocity;
                 delV = singleDirection.IsNotZero() ? delV.Project(singleDirection) : delV;
                 Vector2 topForce = delV / Time.fixedDeltaTime * rigidbody.mass;
                 forceAdd = topForce.ClampMax(maxForce);

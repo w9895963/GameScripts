@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Player
 {
-    public class PlayerObjectMark : MonoBehaviour
+    public class PlayerObjectLocater : MonoBehaviour
     {
 
     }

@@ -140,9 +140,14 @@ public static class ExtensionMethod
     {
         return Mathf.Abs(f);
     }
-    public static float Pow(this float f, float p)
+
+    public static float Sqrt(this float f)
     {
-        return Mathf.Pow(f, p);
+        return Mathf.Sqrt(f);
+    }
+    public static float PowSafe(this float f, float p)
+    {
+        return Mathf.Pow(f.Abs(), p) * f.Sign();
     }
     public static float Shape(this float f, float pow, float move = 0, float div = 1)
     {
@@ -155,6 +160,10 @@ public static class ExtensionMethod
 
 
     public static float Clamp(this float f, float min, float max)
+    {
+        return Mathf.Clamp(f, min, max);
+    }
+    public static int Clamp(this int f, int min, int max)
     {
         return Mathf.Clamp(f, min, max);
     }
@@ -177,12 +186,38 @@ public static class ExtensionMethod
     {
         return i < max ? i : max;
     }
-    public static float Map(this float f, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp = true)
+    public static int ClampMin(this int i, int Min)
+    {
+        return i > Min ? i : Min;
+    }
+
+    public static float ZeroRid(this float f, bool negative = false, float value = 0.0001f)
+    {
+        return f != 0 ? f : (negative == false ? Mathf.Abs(value) : -Mathf.Abs(value));
+    }
+
+
+
+    public static Vector2 Map(this int f, int inputStart, int inputEnd, Vector2 outputStart, Vector2 outputEnd, bool clamp = true)
     {
         float f1 = f;
-        if (clamp) f1 = f.Clamp(inputMin, inputMax);
-        return (f1 - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin;
+        if (clamp) f1 = f.Clamp(inputStart, inputEnd);
+        return (f1 - inputStart) / (inputEnd - inputStart) * (outputEnd - outputStart) + outputStart;
     }
+    public static float Map(this float f, float inputStart, float inputEnd, float outputStart, float outputEnd, bool clamp = true)
+    {
+        float f1 = f;
+        if (clamp) f1 = f.Clamp(inputStart, inputEnd);
+        return (f1 - inputStart) / (inputEnd - inputStart) * (outputEnd - outputStart) + outputStart;
+    }
+    public static Vector2 Map(this float f, float inputStart, float inputEnd, Vector2 outputStart, Vector2 outputEnd, bool clamp = true)
+    {
+        float f1 = f;
+        if (clamp) f1 = f.Clamp(inputStart, inputEnd);
+        return (f1 - inputStart) / (inputEnd - inputStart) * (outputEnd - outputStart) + outputStart;
+    }
+
+
     public static float Floor(this float f)
     {
         return Mathf.Floor(f);
@@ -197,11 +232,16 @@ public static class ExtensionMethod
     }
     public static int CeilToInt(this float f)
     {
-        return Mathf.CeilToInt(f);
+        return (int)Mathf.Ceil(f);
     }
+    public static float Ceil(this float f, float step)
+    {
+        return Mathf.Ceil(f / step) * step;
+    }
+
     public static bool ToBool(this float f)
     {
-        return f == 1 ? true : false;
+        return f > 0 ? true : false;
     }
 
 
@@ -244,65 +284,18 @@ public static class ExtensionMethod
         return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
     }
 
- 
+
     #endregion
 
 
 
 
-    #region //*Collider2dExMethod
-    public static Vector2? ClosestPointToLine(this Collider2DExMethod ex, Vector2 position, Vector2 direction)
-    {
-        Vector2? result = null;
-        int sourceLayer = ex.collider.gameObject.layer;
-        ex.collider.gameObject.layer = LayerUtility.temp.Index;
-
-
-        RaycastHit2D hit;
-        hit = Physics2D.Raycast(position, direction, Mathf.Infinity, LayerUtility.temp.Mask);
-        if (hit != default)
-        {
-            result = hit.point;
-        }
-        else
-        {
-            hit = Physics2D.Raycast(position, -direction, Mathf.Infinity, LayerUtility.temp.Mask);
-            if (hit != default)
-            {
-                result = hit.point;
-            }
-        }
-
-        ex.collider.gameObject.layer = sourceLayer;
-        return result;
-    }
-    public static (EventTrigger, EventTrigger.Entry) AddPointerEvent(this Collider2DExMethod souce,
-            EventTriggerType type, UnityAction<BaseEventData> action
-        ) =>
-        souce.collider.gameObject._Ex(default).AddPointerEvent(type, action);
-    #endregion //*End
 
 
 
 
-    #region //*GameObjectExMethod
-    public static (EventTrigger, EventTrigger.Entry) AddPointerEvent(this GameObjectExMethod souce,
-        EventTriggerType type, UnityAction<BaseEventData> action)
-    {
-        // * ---------------------------------- 
-        EventTrigger trigger = souce.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null)
-        {
-            trigger = souce.gameObject.AddComponent<EventTrigger>();
-        }
 
-        EventTrigger.Entry entry = new EventTrigger.Entry();
-        entry.eventID = type;
-        entry.callback.AddListener(action);
-        trigger.triggers.Add(entry);
-        return (trigger, entry);
-    }
-    #endregion
+
 
 
 
@@ -312,14 +305,7 @@ public static class ExtensionMethod
     {
         return new GameObjectExMethod(gameObject, callBy);
     }
-    public static Collider2DExMethod _Ex(this Collider2D collider, Object callBy)
-    {
-        return new Collider2DExMethod(collider, callBy);
-    }
-    public static RigidBody2dExMethod _Ex(this Rigidbody2D rigidbody, Object callBy)
-    {
-        return new RigidBody2dExMethod(rigidbody, callBy);
-    }
+
 
 }
 
@@ -335,27 +321,4 @@ public class GameObjectExMethod
     // * ---------------------------------- 
 
 }
-public class Collider2DExMethod
-{
-    public Collider2D collider;
-    public Object callby;
-    public Collider2DExMethod(Collider2D collider, Object callby)
-    {
-        this.collider = collider;
-        this.callby = callby;
-    }
-    //*--------------------------
 
-}
-public class RigidBody2dExMethod
-{
-    public Rigidbody2D rigidbody;
-    public Object callby;
-    public RigidBody2dExMethod(Rigidbody2D rigidbody, Object callby)
-    {
-        this.rigidbody = rigidbody;
-        this.callby = callby;
-    }
-    //*--------------------------
-
-}

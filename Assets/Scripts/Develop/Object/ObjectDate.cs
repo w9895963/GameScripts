@@ -8,6 +8,7 @@ public static class ObjectDate
 {
     public static void UpdateDate<T>(GameObject gameObject, ObjectDataName name, T data)
     {
+        
         ObjectDataComponent com = gameObject.GetOrAddComponent<ObjectDataComponent>();
         var dic = com.onDataUpdate;
         if (!dic.ContainsKey(name))
@@ -31,7 +32,7 @@ public static class ObjectDate
 
  
 
-    public static void AddUpdateAction(GameObject gameObject, ObjectDataName name, Action<System.Object> action)
+    public static void AddListener(GameObject gameObject, ObjectDataName name, Action<System.Object> action)
     {
         ObjectDataComponent com = gameObject.GetOrAddComponent<ObjectDataComponent>();
         var dic = com.onDataUpdate;

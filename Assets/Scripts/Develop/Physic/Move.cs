@@ -79,15 +79,15 @@ namespace Physic
 
 
 
-            private Physic.VelosityChanger.Core velosityChanger;
+            private Physic.VelocityChanger.Core velocityChanger;
             private GameObject gameObject;
             private Rigidbody2D rigidBody => gameObject.GetComponent<Rigidbody2D>();
             private bool enabled = false;
             public Core(GameObject gameObject)
             {
                 this.gameObject = gameObject;
-                velosityChanger = new Physic.VelosityChanger.Core(rigidBody);
-                ObjectDate.AddUpdateAction(gameObject, ObjectDataName.MoveDirection, (d) =>
+                velocityChanger = new Physic.VelocityChanger.Core(rigidBody);
+                ObjectDate.AddListener(gameObject, ObjectDataName.MoveDirection, (d) =>
                 {
                     moveDirection = (Vector2)d;
                     onVariablesChanged?.Invoke();
@@ -102,11 +102,11 @@ namespace Physic
                 realWalkDirection = moveDirection.ProjectOnPlane(groundNormal).normalized;
                 Vector2 currV = rigidBody.velocity.ProjectOnPlane(groundNormal);
                 Vector2 tarV = realWalkDirection * maxSpeed;
-                var vc = velosityChanger;
+                var vc = velocityChanger;
 
                 vc.singleDirection = groundNormal.Rotate(90);
                 vc.maxForce = maxForce;
-                vc.targetVelosity = tarV;
+                vc.targetVelocity = tarV;
 
                 vc.FixedUpdateAction();
 

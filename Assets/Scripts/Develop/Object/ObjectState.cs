@@ -12,10 +12,10 @@ public static class ObjectState
     public static class State
     {
 
-        public static void Add(GameObject gameObject, StateName state)
+        public static void Add(GameObject gameObject, ObjectStateName state)
         {
             ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
-            List<StateName> states = com.states;
+            List<ObjectStateName> states = com.states;
             if (states.Contains(state))
             {
                 return;
@@ -23,7 +23,7 @@ public static class ObjectState
             states.Add(state);
 
 
-            Dictionary<StateName, Action> dic = com.onStateAdd;
+            Dictionary<ObjectStateName, Action> dic = com.onStateAdd;
             if (dic.ContainsKey(state))
             {
                 Action action = dic[state];
@@ -40,11 +40,12 @@ public static class ObjectState
             }
 
         }
-        public static void Remove(GameObject gameObject, StateName state)
+      
+        public static void Remove(GameObject gameObject, ObjectStateName state)
         {
             ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>();
             if (com == null) { return; }
-            List<StateName> states = com.states;
+            List<ObjectStateName> states = com.states;
             if (!states.Contains(state))
             {
                 return;
@@ -52,7 +53,7 @@ public static class ObjectState
             states.Remove(state);
 
 
-            Dictionary<StateName, Action> dic = com.onStateRemove;
+            Dictionary<ObjectStateName, Action> dic = com.onStateRemove;
             if (dic.ContainsKey(state))
             {
                 Action action = dic[state];
@@ -77,20 +78,20 @@ public static class ObjectState
     }
     public static class OnStateAdd
     {
-        public static void Add(GameObject gameObject, StateName state, Action action)
+        public static void Add(GameObject gameObject, ObjectStateName state, Action action)
         {
             ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
-            Dictionary<StateName, Action> dic = com.onStateAdd;
+            Dictionary<ObjectStateName, Action> dic = com.onStateAdd;
             bool hasKey = dic.ContainsKey(state);
             if (!hasKey)
             {
                 dic.Add(state, action);
             }
         }
-        public static void Remove(GameObject gameObject, StateName state, Action action)
+        public static void Remove(GameObject gameObject, ObjectStateName state, Action action)
         {
             ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>();
-            Dictionary<StateName, Action> dic = com.onStateAdd;
+            Dictionary<ObjectStateName, Action> dic = com.onStateAdd;
             bool hasKey = dic.ContainsKey(state);
             if (hasKey)
             {
@@ -100,20 +101,20 @@ public static class ObjectState
     }
     public static class OnStateRemove
     {
-        public static void Add(GameObject gameObject, StateName state, Action action)
+        public static void Add(GameObject gameObject, ObjectStateName state, Action action)
         {
             ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
-            Dictionary<StateName, Action> dic = com.onStateRemove;
+            Dictionary<ObjectStateName, Action> dic = com.onStateRemove;
             bool hasKey = dic.ContainsKey(state);
             if (!hasKey)
             {
                 dic.Add(state, action);
             }
         }
-        public static void Remove(GameObject gameObject, StateName state, Action action)
+        public static void Remove(GameObject gameObject, ObjectStateName state, Action action)
         {
             ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>();
-            Dictionary<StateName, Action> dic = com.onStateRemove;
+            Dictionary<ObjectStateName, Action> dic = com.onStateRemove;
             bool hasKey = dic.ContainsKey(state);
             if (hasKey)
             {

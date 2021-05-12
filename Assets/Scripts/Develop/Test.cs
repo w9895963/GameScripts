@@ -10,11 +10,13 @@ public class Test : MonoBehaviour
     public int i = 0;
     private float currP;
     public float dist;
+    private float? time;
 
     private Rigidbody2D body => gameObject.Rigidbody2D();
 
     private void Awake()
     {
+        // body.velocity = Vector2.up * 10;
     }
     private void Reset()
     {
@@ -32,7 +34,7 @@ public class Test : MonoBehaviour
 
     private void FixedUpdate()
     {
-       
+      
     }
 
 
