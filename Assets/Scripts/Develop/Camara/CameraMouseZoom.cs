@@ -1,0 +1,19 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class CameraMouseZoom : MonoBehaviour
+{
+    public float scrollFactor = 0.001f;
+
+    void Update()
+    {
+        float scroll = Mouse.current.scroll.ReadValue().y;
+        if (scroll != 0)
+        {
+            Camera cam = GetComponent<Camera>();
+            cam.orthographicSize += scroll * scrollFactor;
+        }
+    }
+}

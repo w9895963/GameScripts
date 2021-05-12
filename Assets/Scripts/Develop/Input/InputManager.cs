@@ -12,16 +12,18 @@ public static class InputManager
 {
     // * ---------------------------------- edit
     private static string inputActionAssetPath = "Profile/Input/InputActions";
-    private static bool enabled = false;
+
 
     public enum InputName
     {
         Move,
         Jump,
         Attack,
-        Shot
+        Shot,
+
     }
     // * ---------------------------------- 
+
     private static InputActionAsset inputActionAsset;
 
     public static InputActionAsset InputActionAsset
@@ -36,7 +38,7 @@ public static class InputManager
         }
     }
 
-
+    private static bool enabled = false;
 
     public static void EnableAll()
     {

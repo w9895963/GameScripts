@@ -6,13 +6,18 @@ using System.Linq;
 using UnityEngine;
 
 
-namespace Global {
-    public static class FileUtility {
+namespace Global
+{
+    public static class FileUtility
+    {
 
-        public static string RootFolderPath {
-            get {
+        public static string RootFolderPath
+        {
+            get
+            {
                 string path = default;
-                switch (Application.platform) {
+                switch (Application.platform)
+                {
                     case RuntimePlatform.OSXEditor: //<path to project folder>/Assets
                     case RuntimePlatform.WindowsEditor:
                         path = Application.dataPath;
@@ -26,56 +31,70 @@ namespace Global {
                         break;
                 }
 
-                if (path != default) {
-                    path = Path.GetDirectoryName (path);
+                if (path != default)
+                {
+                    path = Path.GetDirectoryName(path);
                 }
-                path = path.Replace (@"\", "/");
+                path = path.Replace(@"\", "/");
                 return path;
             }
         }
 
 
-        public static string GetFullPath (string localPath) {
-            return FileUtility.CombinePath (RootFolderPath, localPath);
+        public static string GetFullPath(string localPath)
+        {
+            return FileUtility.CombinePath(RootFolderPath, localPath);
         }
 
 
-        public static List<LocalFile> GetAllFiles (string path, string[] extensions = null) {
-            List<LocalFile> all = new List<LocalFile> ();
-            if (Directory.Exists (path)) {
+        public static List<LocalFile> GetAllFiles(string path, string[] extensions = null)
+        {
+            List<LocalFile> all = new List<LocalFile>();
+            if (Directory.Exists(path))
+            {
                 int level = 0;
-                LocalFile curr = new LocalFile (path, true);
+                LocalFile curr = new LocalFile(path, true);
                 List<LocalFile> currentFolders = new List<LocalFile> { curr };
-                do {
+                do
+                {
                     level++;
-                    List<LocalFile> newFoundFolders = new List<LocalFile> ();
-                    currentFolders.ForEach (((x) => {
-                        string[] files = Directory.GetFiles (x.FullPath);
-                        files.ForEach ((f) => {
+                    List<LocalFile> newFoundFolders = new List<LocalFile>();
+                    currentFolders.ForEach(((x) =>
+                    {
+                        string[] files = Directory.GetFiles(x.FullPath);
+                        files.ForEach((f) =>
+                        {
                             bool extensionTest = true;
-                            if (extensions != null) {
-                                if (!extensions.Contains (Path.GetExtension (f))) {
+                            if (extensions != null)
+                            {
+                                if (!extensions.Contains(Path.GetExtension(f)))
+                                {
                                     extensionTest = false;
                                 }
                             }
-                            if (extensionTest) {
-                                LocalFile file = new LocalFile (f, true);
-                                all.Add (file);
+                            if (extensionTest)
+                            {
+                                LocalFile file = new LocalFile(f, true);
+                                all.Add(file);
                             }
                         });
-                        string[] dirs = Directory.GetDirectories ((string) x.FullPath);
-                        dirs.ForEach ((dir) => {
-                            LocalFile dirFile = new LocalFile (dir, true);
-                            newFoundFolders.Add (dirFile);
+                        string[] dirs = Directory.GetDirectories((string)x.FullPath);
+                        dirs.ForEach((dir) =>
+                        {
+                            LocalFile dirFile = new LocalFile(dir, true);
+                            newFoundFolders.Add(dirFile);
 
                             bool extensionTest = true;
-                            if (extensions != null) {
-                                if (!extensions.Contains (Path.GetExtension (dir))) {
+                            if (extensions != null)
+                            {
+                                if (!extensions.Contains(Path.GetExtension(dir)))
+                                {
                                     extensionTest = false;
                                 }
                             }
-                            if (extensionTest) {
-                                all.Add (dirFile);
+                            if (extensionTest)
+                            {
+                                all.Add(dirFile);
                             }
                         });
                     }));
@@ -86,87 +105,108 @@ namespace Global {
         }
 
 
-        public static List<string> GetFiles (string localPath, List<string> extensions) {
-            List<string> result = new List<string> ();
-            string path = GetFullPath (localPath);
-            if (Directory.Exists (path)) {
-                string[] files = Directory.GetFiles (path);
-                result = files.ToList ().FindAll ((x) => extensions.Contains (Path.GetExtension (x)));
+        public static List<string> GetFiles(string localPath, List<string> extensions)
+        {
+            List<string> result = new List<string>();
+            string path = GetFullPath(localPath);
+            if (Directory.Exists(path))
+            {
+                string[] files = Directory.GetFiles(path);
+                result = files.ToList().FindAll((x) => extensions.Contains(Path.GetExtension(x)));
             }
             return result;
         }
 
 
-        public static void WriteAllText (string fullPath, string content) {
-            string folder = Path.GetDirectoryName (fullPath);
-            if (!Directory.Exists (folder)) {
-                Directory.CreateDirectory (folder);
+        public static void WriteAllText(string fullPath, string content)
+        {
+            string folder = Path.GetDirectoryName(fullPath);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
             }
-            File.WriteAllText (fullPath, content);
+            File.WriteAllText(fullPath, content);
         }
 
 
-        public static bool LoadImage (string localPath, Texture2D texture, string name = null) {
-            string path = GetFullPath (localPath);
-            if (File.Exists (path)) {
-                byte[] bytes = File.ReadAllBytes (path);
-                bool v = ImageConversion.LoadImage (texture, bytes);
+        public static bool LoadImage(string localPath, Texture2D texture, string name = null)
+        {
+            string path = GetFullPath(localPath);
+            if (File.Exists(path))
+            {
+                byte[] bytes = File.ReadAllBytes(path);
+                bool v = ImageConversion.LoadImage(texture, bytes);
                 return v;
             }
 
-            if (name != null) {
+            if (name != null)
+            {
                 texture.name = name;
-            } else {
-                texture.name = Path.GetFileName (path);
+            }
+            else
+            {
+                texture.name = Path.GetFileName(path);
             }
             return false;
         }
 
-        internal static string CombinePath (string fullPath, string dataFilename) {
-            string path = Path.Combine (fullPath, dataFilename);
-            return path.Replace (@"\", "/");
+        internal static string CombinePath(string fullPath, string dataFilename)
+        {
+            string path = Path.Combine(fullPath, dataFilename);
+            return path.Replace(@"\", "/");
         }
 
-        public static string FindFile (string folderPath, string fileName) {
-            string[] files = Directory.GetFiles (folderPath);
-            string filePath = files.ToList ().Find ((path) => Path.GetFileName (path) == fileName);
+        public static string FindFile(string folderPath, string fileName)
+        {
+            string[] files = Directory.GetFiles(folderPath);
+            string filePath = files.ToList().Find((path) => Path.GetFileName(path) == fileName);
             return filePath;
         }
-        public static string GetLocalPath (string fullPath) {
-            return fullPath.Remove (0, RootFolderPath.Length + 1);
+        public static string GetLocalPath(string fullPath)
+        {
+            return fullPath.Remove(0, RootFolderPath.Length + 1);
         }
 
 
 
-        public static LocalFile GetFile (string fullPath) {
+        public static LocalFile GetFile(string fullPath)
+        {
             LocalFile file = null;
-            if (fullPath.Contains (RootFolderPath)) {
-                if (File.Exists (fullPath) | Directory.Exists (fullPath)) {
-                    file = new LocalFile (fullPath, true);
+            if (fullPath.Contains(RootFolderPath))
+            {
+                if (File.Exists(fullPath) | Directory.Exists(fullPath))
+                {
+                    file = new LocalFile(fullPath, true);
                 }
             }
             return file;
         }
 
-        public static void BuildNecessaryFolder (string path) {
+        public static void BuildNecessaryFolder(string path)
+        {
 
         }
 
 
         //* Class Definition
         [System.Serializable]
-        public class LocalFile {
+        public class LocalFile
+        {
             public string localPath;
             //* Public Property
-            public string FullPath => GetFullPath (localPath);
-            public bool IsFolder => Directory.Exists (FullPath);
-            public bool IsFile => File.Exists (FullPath);
-            public LocalFile Parent => new LocalFile (Path.GetDirectoryName (FullPath), true);
+            public string FullPath => GetFullPath(localPath);
+            public bool IsFolder => Directory.Exists(FullPath);
+            public bool IsFile => File.Exists(FullPath);
+            public LocalFile Parent => new LocalFile(Path.GetDirectoryName(FullPath), true);
 
-            public LocalFile (string path, bool isFullPath = false) {
-                if (isFullPath) {
-                    this.localPath = GetLocalPath (path);
-                } else {
+            public LocalFile(string path, bool isFullPath = false)
+            {
+                if (isFullPath)
+                {
+                    this.localPath = GetLocalPath(path);
+                }
+                else
+                {
                     this.localPath = path;
                 }
 
@@ -174,35 +214,41 @@ namespace Global {
 
 
             //* Public Property
-            public string Name => Path.GetFileName (FullPath);
-            public string NameNoSuffix => Path.GetFileNameWithoutExtension (FullPath);
-            public string Extension => Path.GetExtension (FullPath).ToLower ();
+            public string Name => Path.GetFileName(FullPath);
+            public string NameNoSuffix => Path.GetFileNameWithoutExtension(FullPath);
+            public string Extension => Path.GetExtension(FullPath).ToLower();
             //* Public Method
-            public LocalFile FindFileSamePlace (string name) {
-                return Parent.GetAllChildren ().Find ((x) => x.Name == name);
+            public LocalFile FindFileSamePlace(string name)
+            {
+                return Parent.GetAllChildren().Find((x) => x.Name == name);
             }
-            public List<LocalFile> GetAllChildren () {
-                List<LocalFile> result = new List<LocalFile> ();
-                if (IsFolder) {
+            public List<LocalFile> GetAllChildren()
+            {
+                List<LocalFile> result = new List<LocalFile>();
+                if (IsFolder)
+                {
                     string fullPath = FullPath;
-                    var files = Directory.GetFiles (fullPath).ToList ().Select ((x) => new LocalFile (x, true)).ToList ();
-                    result.AddRange (files);
-                    var folders = Directory.GetDirectories (fullPath).ToList ().Select ((x) => new LocalFile (x, true)).ToList ();
-                    result.AddRange (folders);
+                    var files = Directory.GetFiles(fullPath).ToList().Select((x) => new LocalFile(x, true)).ToList();
+                    result.AddRange(files);
+                    var folders = Directory.GetDirectories(fullPath).ToList().Select((x) => new LocalFile(x, true)).ToList();
+                    result.AddRange(folders);
                 }
                 return result;
             }
 
-            public T ReadJson<T> () {
-                string v = ReadText ();
-                return JsonUtility.FromJson<T> (v);
+            public T ReadJson<T>()
+            {
+                string v = ReadText();
+                return JsonUtility.FromJson<T>(v);
             }
-            public string ReadText () {
-                return File.ReadAllText (FullPath);
+            public string ReadText()
+            {
+                return File.ReadAllText(FullPath);
             }
 
-            public void CreateFolder (string modFolderName) {
-                Directory.CreateDirectory (Path.Combine (FullPath, modFolderName));
+            public void CreateFolder(string modFolderName)
+            {
+                Directory.CreateDirectory(Path.Combine(FullPath, modFolderName));
             }
         }
 
