@@ -24,7 +24,8 @@ public class SpriteLoaderForLight : MonoBehaviour
         byte[] bs = File.ReadAllBytes(pa);
         if (bs.Length > 0)
         {
-            Sprite sprite = GetComponent<Light2D>().lightCookieSprite;
+            Light2D light2D = GetComponent<Light2D>();
+            Sprite sprite = light2D.lightCookieSprite;
             sprite.texture.LoadImage(bs);
         }
 

@@ -6,36 +6,34 @@ using System;
 
 namespace BasicEvent
 {
-
-
-
-    public class OnParticleTriggerEvent : MonoBehaviour
+    namespace Component
     {
-        private Action action;
-
-        private void OnParticleTrigger()
+        public class OnParticleTriggerEventComponent : BasicEventMono
         {
-            if (action != null) { action(); }
+
+            private void OnParticleTrigger()
+            {
+                RunAction();
+            }
         }
+    }
+
+
+
+    public class OnParticleTriggerEvent
+    {
+
 
 
 
 
         public static void Add(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.GetOrCreate<OnParticleTriggerEvent>(gameObject, (com) =>
-            {
-                com.action += action;
-            });
+            BasicEvent.Method.Add<Component.OnParticleTriggerEventComponent>(gameObject, action);
         }
-
         public static void Remove(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.RemoveCommon<OnParticleTriggerEvent>(gameObject, (com) =>
-            {
-                com.action -= action; 
-                return com.action;
-            });
+            Method.Remove<Component.OnParticleTriggerEventComponent>(gameObject, action);
         }
 
 

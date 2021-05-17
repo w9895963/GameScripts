@@ -6,34 +6,30 @@ using System;
 
 namespace BasicEvent
 {
-
-
-
-    public class OnDestroyEvent : MonoBehaviour
+    namespace Component
     {
-        private Action action;
-        private void OnDestroy()
+        public class OnDestroyEvent : BasicEventMono
         {
-            if (action != null) { action(); }
+            private void OnDestroy()
+            {
+                RunAction();
+            }
         }
+    }
 
 
+
+    public class OnDestroyEvent
+    {
 
 
         public static void Add(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.GetOrCreate<OnDestroyEvent>(gameObject, (com) =>
-            {
-                com.action += action;
-            });
+            Method.Add<Component.OnDestroyEvent>(gameObject, action);
         }
         public static void Remove(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.RemoveCommon<OnDestroyEvent>(gameObject, (com) =>
-            {
-                com.action -= action; 
-                return com.action;
-            });
+            Method.Remove<Component.OnFixedUpdateComponent>(gameObject, action);
         }
 
 

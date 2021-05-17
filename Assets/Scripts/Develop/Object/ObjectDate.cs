@@ -6,41 +6,62 @@ using UnityEngine;
 
 public static class ObjectDate
 {
-    public static void UpdateDate<T>(GameObject gameObject, ObjectDataName name, T data)
+
+
+
+
+    public static void UpdateData(GameObject gameObject, System.Enum dateName, System.Object data)
     {
-        
-        ObjectDataComponent com = gameObject.GetOrAddComponent<ObjectDataComponent>();
-        var dic = com.onDataUpdate;
-        if (!dic.ContainsKey(name))
+        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        var dic = com.dateDict;
+        if (dic.ContainsKey(dateName))
         {
-            dic.Add(name, null);
+            if (dic[dateName] != data)
+            {
+                dic[dateName] = data;
+                Action<System.Object> action;
+                com.onDateUpdate.TryGetValue(dateName, out action);
+                action?.Invoke(data);
+            }
+
         }
         else
         {
-            var action = dic[name];
-            if (action != null) { action(data); }
+            dic.Add(dateName, data);
+            Action<System.Object> action;
+            com.onDateUpdate.TryGetValue(dateName, out action);
+            action?.Invoke(data);
         }
-        ShowData();
-        void ShowData()
-        {
-            int ind = new List<ObjectDataName>(dic.Keys).FindIndex((x) => x == name);
-            List<string> dat = com.data;
-            dat.Add(ind, name.ToString() + " : " + data.ToString());
-        }
+
+
     }
-  
-
- 
-
-    public static void AddListener(GameObject gameObject, ObjectDataName name, Action<System.Object> action)
+    public static void OnDateUpdate(GameObject gameObject, System.Enum dateName, Action<System.Object> action)
     {
-        ObjectDataComponent com = gameObject.GetOrAddComponent<ObjectDataComponent>();
-        var dic = com.onDataUpdate;
-        if (!dic.ContainsKey(name))
+        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        var dic = com.onDateUpdate;
+        if (!dic.ContainsKey(dateName))
         {
-            dic.Add(name, null);
+            dic.Add(dateName, null);
         }
 
-        dic[name] += action;
+        dic[dateName] += action;
+    }
+    public static bool TryGetData<T>(GameObject gameObject, System.Enum dateName, out T data)
+    {
+        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        var dic = com.dateDict;
+        if (dic.ContainsKey(dateName))
+        {
+            data = (T)dic[dateName];
+            return true;
+
+        }
+        else
+        {
+            data = default;
+            return false;
+        }
+
+
     }
 }

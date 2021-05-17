@@ -137,8 +137,10 @@ public static class ObjectExtention
     }
     public static void SetRotation(this GameObject gameObject, float angle)
     {
-        Quaternion rotation = gameObject.transform.rotation;
-        rotation.z = angle;
+        Quaternion rotation = gameObject.transform.localRotation;
+        Vector3 angle3 = rotation.eulerAngles;
+        angle3.z = angle;
+        rotation.eulerAngles = angle3;
         gameObject.transform.rotation = rotation;
     }
 
@@ -155,7 +157,7 @@ public static class ObjectExtention
     }
 
 
-    public static Rigidbody2D Rigidbody2D(this GameObject gameObject)
+    public static Rigidbody2D GetRigidbody2D(this GameObject gameObject)
     {
         return gameObject.GetComponent<Rigidbody2D>();
     }

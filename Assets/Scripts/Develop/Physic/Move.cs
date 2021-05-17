@@ -20,7 +20,6 @@ namespace Physic
 
 
         private Core core;
-        private Rigidbody2D rigidBody => gameObject.GetComponent<Rigidbody2D>();
 
 
         private void Awake()
@@ -29,14 +28,11 @@ namespace Physic
 
             var c = core;
 
-            c.onVariablesChanged += () =>
-            {
-                moveDirection = c.moveDirection;
-            };
             c.onUpdateBefore += () =>
             {
                 c.moveDirection = moveDirection;
                 c.maxSpeed = moveSpeed;
+                c.maxForce = maxForce;
                 c.groundNormal = groundNormal;
             };
             c.onUpdateAfter += () =>
@@ -69,7 +65,6 @@ namespace Physic
 
             public Vector2 groundNormal = Vector2.up;
 
-            public Action onVariablesChanged;
             public Action onUpdateBefore;
             public Action onUpdateAfter;
 
@@ -87,11 +82,7 @@ namespace Physic
             {
                 this.gameObject = gameObject;
                 velocityChanger = new Physic.VelocityChanger.Core(rigidBody);
-                ObjectDate.AddListener(gameObject, ObjectDataName.MoveDirection, (d) =>
-                {
-                    moveDirection = (Vector2)d;
-                    onVariablesChanged?.Invoke();
-                });
+               
 
             }
 

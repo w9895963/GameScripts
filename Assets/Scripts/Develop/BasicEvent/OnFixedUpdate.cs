@@ -6,37 +6,31 @@ using System;
 
 namespace BasicEvent
 {
-  
-
-
-    public class OnFixedUpdate : MonoBehaviour
+    namespace Component
     {
-        private Action action;
-        private void FixedUpdate()
+        public class OnFixedUpdateComponent : Component.BasicEventMono
         {
-            if (action != null) { action(); }
+            private void FixedUpdate()
+            {
+                RunAction();
+            }
+
+
         }
+    }
 
 
 
-
+    public class OnFixedUpdate
+    {
         public static void Add(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.GetOrCreate<OnFixedUpdate>(gameObject, (com) =>
-            {
-                com.action += action;
-            });
+            BasicEvent.Method.Add<Component.OnFixedUpdateComponent>(gameObject, action);
         }
         public static void Remove(GameObject gameObject, Action action)
         {
-            BasicEvent.Method.RemoveCommon<OnFixedUpdate>(gameObject, (com) =>
-            {
-                com.action -= action; 
-                return com.action;
-            });
+            Method.Remove<Component.OnFixedUpdateComponent>(gameObject, action);
         }
-
-
     }
 
 

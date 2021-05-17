@@ -41,29 +41,24 @@ public static class VectorExtension
     {
         return Quaternion.AngleAxis(angle, Vector3.forward) * vector;
     }
-    public static Vector2 Rotate(this Vector2 vector, Vector2 to)
+    public static Vector2 RotateTo(this Vector2 vector, Vector2 to)
     {
         return to.normalized * vector.magnitude;
     }
-    public static Vector2 Rotate(this Vector2 vector, Vector2 from, Vector2 to)
+    public static Vector2 RotateTo(this Vector2 vector, Vector2 to, float angle)
     {
-        return Quaternion.FromToRotation(from, to) * vector;
+        float v = Vector2.SignedAngle(vector, to);
+        angle = angle.Abs() * v.Sign();
+        return vector.Rotate(angle);
     }
+
     public static float Angle(this Vector2 vector, Vector2 to)
     {
         return Vector2.Angle(vector, to);
     }
 
 
-    public static Vector2 ClamMinOnDirection(this Vector2 vector, float min, Vector2 direction)
-    {
-        Vector2 vectorH = vector.Project(direction);
-        Vector2 vectorV = vector.ProjectOnPlane(direction);
-        Vector2 vectorHnorm = vectorH.Rotate(direction, Vector2.right);
-        vectorHnorm.x = vectorHnorm.x.ClampMin(min);
-        vectorH = vectorHnorm.Rotate(Vector2.right, direction);
-        return vectorH + vectorV;
-    }
+
     public static Vector2 ClampMax(this Vector2 vector, float max)
     {
         if (vector.magnitude >= max)

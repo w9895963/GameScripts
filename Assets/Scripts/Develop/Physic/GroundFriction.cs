@@ -3,14 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-
-public class Gravity : MonoBehaviour
+public class GroundFriction : MonoBehaviour
 {
-    public enum State { Gravity }
     public Main main = new Main();
-
 
     private void Awake()
     {
@@ -29,47 +24,64 @@ public class Gravity : MonoBehaviour
     {
         main.AddForce();
     }
-
     private void OnDisable()
     {
         main.StopForce();
-
     }
-
-
-
     [System.Serializable]
     public class Main
     {
+        public enum State { GroundFriction }
+        public float frictionForce = 100f;
+        public Vector2 groundNormal = Vector2.up;
+        public Vector2 groundNormalDefault = Vector2.up;
         public GameObject gameObject;
-        public Vector2 gravityForce = new Vector2(0, -80);
         public Action onAddForce;
         public Action onStopForce;
 
         public bool enabled = false;
 
+        public Rigidbody2D body => gameObject.GetRigidbody2D();
+        private float mass => body.mass;
+        public Vector2 velocity => body.velocity;
+        public Vector2 GroundNormal => groundNormal != Vector2.zero ? groundNormal : groundNormalDefault;
+        public Vector2 groundDirection => GroundNormal.RotateTo(Vector2.right, 90).normalized;
+        public float speed => velocity.ProjectToFloat(groundDirection);
+
+
+        private void FixedUpdateAction()
+        {
+            Vector2 velocity = body.velocity;
+            float force = MathPh.SpeedChangeForce(speed, 0, mass);
+            force = force.ClampAbsMax(frictionForce);
+            body.AddForce(groundDirection * force);
+        }
         public void Initial(GameObject gameObject)
         {
             this.gameObject = gameObject;
+
             StateCondition();
+            ConnectDate();
+        }
+
+        private void ConnectDate()
+        {
+            ObjectDate.OnDateUpdate(gameObject, GroundFinder.Date.GroundNormal, (d) =>
+           {
+               groundNormal = (Vector2)d;
+           });
         }
 
         private void StateCondition()
         {
             ObjectState.OnStateAdd.Add(gameObject, GroundFinder.State.OnGround, () =>
             {
-                StopForce();
+                AddForce();
             });
             ObjectState.OnStateRemove.Add(gameObject, GroundFinder.State.OnGround, () =>
             {
-                AddForce();
+                StopForce();
             });
-        }
-
-        private void FixedUpdateAction()
-        {
-            Rigidbody2D rigidbody = gameObject.GetComponent<Rigidbody2D>();
-            rigidbody.AddForce(gravityForce);
         }
 
         public void AddForce()
@@ -81,7 +93,8 @@ public class Gravity : MonoBehaviour
             enabled = true;
             onAddForce?.Invoke();
             BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
-            ObjectState.State.Add(gameObject, State.Gravity);
+            ObjectState.State.Add(gameObject, State.GroundFriction);
+
         }
 
         public void StopForce()
@@ -93,8 +106,7 @@ public class Gravity : MonoBehaviour
             enabled = false;
             onStopForce?.Invoke();
             BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
-            ObjectState.State.Remove(gameObject, State.Gravity);
+            ObjectState.State.Remove(gameObject, State.GroundFriction);
         }
     }
 }
-

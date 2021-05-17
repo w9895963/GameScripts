@@ -8,35 +8,27 @@ using System;
 
 namespace BasicEvent
 {
-
-    public class OnCollision2D_Enter : MonoBehaviour
+    namespace Component
     {
-        private Action<Collision2D> action;
-        private void OnCollisionEnter2D(Collision2D other)
+        public class OnCollision2D_Enter_Component : BasicEventMono
         {
-            if (action != null) { action(other); }
+            private void OnCollisionEnter2D(Collision2D other)
+            {
+                RunAction<Collision2D>(other);
+            }
         }
+    }
 
-
-
-
-
-
+    public class OnCollision2D_Enter
+    {
 
         public static void Add(GameObject gameObject, Action<Collision2D> action)
         {
-            BasicEvent.Method.GetOrCreate<OnCollision2D_Enter>(gameObject, (com) =>
-            {
-                com.action += action;
-            });
+            BasicEvent.Method.Add<Component.OnCollision2D_Enter_Component, Collision2D>(gameObject, action);
         }
         public static void Remove(GameObject gameObject, Action<Collision2D> action)
         {
-            BasicEvent.Method.RemoveCommon<OnCollision2D_Enter>(gameObject, (com) =>
-            {
-                com.action -= action;
-                return com.action;
-            });
+            BasicEvent.Method.Remove<Component.OnCollision2D_Enter_Component, Collision2D>(gameObject, action);
         }
 
     }

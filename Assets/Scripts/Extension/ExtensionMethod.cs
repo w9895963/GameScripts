@@ -182,6 +182,10 @@ public static class ExtensionMethod
     {
         return f < max ? f : max;
     }
+    public static float ClampAbsMax(this float f, float max)
+    {
+        return f.Abs() < max.Abs() ? f : max.Abs() * f.Sign();
+    }
     public static int ClampMax(this int i, int max)
     {
         return i < max ? i : max;

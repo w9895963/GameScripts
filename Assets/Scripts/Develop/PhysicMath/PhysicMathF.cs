@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PhysicMath;
-
-
-
+using System;
 
 public struct MathPh
 {
@@ -23,13 +21,14 @@ public struct MathPh
         return speed * (float)deltaTime;
     }
 
-    public static float ChangeSpeedToForce(float startSpeed, float targetSpeed, float mass = 1, int step = 1, float? deltaTime = null)
+    public static float SpeedChangeForce(float startSpeed, float targetSpeed, float mass = 1, int step = 1, float? deltaTime = null)
     {
         float delV = targetSpeed - startSpeed;
         deltaTime = deltaTime != null ? deltaTime : Time.fixedDeltaTime;
         return delV / (float)deltaTime * mass / (float)step;
     }
 
+   
 
     public static float DistanceToSpeed(float distance, float accelerate)
    => PhysicMath_DistanceToSpeed.DistanceToSpeed(distance, accelerate);

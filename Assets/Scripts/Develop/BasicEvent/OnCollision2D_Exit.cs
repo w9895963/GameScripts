@@ -8,14 +8,19 @@ using System;
 
 namespace BasicEvent
 {
+    namespace Component
+    {
+        public class OnCollision2D_Exit_Component : BasicEventMono
+        {
+            private void OnCollisionExit2D(Collision2D other)
+            {
+                RunAction<Collision2D>(other);
+            }
+        }
+    }
 
     public class OnCollision2D_Exit : MonoBehaviour
     {
-        private Action<Collision2D> action;
-        private void OnCollisionExit2D(Collision2D other)
-        {
-            if (action != null) { action(other); }
-        }
 
 
 
@@ -25,18 +30,11 @@ namespace BasicEvent
 
         public static void Add(GameObject gameObject, Action<Collision2D> action)
         {
-            BasicEvent.Method.GetOrCreate<OnCollision2D_Exit>(gameObject, (com) =>
-            {
-                com.action += action;
-            });
+            Method.Add<Component.OnCollision2D_Exit_Component, Collision2D>(gameObject, action);
         }
         public static void Remove(GameObject gameObject, Action<Collision2D> action)
         {
-            BasicEvent.Method.RemoveCommon<OnCollision2D_Exit>(gameObject, (com) =>
-            {
-                com.action -= action; 
-                return com.action;
-            });
+            Method.Remove<Component.OnCollision2D_Exit_Component, Collision2D>(gameObject, action);
         }
 
     }

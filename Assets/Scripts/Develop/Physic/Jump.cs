@@ -47,7 +47,7 @@ public class Jump : MonoBehaviour
         public float CurrHeight => (body.position - startPosition).ProjectToFloat(jumpDirection);
         public float RemainHeight => jumpHeight - CurrHeight;
 
-        public Rigidbody2D body => gameObject.Rigidbody2D();
+        public Rigidbody2D body => gameObject.GetRigidbody2D();
         public float currSpeed => body.velocity.ProjectToFloat(jumpDirection);
         public float mass => body.mass;
 
@@ -69,13 +69,13 @@ public class Jump : MonoBehaviour
 
             if (CurrHeight < slowDownHeight)
             {
-                float forceNeed = MathPh.ChangeSpeedToForce(currSpeed, jumpSpeed, mass);
+                float forceNeed = MathPh.SpeedChangeForce(currSpeed, jumpSpeed, mass);
                 currForce = forceNeed.Clamp(0, maxJumpForce);
             }
             else
             {
                 float targetSpeed = (RemainHeight.ClampMin(0) / (jumpHeight - slowDownHeight)).PowSafe(slowDownRate) * jumpSpeed;
-                float forceNeed = MathPh.ChangeSpeedToForce(currSpeed, targetSpeed, mass);
+                float forceNeed = MathPh.SpeedChangeForce(currSpeed, targetSpeed, mass);
                 currForce = forceNeed.Clamp(-maxSlowDownForce, maxSlowDownForce);
                 if ((body.velocity).magnitude < stopSpeedCondition)
                 {
