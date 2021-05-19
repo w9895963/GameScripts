@@ -77,11 +77,28 @@ public class GroundFriction : MonoBehaviour
             ObjectState.OnStateAdd.Add(gameObject, GroundFinder.State.OnGround, () =>
             {
                 AddForce();
+
             });
-            ObjectState.OnStateRemove.Add(gameObject, GroundFinder.State.OnGround, () =>
+            ObjectState.OnStateRemove.Add(gameObject, () =>
+            {
+                AddForce();
+            }, Physic.Move.State.MoveLeft, Physic.Move.State.MoveRight);
+
+            void AddForceCOn()
+            {
+                ObjectState.State.HasAny(gameObject, Physic.Move.State.MoveLeft, Physic.Move.State.MoveRight);
+                AddForce();
+            }
+
+            ObjectState.OnStateAdd.Add(gameObject, () =>
             {
                 StopForce();
-            });
+            }, Physic.Move.State.MoveLeft, Physic.Move.State.MoveRight);
+            ObjectState.OnStateRemove.Add(gameObject, () =>
+            {
+                StopForce();
+            }, GroundFinder.State.OnGround);
+
         }
 
         public void AddForce()

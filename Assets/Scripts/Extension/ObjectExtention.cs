@@ -32,6 +32,10 @@ public static class ObjectExtention
             GameObject.Destroy(obj, timeWait);
         }
     }
+    public static void DestroyImmediate(this Object obj)
+    {
+        GameObject.DestroyImmediate(obj);
+    }
 
     public static void Destroy(this Object[] objects)
     {
@@ -58,13 +62,17 @@ public static class ObjectExtention
         GameObject obj = GameObject.Instantiate(prefab, gameObject.transform);
         return obj;
     }
-    public static GameObject CreateChildFrom(this GameObject gameObject, string resourcePath)
+    public static GameObject CreateChildFrom(this GameObject gameObject, string resourcePath, string name = null)
     {
-        GameObject prefab = Resources.Load(resourcePath, typeof(GameObject)) as GameObject;
+        GameObject prefab = ResourceLoader.Load<GameObject>(resourcePath); ;
         GameObject obj = GameObject.Instantiate(prefab, gameObject.transform);
+        if (name != null)
+        {
+            obj.name = name;
+        }
         return obj;
     }
-    public static List<GameObject> FindAllChild(this GameObject gameObject)
+    public static List<GameObject> GetAllChild(this GameObject gameObject)
     {
         List<GameObject> list = new List<GameObject>();
         for (int i = 0; i < gameObject.transform.childCount; i++)
@@ -75,7 +83,7 @@ public static class ObjectExtention
     }
     public static GameObject FindChild(this GameObject gameObject, string name)
     {
-        return gameObject.FindAllChild().Find((x) => x.name == name);
+        return gameObject.GetAllChild().Find((x) => x.name == name);
     }
     public static bool HasChild(this GameObject gameObject, GameObject child)
     {
@@ -134,6 +142,16 @@ public static class ObjectExtention
     public static void SetPosition(this GameObject gameObject, Vector3 p)
     {
         gameObject.transform.position = p;
+    }
+    public static void SetScale(this GameObject gameObject, float x, float y)
+    {
+        Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
+        gameObject.transform.localScale = scale;
+    }
+    public static void SetScale(this GameObject gameObject, Vector2 scale)
+    {
+        Vector3 scale3 = new Vector3(scale.x, scale.y, gameObject.transform.localScale.z);
+        gameObject.transform.localScale = scale3;
     }
     public static void SetRotation(this GameObject gameObject, float angle)
     {

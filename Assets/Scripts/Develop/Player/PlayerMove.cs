@@ -9,13 +9,8 @@ public class PlayerMove : MonoBehaviour
 
     private void Awake()
     {
-        Physic.Move.Core core = new Physic.Move.Core(gameObject);
-        core.Enabled = true;
-        core.maxSpeed = maxSpeed;
-        InputManager.GetInputAction(InputManager.InputName.Move).performed += (d) =>
-        {
-            core.moveDirection = d.ReadValue<Vector2>();
-        };
+        main.gameObject = gameObject;
+        main.Initial();
 
     }
     public class Main
@@ -27,32 +22,21 @@ public class PlayerMove : MonoBehaviour
         private Physic.Move.Core move;
 
 
-        private bool enabled = true;
-        public bool Enabled
-        {
-            get => enabled;
-            set
-            {
-                if (enabled == value)
-                {
-                    return;
-                }
-                enabled = value;
-
-                if (enabled == true)
-                {
-                    move.Enabled = true;
-                }
-                else
-                {
-                    move.Enabled = false;
-                }
-            }
-        }
-
         public void Initial()
         {
             move = new Physic.Move.Core(gameObject);
+            InputManager.GetInputAction(InputManager.InputName.Move).performed += (d) =>
+            {
+                Vector2 dir = new Vector2(d.ReadValue<Vector2>().x, 0);
+                if (dir.x != 0)
+                {
+                    move.Move(dir);
+                }
+                else
+                {
+                    move.Stop();
+                }
+            };
         }
 
     }

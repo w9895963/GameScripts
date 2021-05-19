@@ -99,7 +99,7 @@ namespace Global
                 AttackProfile attackProfile = AttackProfile.GetGlobalProfile(type);
                 string path = attackProfile.prefabPath;
 
-                ResouceLoader.LazyLoad<GameObject>(path, LoadAction);
+                ResourceLoader.LazyLoad<GameObject>(path, LoadAction);
 
                 void LoadAction(GameObject attackPrefab)
                 {

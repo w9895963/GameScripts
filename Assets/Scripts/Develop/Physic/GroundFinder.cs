@@ -36,7 +36,6 @@ public class GroundFinder : MonoBehaviour
 
         private void OnCollisionEnter2DAction(Collision2D other)
         {
-            Debug.Log(other);
             ContactObject contactObj = new ContactObject();
             contactObj.gameObject = other.gameObject;
             Vector2 normal = other.contacts[0].normal;

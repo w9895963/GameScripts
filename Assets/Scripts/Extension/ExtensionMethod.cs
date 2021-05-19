@@ -47,16 +47,18 @@ public static class ExtensionMethod
         source.Sort((x, y) => selector(x).CompareTo(selector(y)));
     }
 
-    public static bool NotEmpty<T>(this List<T> source)
+
+    public static bool IsEmpty<T>(this T source) where T : System.Collections.IEnumerable
     {
         if (source != null)
         {
-            if (source.Count > 0)
+            foreach (var item in source)
             {
-                return true;
+                return false;
             }
         }
-        return false;
+
+        return true;
     }
 
 
@@ -71,10 +73,7 @@ public static class ExtensionMethod
     }
 
 
-    public static T[] ToArray<T>(this T source)
-    {
-        return new T[] { source };
-    }
+
     public static List<T> ToList<T>(this T[] source)
     {
         return new List<T>(source);
@@ -97,21 +96,8 @@ public static class ExtensionMethod
         }
     }
 
-    public static void LogAll<T>(this List<T> source)
-    {
-        for (int i = 0; i < source.Count; i++)
-        {
-            Debug.Log($"index:{i};content:{source[i]}", source[i] as UnityEngine.Object);
-        }
-    }
-    public static void LogAll<T, S>(this List<T> source, System.Func<T, S> selector)
-    {
-        List<S> lists = source.Select(selector).ToList();
-        for (int i = 0; i < lists.Count; i++)
-        {
-            Debug.Log(lists[i], lists[i] as UnityEngine.Object);
-        }
-    }
+
+
 
 
 

@@ -53,7 +53,7 @@ public class Slap : MonoBehaviour
         {
             GameObject.Instantiate(attack);
         };
-        ResouceLoader.LazyLoad<GameObject>(path, LoadAction);
+        ResourceLoader.LazyLoad<GameObject>(path, LoadAction);
     }
 
 

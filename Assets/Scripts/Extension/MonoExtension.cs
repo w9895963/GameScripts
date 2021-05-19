@@ -8,7 +8,7 @@ public static class MonoBehaviour_Extension {
         return gameObject;
     }
 
-    public static List<GameObject> FindAllChild (this MonoBehaviour mono) {
+    public static List<GameObject> GetAllChild (this MonoBehaviour mono) {
         List<GameObject> list = new List<GameObject> ();
         for (int i = 0; i < mono.transform.childCount; i++) {
             list.Add (mono.transform.GetChild (i).gameObject);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class DebugF
@@ -8,7 +9,7 @@ public static class DebugF
     private static int index = 0;
     private static float? currTime;
 
-    public static void LogLine(this System.Object logObj, string name = null, bool lineBreak = false)
+    public static void LogLine(System.Object logObj, string name = null, bool lineBreak = false)
     {
         if (currTime == null)
         {
@@ -38,28 +39,46 @@ public static class DebugF
         }
 
     }
-    public static void LogLine(this System.Object logObj, bool lineBreak = false)
+    public static void LogLine(System.Object logObj, bool lineBreak = false)
     {
         LogLine(logObj, null, lineBreak);
     }
-    public static void LogLine(this System.Object logObj)
+    public static void LogLine(System.Object logObj)
     {
         LogLine(logObj, null, false);
     }
 
 
-    public static void Log(this System.Object logObj, string name = null, Object context = null)
+
+
+
+    public static void Log<T>(this T content) where T : System.IConvertible
     {
-        Debug.Log(name + " : " + logObj, context);
+        Debug.Log(content.ToString());
     }
-    public static void Log(this System.Object logObj, Object context = null)
+    public static void LogEach<T>(this T list, int lineBreak = 0) where T : IEnumerable
     {
-        Debug.Log(logObj, context);
+        string str = "";
+        int i = 0;
+        string Break() => lineBreak > 0 ? (i + 1) % lineBreak == 0 ? "\n" : null : null;
+
+
+        foreach (var item in list)
+        {
+            str += $"{i}:{item.ToString()}; {Break()}";
+            i++;
+        }
+
+        Debug.Log(str);
     }
-    public static void Log(this System.Object logObj)
+
+    public static void LogEach<T, S>(this List<T> source, System.Func<T, S> selector, int lineBreak = 0)
     {
-        Debug.Log(logObj);
+        List<S> lists = source.Select(selector).ToList();
+        lists.LogEach(lineBreak);
     }
+
+
 
 
 }

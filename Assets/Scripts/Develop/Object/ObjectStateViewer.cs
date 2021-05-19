@@ -8,7 +8,7 @@ public class ObjectStateViewer : MonoBehaviour
     public List<string> dateView;
     private void Update()
     {
-        var dates = gameObject.GetComponent<ObjectStateComponent>()?.statesE;
+        var dates = gameObject.GetComponent<ObjectStateComponent>()?.states;
         if (dates == null) { return; }
 
         dateView = new List<string>();

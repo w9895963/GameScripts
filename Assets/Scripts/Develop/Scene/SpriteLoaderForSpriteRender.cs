@@ -21,7 +21,7 @@ public class SpriteLoaderForSpriteRender : MonoBehaviour
 
     private void Load()
     {
-        Texture2D texture2D = TextureLoader.LoadFromDataPath(localPath);
+        Texture2D texture2D =FileF.LoadTexture(localPath);
         if (texture2D != null)
         {
             texture2D.filterMode = FilterMode.Point;

@@ -9,6 +9,7 @@ namespace Physic
 {
     public class Move : MonoBehaviour
     {
+        public enum State { MoveLeft, MoveRight }
         public Vector2 moveDirection = Vector2.zero;
 
         public float moveSpeed = 10f;
@@ -47,11 +48,9 @@ namespace Physic
 
         private void OnEnable()
         {
-            core.Enabled = true;
         }
         private void OnDisable()
         {
-            core.Enabled = false;
 
         }
 
@@ -70,6 +69,7 @@ namespace Physic
 
             public Vector2 realWalkDirection;
             public Vector2 force;
+            public bool enabled = false;
 
 
 
@@ -77,14 +77,14 @@ namespace Physic
             private Physic.VelocityChanger.Core velocityChanger;
             private GameObject gameObject;
             private Rigidbody2D rigidBody => gameObject.GetComponent<Rigidbody2D>();
-            private bool enabled = false;
             public Core(GameObject gameObject)
             {
                 this.gameObject = gameObject;
                 velocityChanger = new Physic.VelocityChanger.Core(rigidBody);
-               
-
+                InitialState();
+                InitialDateShare();
             }
+
 
 
             public void FixedUpdateAction()
@@ -105,6 +105,39 @@ namespace Physic
                 onUpdateAfter?.Invoke();
 
 
+
+            }
+            private void InitialDateShare()
+            {
+                ObjectDate.OnDateUpdate(gameObject, GroundFinder.Date.GroundNormal, (d) =>
+                {
+                    Vector2 normal = (Vector2)d;
+                });
+            }
+            private void InitialState()
+            {
+
+            }
+
+            private void UpdateState()
+            {
+                if (enabled)
+                {
+                    if (moveDirection.x > 0)
+                    {
+                        ObjectState.State.Remove(gameObject, State.MoveLeft);
+                        ObjectState.State.Add(gameObject, State.MoveRight);
+                    }
+                    else if (moveDirection.x < 0)
+                    {
+                        ObjectState.State.Remove(gameObject, State.MoveRight);
+                        ObjectState.State.Add(gameObject, State.MoveLeft);
+                    }
+                }
+                else
+                {
+                    ObjectState.State.Remove(gameObject, State.MoveLeft, State.MoveRight);
+                }
             }
 
             public bool Enabled
@@ -127,6 +160,24 @@ namespace Physic
                         }
                     }
                 }
+            }
+
+            public void Move(Vector2 direction)
+            {
+                if (enabled) { return; }
+                if (direction == Vector2.zero) { return; }
+                enabled = true;
+                moveDirection = direction;
+                BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
+                UpdateState();
+            }
+
+            public void Stop()
+            {
+                if (!enabled) { return; }
+                enabled = false;
+                BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
+                UpdateState();
             }
 
 
