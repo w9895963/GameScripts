@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SceneBundle;
 using UnityEngine;
 
 namespace CommandFileBundle
@@ -12,31 +13,50 @@ namespace CommandFileBundle
     {
         public GameObject gameObject;
         public string path;
+        public string[] lines;
         List<CommandLine> commandLines = new List<CommandLine>();
 
         public string FolderName => FileF.GetFolderName(path);
 
-        public static void Execute(string path)
+        public void ReWriteFile(string title, string newLine)
+        {
+            FileF.ReWriteOrAddLine(path, title, newLine);
+        }
+
+        public void AddCommandLinesToScene()
+        {
+            commandLines.ForEach((cl) =>
+           {
+               cl.AddToScene();
+           });
+        }
+
+
+        public static CommandFile TryGetCommandFile(string path)
         {
             bool exist = File.Exists(path);
-            if (!exist) { return; }
+            if (!exist) { return null; }
 
             CommandFile file = new CommandFile();
             file.path = path;
             string[] allLine = File.ReadAllLines(path);
-            allLine.ForEach((line) =>
+            file.lines = allLine;
+
+
+            for (int i = 0; i < allLine.Length; i++)
             {
+                var line = allLine[i];
+
                 CommandLine commandLine = CommandLine.TryGetCommandLine(line);
                 if (commandLine != null)
                 {
                     file.commandLines.Add(commandLine);
                     commandLine.commandFile = file;
+                    commandLine.lineIndex = i;
                 }
-            });
-            file.commandLines.ForEach((cl) =>
-            {
-                cl.Execute();
-            });
+            }
+
+            return file;
         }
 
 
@@ -46,12 +66,13 @@ namespace CommandFileBundle
 
     public class CommandLine
     {
-
+        const string CommandActionFolder = "CommandPrefab";
         public CommandFile commandFile;
-        public GameObject prefab;
-        public Action<CommandLine> onSceneBuild;
-        public Action<CommandLine> afterSceneBuild;
-        string title;
+        public Action<CommandLine> action;
+        public SceneBundle.SceneBuildEvent sceneBuildEvent;
+        public string originLine;
+        public int lineIndex;
+        public string title;
         string[] paramaters;
 
 
@@ -72,18 +93,7 @@ namespace CommandFileBundle
         public int ParamsLength => paramaters.IsEmpty() ? 0 : paramaters.Length;
 
 
-        public void Execute()
-        {
-            string resourcePath = "CommandPrefab" + "\\" + title;
-            GameObject prefab = ResourceLoader.Load<GameObject>(resourcePath);
-            if (prefab == null) { return; }
 
-            CommandLineActionHolder action = prefab.GetComponent<CommandLineActionHolder>();
-            onSceneBuild = action.OnSceneBuild;
-            afterSceneBuild = action.AfterSceneBuild;
-            SceneF.AddCommandLine(FolderName, this);
-
-        }
 
         public T ReadParam<T>(int index)
         {
@@ -103,23 +113,42 @@ namespace CommandFileBundle
             return ts;
         }
 
+        public void AddToScene()
+        {
+            SceneHolder sceneHolder = SceneF.FindOrCreateScene(FolderName);
+            sceneHolder.comandLines.Add(this);
 
+        }
 
 
         public static CommandLine TryGetCommandLine(string line)
         {
-            CommandLine re = null;
-            (string title, string[] paramaters) p = CommandLineContentSpliter.Split(line);
-            if (!p.title.IsEmpty())
-            {
-                re = new CommandLine();
-                re.title = p.title;
-                re.paramaters = p.paramaters;
-            }
-            return re;
+
+            (string title, string[] paramaters) p = CommandLineSpliter.Split(line);
+            if (p.title.IsEmpty()) { return null; }
+
+            string actionPath = CommandActionFolder + "\\" + p.title;
+            GameObject prefab = ResourceLoader.Load<GameObject>(actionPath);
+            if (prefab == null) { return null; }
+
+            CommandLine li = null;
+            li = new CommandLine();
+            li.originLine = line;
+            li.title = p.title;
+            li.paramaters = p.paramaters;
+
+            CommandLineActionHolder actionHolder = prefab.GetComponent<CommandLineActionHolder>();
+            li.action = actionHolder.Action;
+            li.sceneBuildEvent = actionHolder.onSceneEvent;
+            return li;
         }
 
-        public static class CommandLineContentSpliter
+        public void Execute()
+        {
+            action?.Invoke(this);
+        }
+
+        public static class CommandLineSpliter
         {
             const string SplitPartten = @"[\s,，]+";
 
@@ -143,6 +172,9 @@ namespace CommandFileBundle
         }
 
     }
+
+
+
 
 
 

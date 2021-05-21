@@ -95,6 +95,11 @@ public static class ObjectExtention
         if (parent == null) { return; }
         gameObject.transform.SetParent(parent.transform);
     }
+    public static void SetParent(this GameObject gameObject, Component parent)
+    {
+        if (parent == null) { return; }
+        gameObject.transform.SetParent(parent.transform);
+    }
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)
     {
         List<GameObject> all = GetParents(gameObject);
@@ -117,15 +122,21 @@ public static class ObjectExtention
         Transform parent = gameObject == null ? null : gameObject.transform.parent;
         return parent ? parent.gameObject : null;
     }
-    public static T GetOrAddComponent<T>(this GameObject gameObject) where T : MonoBehaviour
+    public static T GetComponent<T>(this GameObject gameObject, bool autoAdd = false) where T : Component
     {
+
         T com = gameObject.GetComponent<T>();
+        if (autoAdd == false)
+        {
+            return com;
+        }
         if (com == null)
         {
             com = gameObject.AddComponent<T>();
         }
         return com;
     }
+
 
 
 
@@ -154,7 +165,11 @@ public static class ObjectExtention
         Vector3 scale3 = new Vector3(scale.x, scale.y, gameObject.transform.localScale.z);
         gameObject.transform.localScale = scale3;
     }
-    public static void SetRotation(this GameObject gameObject, float angle)
+    public static void SetScale(this GameObject gameObject, Vector3 scale)
+    {
+        gameObject.transform.localScale = scale;
+    }
+    public static void SetRotate(this GameObject gameObject, float angle)
     {
         Quaternion rotation = gameObject.transform.localRotation;
         Vector3 angle3 = rotation.eulerAngles;
@@ -162,11 +177,26 @@ public static class ObjectExtention
         rotation.eulerAngles = angle3;
         gameObject.transform.rotation = rotation;
     }
+    public static void SetRotate(this GameObject gameObject, Vector3 rotation)
+    {
+        Quaternion ro = new Quaternion();
+        ro.eulerAngles = rotation;
+        gameObject.transform.rotation = ro;
+    }
 
     public static Vector2 GetPosition2d(this GameObject gameObject)
     {
 
         return (Vector2)gameObject.transform.position;
+    }
+    public static Vector2 GetScale2d(this GameObject gameObject)
+    {
+
+        return (Vector2)gameObject.transform.localScale;
+    }
+    public static float GetRotate1D(this GameObject gameObject)
+    {
+        return gameObject.transform.localRotation.eulerAngles.z;
     }
     public static Vector2 GetPositionBottomLeft(this GameObject gameObject)
     {

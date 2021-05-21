@@ -13,7 +13,7 @@ namespace Player
             {
                 if (gameObject == null)
                 {
-                    gameObject = GameObject.FindObjectOfType<Player.PlayerObjectLocater>().gameObject;
+                    gameObject = GameObject.FindObjectOfType<Player.PlayerObjectLocater>()?.gameObject;
                 }
                 return gameObject;
             }

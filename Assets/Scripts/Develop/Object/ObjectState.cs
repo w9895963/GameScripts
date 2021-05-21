@@ -16,7 +16,7 @@ public static class ObjectState
 
         public static void Add(GameObject gameObject, System.Enum state)
         {
-            ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
+            ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>(true);
             var states = com.states;
             if (states.Contains(state))
             {
@@ -96,7 +96,7 @@ public static class ObjectState
 
         public static void Add(GameObject gameObject, System.Enum state, Action action)
         {
-            ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
+            ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>(true);
             var dic = com.onStateAdd;
             bool hasKey = dic.ContainsKey(state);
             if (!hasKey)
@@ -128,7 +128,7 @@ public static class ObjectState
 
         public static void Add(GameObject gameObject, System.Enum state, Action action)
         {
-            ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
+            ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>(true);
             var dic = com.onStateRemove;
             bool hasKey = dic.ContainsKey(state);
             if (!hasKey)
@@ -164,7 +164,7 @@ public static class ObjectState
     {
         public static void Add(GameObject gameObject, Action action)
         {
-            ObjectStateComponent com = gameObject.GetOrAddComponent<ObjectStateComponent>();
+            ObjectStateComponent com = gameObject.GetComponent<ObjectStateComponent>(true);
             com.onStateChanged += action;
 
         }

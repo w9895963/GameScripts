@@ -8,13 +8,15 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ActiveObject : CommandLineActionHolder
+        public class CommandAction_SetRotate : CommandLineActionHolder
         {
 
             public override void Action(CommandLine cl)
             {
-                cl.GameObject.SetActive(true);
-
+                GameObject obj = cl.GameObject;
+                float[] vs = cl.ReadParams<float>();
+                if (vs.Length == 0) { return; }
+                obj.SetRotate(vs[0]);
             }
 
 

@@ -12,7 +12,7 @@ public static class ObjectDate
 
     public static void UpdateData(GameObject gameObject, System.Enum dateName, System.Object data)
     {
-        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        ObjectDateComponent com = gameObject.GetComponent<ObjectDateComponent>(true);
         var dic = com.dateDict;
         if (dic.ContainsKey(dateName))
         {
@@ -37,7 +37,7 @@ public static class ObjectDate
     }
     public static void OnDateUpdate(GameObject gameObject, System.Enum dateName, Action<System.Object> action)
     {
-        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        ObjectDateComponent com = gameObject.GetComponent<ObjectDateComponent>(true);
         var dic = com.onDateUpdate;
         if (!dic.ContainsKey(dateName))
         {
@@ -46,9 +46,10 @@ public static class ObjectDate
 
         dic[dateName] += action;
     }
+   
     public static bool TryGetData<T>(GameObject gameObject, System.Enum dateName, out T data)
     {
-        ObjectDateComponent com = gameObject.GetOrAddComponent<ObjectDateComponent>();
+        ObjectDateComponent com = gameObject.GetComponent<ObjectDateComponent>(true);
         var dic = com.dateDict;
         if (dic.ContainsKey(dateName))
         {

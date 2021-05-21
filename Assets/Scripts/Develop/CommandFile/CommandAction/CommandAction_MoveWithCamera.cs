@@ -11,7 +11,7 @@ namespace CommandFileBundle
         public class CommandAction_MoveWithCamera : CommandLineActionHolder
         {
 
-            public override void OnSceneBuild(CommandLine cl)
+            public override void Action(CommandLine cl)
             {
                 GameObject obj = cl.GameObject;
                 MoveWithCamera com = obj.AddComponent<MoveWithCamera>();

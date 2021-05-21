@@ -14,8 +14,8 @@ namespace BasicEvent
 
             void Start()
             {
-                CommandFileBundle.FolderExecuter.ExecuteAllScripts();
-                SceneF.FindScene(sceneName).Build();
+                CommandFileBundle.FileReader.ReadAllScriptsThenAddToScene();
+                SceneF.FindScene(sceneName)?.Build();
             }
 
         }

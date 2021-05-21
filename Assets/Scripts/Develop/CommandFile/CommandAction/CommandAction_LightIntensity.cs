@@ -10,7 +10,7 @@ namespace CommandFileBundle
         public class CommandAction_LightIntensity : CommandLineActionHolder
         {
 
-            public override void OnSceneBuild(CommandLine cl)
+            public override void Action(CommandLine cl)
             {
                 GameObject obj = cl.GameObject;
                 Light2D li = obj.GetComponent<Light2D>();

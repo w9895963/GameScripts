@@ -19,13 +19,15 @@ namespace CommandFileBundle
                     {"大前景","Foreground"},
 
             };
-            public override void OnSceneBuild(CommandLine cl)
+            public override void Action(CommandLine cl)
             {
                 GameObject obj = cl.GameObject;
                 if (obj == null) { return; }
                 var render = obj.GetComponent<Renderer>();
                 string layerName = cl.ReadParam<string>(0);
-                render.sortingLayerName = nameToLayerDic[layerName];
+                string sortName = null;
+                nameToLayerDic.TryGetValue("layerName", out sortName);
+                render.sortingLayerName = sortName;
                 if (cl.ParamsLength > 1)
                 {
                     int v = cl.ReadParam<int>(1);

@@ -57,6 +57,21 @@ public static class FileF
         return Path.GetDirectoryName(path) + "\\" + fileName;
     }
 
+    public static void ReWriteOrAddLine(string path, string title, string newLine)
+    {
+        List<string> list = File.ReadAllLines(path).ToList();
+        int v = list.FindIndex((x) => x.StartsWith(title));
 
+        if (v >= 0)
+        {
+            list[v] = newLine;
+        }
+        else
+        {
+            list.Add(newLine);
+        }
+
+        File.WriteAllLines(path, list);
+    }
 
 }

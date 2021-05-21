@@ -15,6 +15,7 @@ public class Test : MonoBehaviour
 
     private void Awake()
     {
+       
     }
     private void Reset()
     {

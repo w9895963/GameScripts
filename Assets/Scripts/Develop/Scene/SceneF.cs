@@ -9,23 +9,21 @@ public static class SceneF
 {
 
 
-    public static SceneBundle.SceneHolder FindScene(string name)
+    public static SceneHolder FindScene(string name)
     {
         return GameObjectF.FindObjectOfType<SceneBundle.SceneHolder>(name);
+    }
+    public static SceneHolder FindOrCreateScene(string name)
+    {
+        return GameObjectF.FindComponentOrCreate<SceneHolder>(name);
     }
 
     public static void AddToScene(GameObject obj, string sceneName)
     {
-        var scene = GameObjectF.FindComponentOrCreateObject<SceneBundle.SceneHolder>(sceneName);
+        var scene = GameObjectF.FindComponentOrCreate<SceneBundle.SceneHolder>(sceneName);
         obj.SetParent(scene.gameObject);
     }
 
 
-
-
-    public static void AddCommandLine(string folderName, CommandLine commandLine)
-    {
-        SceneHolder sceneHolder = GameObjectF.FindComponentOrCreateObject<SceneHolder>(folderName);
-        sceneHolder.comandLines.Add(commandLine);
-    }
+   
 }

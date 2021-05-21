@@ -10,7 +10,7 @@ namespace CommandFileBundle
     {
         public class CommandAction_ParticleEmission : CommandLineActionHolder
         {
-            public override void OnSceneBuild(CommandLine cm)
+            public override void Action(CommandLine cm)
             {
                 GameObject obj = cm.GameObject;
                 if (obj == null) { return; }

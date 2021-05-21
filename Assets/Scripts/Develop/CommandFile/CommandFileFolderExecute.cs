@@ -9,31 +9,30 @@ using UnityEngine;
 
 namespace CommandFileBundle
 {
-    public static class FolderExecuter
+    public static class FileReader
     {
         const string DefaultFolder = "Scripts\\OnLoad";
         const string ScriptFolder = "Scripts";
-        public static void ExecuteAllFiles(string localPath)
+        public static void AddAllCommandLinesToScene(string localPath)
         {
-            string[] files = FileF.GetAllFilesInFolderFromLocal(localPath, "*.txt", true);
-            if (files.IsEmpty())
+            string[] paths = FileF.GetAllFilesInFolderFromLocal(localPath, "*.txt", true);
+            if (paths.IsEmpty())
             {
                 return;
             }
-            files.ForEach((file) =>
+            paths.ForEach((path) =>
             {
-                CommandFileBundle.CommandFile.Execute(file);
+                CommandFile commandFile = CommandFileBundle.CommandFile.TryGetCommandFile(path);
+                 if (commandFile == null){ return ; }
+                 commandFile.AddCommandLinesToScene();
             });
 
         }
 
-        public static void ExecuteAllScripts()
+        public static void ReadAllScriptsThenAddToScene()
         {
-            ExecuteAllFiles(ScriptFolder);
+            AddAllCommandLinesToScene(ScriptFolder);
         }
-        public static void ExecuteDefaultFolder()
-        {
-            ExecuteAllFiles(DefaultFolder);
-        }
+       
     }
 }

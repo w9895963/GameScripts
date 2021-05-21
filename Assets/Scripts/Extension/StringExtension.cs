@@ -22,5 +22,17 @@ public static class StringExtension
         path = path.Replace(@"/", "\\");
         return path;
     }
+    public static bool Contains(this string str, List<string> contents)
+    {
+        for (int i = 0; i < contents.Count; i++)
+        {
+            if (!str.Contains(contents[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 }

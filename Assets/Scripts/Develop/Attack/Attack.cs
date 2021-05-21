@@ -105,7 +105,7 @@ namespace Global
                 {
                     GameObject attackObject = CreateAttackObject(attackPrefab);
                     attackObject.SetPosition(position);
-                    attackObject.SetRotation(angle);
+                    attackObject.SetRotate(angle);
 
                     SetFlipX(attackObject, flipX);
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Global;
@@ -82,14 +83,8 @@ public static class ExtensionMethod
         }
         return new List<T>(source);
     }
-    public static List<T> ToList<T>(this T source) where T : Object
-    {
-        return new List<T> { source };
-    }
-    public static List<string> ToList(this string source)
-    {
-        return new List<string> { source };
-    }
+
+
 
 
     public static void ForEach<T>(this T[] source, System.Action<T> action)
@@ -100,10 +95,10 @@ public static class ExtensionMethod
         }
     }
 
-
-
-
-
+    public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+    {
+        enumeration.ToArray().ForEach(action);
+    }
 
 
     #endregion //*endregion
@@ -248,10 +243,10 @@ public static class ExtensionMethod
     #endregion
 
 
-    public static bool IsEmpty(this string str)
+    /* public static bool IsEmpty(this string str)
     {
         return string.IsNullOrWhiteSpace(str);
-    }
+    } */
 
 
 
@@ -294,25 +289,10 @@ public static class ExtensionMethod
 
 
 
-    // * ---------------------------------- 
-    public static GameObjectExMethod _Ex(this GameObject gameObject, Object callBy)
-    {
-        return new GameObjectExMethod(gameObject, callBy);
-    }
+
 
 
 }
 
-public class GameObjectExMethod
-{
-    public GameObject gameObject;
-    public Object callby;
-    public GameObjectExMethod(GameObject gameObject, Object callBy)
-    {
-        this.gameObject = gameObject;
-        this.callby = callBy;
-    }
-    // * ---------------------------------- 
 
-}
 

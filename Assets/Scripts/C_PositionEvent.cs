@@ -80,16 +80,7 @@ public class C_PositionEvent : MonoBehaviour {
 }
 
 
-public static class Extension_C_GameObjectEvent {
-    public static C_PositionEvent AddPositionEvent (this GameObjectExMethod source,
-        UnityAction<C_PositionEvent.Setting> setting = default
-    ) { //--------------------------
-        C_PositionEvent comp = source.gameObject.AddComponent<C_PositionEvent> ();
-        setting (comp.setting);
 
-        return comp;
-    }
-}
 
 namespace Global {
     public enum UpdateMethod { Update, LateUpdate, FixedUpdate }

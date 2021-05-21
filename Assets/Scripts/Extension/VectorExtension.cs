@@ -56,6 +56,10 @@ public static class VectorExtension
     {
         return Vector2.Angle(vector, to);
     }
+    public static float SignedAngle(this Vector2 vector, Vector2 to)
+    {
+        return Vector2.SignedAngle(vector, to);
+    }
 
 
 

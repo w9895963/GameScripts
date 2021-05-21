@@ -222,20 +222,4 @@
     }
 
 
-    public static class Extension_C_MoveTo {
-
-        public static C_MoveTo MoveTo (this GameObjectExMethod source, UnityAction<C_MoveTo.SimpleMove> setup) {
-            C_MoveTo comp = source.gameObject.AddComponent<C_MoveTo> ();
-            comp.enabled = false;
-
-            C_MoveTo.SimpleMove setting = new C_MoveTo.SimpleMove ();
-            setup (setting);
-            comp.simpleMove = setting;
-            comp.createBy = source.callby;
-
-            comp.enabled = true;
-            return comp;
-
-        }
-
-    }
+   

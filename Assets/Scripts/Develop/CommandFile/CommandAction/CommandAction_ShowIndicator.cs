@@ -10,7 +10,7 @@ namespace CommandFileBundle
     {
         public class CommandAction_ShowIndicator : CommandLineActionHolder
         {
-            public override void AfterSceneBuild(CommandLine cl)
+            public override void Action(CommandLine cl)
             {
                 CamareF.SetIndicatorVisible();
 

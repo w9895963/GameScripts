@@ -52,10 +52,13 @@ public static class DebugF
 
 
 
-    public static void Log<T>(this T content) where T : System.IConvertible
+   
+    public static void Log<T>(this T content) where T : struct
     {
         Debug.Log(content.ToString());
     }
+
+
     public static void LogEach<T>(this T list, int lineBreak = 0) where T : IEnumerable
     {
         string str = "";

@@ -18,7 +18,7 @@ public static class GameObjectF
 
 
 
-    public static T FindComponentOrCreateObject<T>(string objectName) where T : UnityEngine.Component
+    public static T FindComponentOrCreate<T>(string objectName) where T : UnityEngine.Component
     {
         var comps = GameObject.FindObjectsOfType<T>();
         T comp = comps.FirstOrDefault((x) => x.name == objectName);

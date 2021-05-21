@@ -13,18 +13,28 @@ namespace SceneBundle
     {
         public List<CommandLine> comandLines = new List<CommandLine>();
 
+
         public void Build()
         {
-            comandLines.ForEach((line) =>
+
+            comandLines.Where((x) => x.sceneBuildEvent == SceneBuildEvent.OnBuild).ForEach((line) =>
             {
-                line.onSceneBuild?.Invoke(line);
+                line.Execute();
             });
-            comandLines.ForEach((line) =>
+            comandLines.Where((x) => x.sceneBuildEvent == SceneBuildEvent.AfterBuild).ForEach((line) =>
             {
-                line.afterSceneBuild?.Invoke(line);
+                line.Execute();
             });
+
         }
 
 
+    }
+
+
+    public enum SceneBuildEvent
+    {
+        OnBuild,
+        AfterBuild
     }
 }
