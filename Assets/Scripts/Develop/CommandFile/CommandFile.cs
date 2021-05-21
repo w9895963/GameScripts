@@ -14,13 +14,13 @@ namespace CommandFileBundle
         public string path;
         List<CommandLine> commandLines = new List<CommandLine>();
 
-
-
+        public string FolderName => FileF.GetFolderName(path);
 
         public static void Execute(string path)
         {
             bool exist = File.Exists(path);
             if (!exist) { return; }
+
             CommandFile file = new CommandFile();
             file.path = path;
             string[] allLine = File.ReadAllLines(path);
@@ -35,7 +35,7 @@ namespace CommandFileBundle
             });
             file.commandLines.ForEach((cl) =>
             {
-                cl.ExecuteNew();
+                cl.Execute();
             });
         }
 
@@ -48,8 +48,11 @@ namespace CommandFileBundle
     {
 
         public CommandFile commandFile;
+        public GameObject prefab;
+        public Action<CommandLine> onSceneBuild;
+        public Action<CommandLine> afterSceneBuild;
         string title;
-        public string[] paramaters;
+        string[] paramaters;
 
 
 
@@ -65,29 +68,41 @@ namespace CommandFileBundle
         }
 
         public string Path => commandFile.path;
+        public string FolderName => commandFile.FolderName;
+        public int ParamsLength => paramaters.IsEmpty() ? 0 : paramaters.Length;
+
 
         public void Execute()
         {
-            Action<CommandLine> action = ActionFinder.FindAction(title);
-            action?.Invoke(this);
-        }
-        public void ExecuteNew()
-        {
-            GameObject gameObject = GameObjectF.CreateFromPrefab("CommandPrefab" + "\\" + title);
-            ActionBaseComponent action = gameObject.GetComponent<ActionBaseComponent>();
-            action.commandLine = this;
-            action.Execute();
+            string resourcePath = "CommandPrefab" + "\\" + title;
+            GameObject prefab = ResourceLoader.Load<GameObject>(resourcePath);
+            if (prefab == null) { return; }
+
+            CommandLineActionHolder action = prefab.GetComponent<CommandLineActionHolder>();
+            onSceneBuild = action.OnSceneBuild;
+            afterSceneBuild = action.AfterSceneBuild;
+            SceneF.AddCommandLine(FolderName, this);
+
         }
 
         public T ReadParam<T>(int index)
         {
             return (T)Convert.ChangeType(paramaters[index], typeof(T)); ;
         }
-        public T[] ReadParams<T>()
+        public T[] ReadParams<T>(int startIndex = 0, int length = -1)
         {
-            T[] ts = paramaters.ToList().Select((x) => (T)Convert.ChangeType(x, typeof(T))).ToArray();
+            if (paramaters.IsEmpty())
+            {
+                return new T[0];
+            }
+            List<string> list;
+
+            list = paramaters.ToList().GetRange(startIndex, length < 0 ? paramaters.Length : length);
+
+            T[] ts = list.Select((x) => (T)Convert.ChangeType(x, typeof(T))).ToArray();
             return ts;
         }
+
 
 
 

@@ -11,46 +11,24 @@ namespace FileBundle
     public static class TextureLoader
     {
         public static Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
-        public static Texture2D LoadTexture(string path)
+        public static Texture2D LoadTexture(string path, FilterMode filterMode = FilterMode.Point)
         {
             Texture2D texture = null;
-            path.Replace(@"\", "/");
-            if (File.Exists(path))
+            textureDict.TryGetValue(path, out texture);
+            if (texture == null)
             {
-                texture = new Texture2D(2, 2);
-                byte[] bytes = File.ReadAllBytes(path);
-                bool loadSuccess = ImageConversion.LoadImage(texture, bytes);
-                if (loadSuccess)
+                if (File.Exists(path))
                 {
-                    texture.name = Path.GetFileName(path);
-                }
-            }
-            DestroySameTexture();
-            void DestroySameTexture()
-            {
-                if (texture == null)
-                {
-                    bool hasLoaded = textureDict.ContainsKey(path);
-                    if (hasLoaded)
+                    texture = new Texture2D(2, 2);
+                    texture.filterMode = filterMode;
+                    byte[] bytes = File.ReadAllBytes(path);
+                    bool loadSuccess = ImageConversion.LoadImage(texture, bytes);
+                    if (loadSuccess)
                     {
-                        GameObject.DestroyImmediate(textureDict[path]);
-                    }
-                }
-                else
-                {
-                    bool hasLoaded = textureDict.ContainsKey(path);
-                    if (hasLoaded)
-                    {
-                        GameObject.DestroyImmediate(textureDict[path]);
-                        textureDict[path] = texture;
-                    }
-                    else
-                    {
-                        textureDict.Add(path, texture);
+                        texture.name = Path.GetFileName(path);
                     }
                 }
             }
-
             return texture;
         }
 

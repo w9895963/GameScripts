@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ResouceLoaderBundle
+namespace ResourceLoaderBundle
 {
-    public static class ResouceLoader_LazyLoad
+    public static class ResourceLoader_LazyLoad
     {
         public static List<LoadFile> loadFiles = new List<LoadFile>();
 

@@ -7,9 +7,9 @@ using UnityEngine;
 
 public static class FileF
 {
-    public static Texture2D LoadTexture(string path)
+    public static Texture2D LoadTexture(string path, FilterMode filterMode = FilterMode.Point)
     {
-        return FileBundle.TextureLoader.LoadTexture(path);
+        return FileBundle.TextureLoader.LoadTexture(path, filterMode);
     }
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 20)
     {
@@ -20,6 +20,8 @@ public static class FileF
     {
         return DataFile.TryGet(localPath)?.FullPath;
     }
+
+
 
     public static string[] GetAllFilePathsInFolder(string path, string match = "*", bool includeChildren = false)
     {
@@ -37,11 +39,12 @@ public static class FileF
         }
         return paths.ToArray();
     }
-
-    public static string[] GetAllFilePathsInFolderFromLocal(string localPath, string match = "*", bool includeChildren = false)
+    public static string[] GetAllFilesInFolderFromLocal(string localPath, string match = "*", bool includeChildren = false)
     {
         return GetAllFilePathsInFolder(GetFullPath(localPath), match, includeChildren);
     }
+
+
 
     public static string GetFolderName(string path)
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class LayerF
 {
+
     public static int AddMask(int currMask, Layer layer)
     {
         int v = 1 << (int)layer;
@@ -21,5 +22,6 @@ public enum Layer
     StaticSolid = 8,
     Player = 9,
     Indicator = 30,
-    TempLayer = 31
+    Render = 31
 }
+

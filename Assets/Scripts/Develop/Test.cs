@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Global;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.InputSystem;
 
 public class Test : MonoBehaviour
@@ -13,7 +15,6 @@ public class Test : MonoBehaviour
 
     private void Awake()
     {
-        // CommandFileBundle.FolderExecuter.ExecuteAllFiles("Scripts");
     }
     private void Reset()
     {
@@ -41,10 +42,7 @@ public class Test : MonoBehaviour
     [ContextMenu("Test")]
     void DoSomething()
     {
-        // FilePath.Get(path);
-        // DataFile.DataFolderPath.Log();
-        // FileF.GetAllFilePathsInFolder(DataFile.DataFolderPath).LogEach(1);
-        // CommandFileBundle.FolderExecuter.ExecuteAllFiles("Scripts");
+        GetComponent<Light>().renderingLayerMask.Log();
     }
 
 

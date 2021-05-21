@@ -1,25 +1,31 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using CommandFileBundle;
+using SceneBundle;
 using UnityEngine;
 
 public static class SceneF
 {
-    public static GameObject CreateScene(string name)
+
+
+    public static SceneBundle.SceneHolder FindScene(string name)
     {
-        GameObject scene = new GameObject(name, typeof(SceneBundle.SceneHolder));
-        return scene;
+        return GameObjectF.FindObjectOfType<SceneBundle.SceneHolder>(name);
     }
 
     public static void AddToScene(GameObject obj, string sceneName)
     {
-        if (obj.GetComponent<SceneBundle.Scene_NotAddToSceneMark>() != null)
-        {
-            return;
-        }
-        var scene = GameObjectF.FindObjectOfType<SceneBundle.SceneHolder>(sceneName);
-        if (scene != null)
-        {
-            obj.SetParent(scene.gameObject);
-        }
+        var scene = GameObjectF.FindComponentOrCreateObject<SceneBundle.SceneHolder>(sceneName);
+        obj.SetParent(scene.gameObject);
+    }
+
+
+
+
+    public static void AddCommandLine(string folderName, CommandLine commandLine)
+    {
+        SceneHolder sceneHolder = GameObjectF.FindComponentOrCreateObject<SceneHolder>(folderName);
+        sceneHolder.comandLines.Add(commandLine);
     }
 }

@@ -76,6 +76,10 @@ public static class ExtensionMethod
 
     public static List<T> ToList<T>(this T[] source)
     {
+        if (source == null)
+        {
+            return new List<T>();
+        }
         return new List<T>(source);
     }
     public static List<T> ToList<T>(this T source) where T : Object

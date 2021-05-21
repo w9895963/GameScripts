@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -11,9 +12,10 @@ namespace CommandFileBundle
     public static class FolderExecuter
     {
         const string DefaultFolder = "Scripts\\OnLoad";
+        const string ScriptFolder = "Scripts";
         public static void ExecuteAllFiles(string localPath)
         {
-            string[] files = FileF.GetAllFilePathsInFolderFromLocal(localPath, "*.txt", true);
+            string[] files = FileF.GetAllFilesInFolderFromLocal(localPath, "*.txt", true);
             if (files.IsEmpty())
             {
                 return;
@@ -25,6 +27,10 @@ namespace CommandFileBundle
 
         }
 
+        public static void ExecuteAllScripts()
+        {
+            ExecuteAllFiles(ScriptFolder);
+        }
         public static void ExecuteDefaultFolder()
         {
             ExecuteAllFiles(DefaultFolder);

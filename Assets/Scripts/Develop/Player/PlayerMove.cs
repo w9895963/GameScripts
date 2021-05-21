@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,20 +26,27 @@ public class PlayerMove : MonoBehaviour
         public void Initial()
         {
             move = new Physic.Move.Core(gameObject);
-            InputManager.GetInputAction(InputManager.InputName.Move).performed += (d) =>
+            InputManager.GetInputAction(InputManager.InputName.Move).performed += MoveInput;
+            BasicEvent.OnDestroyEvent.Add(gameObject, () =>
             {
-                Vector2 dir = new Vector2(d.ReadValue<Vector2>().x, 0);
-                if (dir.x != 0)
-                {
-                    move.Move(dir);
-                }
-                else
-                {
-                    move.Stop();
-                }
-            };
+                InputManager.GetInputAction(InputManager.InputName.Move).performed -= MoveInput;
+            });
         }
 
+        private void MoveInput(UnityEngine.InputSystem.InputAction.CallbackContext d)
+        {
+
+            Vector2 dir = new Vector2(d.ReadValue<Vector2>().x, 0);
+            if (dir.x != 0)
+            {
+                move.Move(dir);
+            }
+            else
+            {
+                move.Stop();
+            }
+
+        }
     }
 
 

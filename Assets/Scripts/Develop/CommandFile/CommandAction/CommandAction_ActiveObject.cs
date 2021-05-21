@@ -8,12 +8,16 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_CreateObject : ActionBaseComponent
+        public class CommandAction_ActiveObject : CommandLineActionHolder
         {
-            public override void Execute()
+
+            public override void OnSceneBuild(CommandLine cl)
             {
-                commandLine.GameObject = gameObject;
+                cl.GameObject.SetActive(true);
+
             }
+
+
 
 
         }

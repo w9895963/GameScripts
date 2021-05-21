@@ -92,6 +92,7 @@ public static class ObjectExtention
     }
     public static void SetParent(this GameObject gameObject, GameObject parent)
     {
+        if (parent == null) { return; }
         gameObject.transform.SetParent(parent.transform);
     }
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)

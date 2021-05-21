@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ResouceLoaderBundle
+namespace ResourceLoaderBundle
 {
-    public static class ResouceLoader_Load
+    public static class ResourceLoader_Load
     {
         public static Dictionary<string, Object> loadObjDic = new Dictionary<string, Object>();
         public static T Load<T>(string path, bool reload = false) where T : Object
