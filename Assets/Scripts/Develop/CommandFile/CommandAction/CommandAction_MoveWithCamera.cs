@@ -19,11 +19,11 @@ namespace CommandFileBundle
                 float[] ps = cl.ReadParams<float>();
                 if (ps.Length > 0)
                 {
-                    com.moveFactor.x = ps[0];
+                    com.moveRate.x = ps[0];
                 }
                 if (ps.Length > 1)
                 {
-                    com.moveFactor.y = ps[1];
+                    com.moveRate.y = ps[1];
                 }
 
 

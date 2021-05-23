@@ -77,14 +77,7 @@ public class GroundFinder : MonoBehaviour
 
         private void StateUpdate()
         {
-            if (isOnGround)
-            {
-                ObjectState.State.Add(gameObject, State.OnGround);
-            }
-            else
-            {
-                ObjectState.State.Remove(gameObject, State.OnGround);
-            }
+            StateF.SetState<global::State.OnGround>(gameObject, isOnGround);
 
         }
 

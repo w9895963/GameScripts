@@ -17,6 +17,11 @@ namespace CommandFileBundle
             public override void Action(CommandLine cl)
             {
                 var obj = GameObject.Instantiate(gameObject);
+                if (gameObject.name.Contains("刚体"))
+                {
+                    gameObject.name.Log();
+                }
+
                 CommandAction_CreateObject com = obj.GetComponent<CommandAction_CreateObject>();
                 com.commandLine = cl;
 

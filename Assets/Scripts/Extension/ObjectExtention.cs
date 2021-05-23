@@ -148,15 +148,29 @@ public static class ObjectExtention
     }
     public static void SetPosition(this GameObject gameObject, float x, float y)
     {
+
         Vector2 position = new Vector2(x, y);
         gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
     }
+
     public static void SetPosition(this GameObject gameObject, Vector3 p)
     {
         gameObject.transform.position = p;
     }
+
+    public static void AddPosition(this GameObject gameObject, Vector2 vector2)
+    {
+        gameObject.transform.position += new Vector3(vector2.x, vector2.y, 0);
+    }
+    public static void AddPosition(this GameObject gameObject, float x, float y)
+    {
+        AddPosition(gameObject, new Vector2(x, y));
+    }
+
+
     public static void SetScale(this GameObject gameObject, float x, float y)
     {
+
         Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
         gameObject.transform.localScale = scale;
     }

@@ -21,7 +21,7 @@ public static class SceneF
     public static void AddToScene(GameObject obj, string sceneName)
     {
         var scene = GameObjectF.FindComponentOrCreate<SceneBundle.SceneHolder>(sceneName);
-        obj.SetParent(scene.gameObject);
+        obj?.SetParent(scene.gameObject);
     }
 
 

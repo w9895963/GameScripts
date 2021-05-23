@@ -52,11 +52,22 @@ public static class DebugF
 
 
 
-   
-    public static void Log<T>(this T content) where T : struct
+
+
+    public static void Log<T>(this T content) where T : System.IConvertible
     {
         Debug.Log(content.ToString());
     }
+    public static void Log(this UnityEngine.Object content)
+    {
+        Debug.Log(content, content);
+    }
+    
+    public static void Log(this Vector3 content)
+    {
+        Debug.Log(content.ToString());
+    }
+
 
 
     public static void LogEach<T>(this T list, int lineBreak = 0) where T : IEnumerable

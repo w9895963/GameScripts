@@ -13,7 +13,6 @@ namespace BasicEvent
             public bool destroyed = false;
             public Action action;
             public Delegate action_;
-            public int actionCount = 0;
 
             public void RunAction<T>(T date)
             {

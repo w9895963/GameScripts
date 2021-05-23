@@ -151,10 +151,13 @@ namespace CommandFileBundle
         public static class CommandLineSpliter
         {
             const string SplitPartten = @"[\s,，]+";
+            const string RemoveParteen = @"[(（].*?[)）]";
+
 
             public static (string title, string[] paramaters) Split(string line)
             {
                 (string title, string[] paramaters) result = (null, null);
+                line = Regex.Replace(line, RemoveParteen, "");
                 List<string> vs = Regex.Split(line, SplitPartten).ToList();
                 vs.RemoveAll((x) => x.IsEmpty());
                 if (vs.Count > 0)

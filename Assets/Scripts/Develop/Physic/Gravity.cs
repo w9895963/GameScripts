@@ -8,7 +8,6 @@ using UnityEngine;
 
 public class Gravity : MonoBehaviour
 {
-    public enum State { Gravity }
     public Main main = new Main();
 
 
@@ -56,14 +55,14 @@ public class Gravity : MonoBehaviour
 
         private void StateCondition()
         {
-            ObjectState.OnStateAdd.Add(gameObject, GroundFinder.State.OnGround, () =>
-            {
-                StopForce();
-            });
-            ObjectState.OnStateRemove.Add(gameObject, GroundFinder.State.OnGround, () =>
-            {
-                AddForce();
-            });
+
+            List<Type> exist = new List<Type>();
+            List<Type> except = new List<Type>() {
+                typeof(State.OnGround)
+            };
+            StateF.AddStateCondition<State.Fall>(gameObject, exist, except);
+            StateF.AddStateAction<State.Fall>(gameObject, () => AddForce(), () => StopForce());
+            StateF.SetState<State.Fall>(gameObject, true);
         }
 
         private void FixedUpdateAction()
@@ -81,7 +80,6 @@ public class Gravity : MonoBehaviour
             enabled = true;
             onAddForce?.Invoke();
             BasicEvent.OnFixedUpdate.Add(gameObject, FixedUpdateAction);
-            ObjectState.State.Add(gameObject, State.Gravity);
         }
 
         public void StopForce()
@@ -93,7 +91,6 @@ public class Gravity : MonoBehaviour
             enabled = false;
             onStopForce?.Invoke();
             BasicEvent.OnFixedUpdate.Remove(gameObject, FixedUpdateAction);
-            ObjectState.State.Remove(gameObject, State.Gravity);
         }
     }
 }

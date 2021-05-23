@@ -37,7 +37,8 @@ namespace FileBundle
             Texture2D tex = LoadTexture(path);
             Rect rect = new Rect(0, 0, tex.width, tex.height);
             Vector2 pivot = new Vector2(0.5f, 0.5f);
-            return Sprite.Create(tex, rect, pivot, pixelsPerUnit);
+            Sprite sprite = Sprite.Create(tex, rect, pivot, pixelsPerUnit);
+            return sprite;
 
         }
 

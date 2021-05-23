@@ -5,7 +5,7 @@ using UnityEngine;
 public class MoveWithCamera : MonoBehaviour
 {
     public Vector2 originPosition;
-    public Vector2 moveFactor = new Vector2(0.1f, 0.1f);
+    public Vector2 moveRate = new Vector2(0.1f, 0.1f);
 
     void Start()
     {
@@ -17,7 +17,7 @@ public class MoveWithCamera : MonoBehaviour
         Vector2 camP = Camera.main.transform.position;
         Vector2 P = gameObject.GetPosition2d();
         Vector2 dP = originPosition - camP;
-        dP.Scale(moveFactor);
+        dP.Scale(moveRate);
 
         Vector2 targetP = camP + dP;
         gameObject.SetPosition(targetP);
