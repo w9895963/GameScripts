@@ -51,8 +51,8 @@ public class Test : MonoBehaviour
     [ContextMenu("Test")]
     void DoSomething()
     {
-        Date.DateHolder.AddAction<Test, Vector3>(gameObject, (d) => d.Log());
-        Date.DateHolder.AddDate<Test, Vector3>(gameObject, transform.position);
+        DateBundle.DateHolder.AddAction<Test, Vector3>(gameObject, (d) => d.Log());
+        DateBundle.DateHolder.AddDate<Test, Vector3>(gameObject, transform.position);
     }
 
 

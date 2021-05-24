@@ -22,9 +22,9 @@ namespace CommandFileBundle
                 string path = $"{pathHead} {lightLayer}";
                 GameObject light = GameObjectF.CreateFromPrefab(path);
                 cl.GameObject = light;
-                
 
-                SceneF.AddToScene(light, cl.FolderName);
+
+                SceneF.AddToScene(light, cl.commandFile.sceneName);
 
             }
 

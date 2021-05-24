@@ -7,12 +7,11 @@ using UnityEngine;
 
 namespace CommandFileBundle
 {
-    public class CommandLineActionHolder : MonoBehaviour
+    namespace Component
     {
-
-        public virtual void Action(CommandLine commandLine) { }
-
+        public class CommandFilePrefabDateComp : MonoBehaviour
+        {
+            
+        }
     }
-
-
 }

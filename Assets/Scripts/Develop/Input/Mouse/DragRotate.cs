@@ -6,11 +6,9 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Dragtable : MonoBehaviour
+public class DragRotate : MonoBehaviour
 {
     public bool enableUpdateObjectDate = false;
-    public Vector2 startPosition;
-    public Vector2 startObjPosition;
     public UnityEvent OnDragFinished = new UnityEvent();
     void Start()
     {
@@ -24,30 +22,26 @@ public class Dragtable : MonoBehaviour
         dragTrigger.eventID = EventTriggerType.Drag;
         dragTrigger.callback.AddListener((d) =>
         {
+            InputBundle.SelectedObject.current = gameObject;
             PointerEventData da = d as PointerEventData;
 
-            Vector2 deltaP = da.position.ScreenToWold() - startPosition;
-            gameObject.SetPosition(startObjPosition + deltaP);
+            Vector2 p = da.position.ScreenToWold();
+            Vector2 v2 = p - gameObject.GetPosition2d();
+            Vector2 v1 = Vector2.right;
+            float angle = v1.SignedAngle(v2);
+            gameObject.SetRotate(angle);
             UpdateObjectDate();
+
         });
         et.triggers.Add(dragTrigger);
 
-
-        EventTrigger.Entry downTrigger = new EventTrigger.Entry();
-        downTrigger.eventID = EventTriggerType.PointerDown;
-        downTrigger.callback.AddListener((d) =>
-        {
-            PointerEventData da = d as PointerEventData;
-            startPosition = da.position.ScreenToWold();
-            startObjPosition = gameObject.GetPosition2d();
-        });
-        et.triggers.Add(downTrigger);
 
 
         EventTrigger.Entry upTrigger = new EventTrigger.Entry();
         upTrigger.eventID = EventTriggerType.EndDrag;
         upTrigger.callback.AddListener((d) =>
         {
+            InputBundle.SelectedObject.current = null;
             OnDragFinished.Invoke();
         });
         et.triggers.Add(upTrigger);
@@ -60,7 +54,7 @@ public class Dragtable : MonoBehaviour
     {
         if (enableUpdateObjectDate)
         {
-            ObjectDate.UpdateData(gameObject, ObjectDateType.Position2D, gameObject.GetPosition2d());
+            ObjectDate.UpdateData(gameObject, ObjectDateType.Rotation1D, gameObject.GetRotate1D());
         }
     }
 }

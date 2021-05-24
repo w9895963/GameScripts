@@ -6,12 +6,14 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragRotate : MonoBehaviour
+public class DragScale : MonoBehaviour
 {
+    public GameObject target;
     public bool enableUpdateObjectDate = false;
     public UnityEvent OnDragFinished = new UnityEvent();
     void Start()
     {
+        target = target ?? gameObject;
         Collider2D com = gameObject.GetComponent<Collider2D>();
         if (com == null) { gameObject.AddComponent<PolygonCollider2D>(); }
 
@@ -22,13 +24,14 @@ public class DragRotate : MonoBehaviour
         dragTrigger.eventID = EventTriggerType.Drag;
         dragTrigger.callback.AddListener((d) =>
         {
+            InputBundle.SelectedObject.current = gameObject;
             PointerEventData da = d as PointerEventData;
 
             Vector2 p = da.position.ScreenToWold();
-            Vector2 v2 = p - gameObject.GetPosition2d();
-            Vector2 v1 = Vector2.right;
-            float angle = v1.SignedAngle(v2);
-            gameObject.SetRotate(angle);
+            Vector2 scaleValue = p - gameObject.GetPosition2d();
+            gameObject.SetPosition(p);
+            target.SetScale(gameObject.GetPositionLocal2d());
+            target.GetComponent<ObjectTransformSetter>().targetObject.SetScale(gameObject.GetPositionLocal2d());
             UpdateObjectDate();
 
         });
@@ -40,8 +43,9 @@ public class DragRotate : MonoBehaviour
         upTrigger.eventID = EventTriggerType.EndDrag;
         upTrigger.callback.AddListener((d) =>
         {
-            
+            InputBundle.SelectedObject.current = null;
             OnDragFinished.Invoke();
+
         });
         et.triggers.Add(upTrigger);
 
@@ -53,7 +57,7 @@ public class DragRotate : MonoBehaviour
     {
         if (enableUpdateObjectDate)
         {
-            ObjectDate.UpdateData(gameObject, ObjectDateType.Rotation1D, gameObject.GetRotate1D());
+            ObjectDate.UpdateData(gameObject, ObjectDateType.Scale2D, gameObject.GetScale2d());
         }
     }
 }

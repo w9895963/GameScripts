@@ -8,15 +8,31 @@ public class ObjectTransformSetter : MonoBehaviour
     public bool setPosition = false;
     public bool setRotation = false;
     public bool setScale = false;
+    public bool offFocus = false;
     void Start()
     {
-        ObjectDate.OnDateUpdate(gameObject, ObjectDateType.Position2D, (d) =>
+        if (setPosition)
+        {
+            gameObject.transform.position = targetObject.transform.position;
+        }
+        if (setRotation)
+        {
+            gameObject.transform.rotation = targetObject.transform.rotation;
+        }
+        if (setScale)
+        {
+            gameObject.transform.localScale = targetObject.transform.localScale;
+            gameObject.GetParent().FindChild("ScaleIcon").SetPosition(gameObject.transform.localScale);
+        }
+
+
+        ObjectDate.OnDateUpdate(gameObject, ObjectDateType.Position2DLo, (d) =>
         {
             if (setPosition)
             {
                 Vector2 p = (Vector2)d;
                 targetObject?.SetPosition(p);
-                ObjectDate.UpdateData(targetObject, ObjectDateType.Position2D, targetObject.GetPosition2d());
+                ObjectDate.UpdateData(targetObject, ObjectDateType.Position2DLo, targetObject.GetPositionLocal2d());
             }
 
         });
@@ -40,6 +56,13 @@ public class ObjectTransformSetter : MonoBehaviour
             }
 
         });
+    }
+
+    void OnApplicationFocus(bool pauseStatus)
+    {
+        offFocus = pauseStatus;
+        pauseStatus.Log();
+
     }
 
 

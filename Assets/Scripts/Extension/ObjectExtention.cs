@@ -92,12 +92,10 @@ public static class ObjectExtention
     }
     public static void SetParent(this GameObject gameObject, GameObject parent)
     {
-        if (parent == null) { return; }
         gameObject.transform.SetParent(parent.transform);
     }
     public static void SetParent(this GameObject gameObject, Component parent)
     {
-        if (parent == null) { return; }
         gameObject.transform.SetParent(parent.transform);
     }
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)
@@ -141,6 +139,16 @@ public static class ObjectExtention
 
 
 
+
+    public static void SetPositionLocal(this GameObject gameObject, Vector3 p)
+    {
+        Vector2 position = p;
+        gameObject.transform.localPosition = p;
+    }
+    public static void SetPositionLocal(this GameObject gameObject, Vector2 p)
+    {
+        SetPositionLocal(gameObject, p.ToVector3(gameObject.transform.position.z));
+    }
     public static void SetPosition(this GameObject gameObject, Vector2 p)
     {
         Vector2 position = p;
@@ -202,6 +210,11 @@ public static class ObjectExtention
     {
 
         return (Vector2)gameObject.transform.position;
+    }
+    public static Vector2 GetPositionLocal2d(this GameObject gameObject)
+    {
+
+        return (Vector2)gameObject.transform.localPosition;
     }
     public static Vector2 GetScale2d(this GameObject gameObject)
     {

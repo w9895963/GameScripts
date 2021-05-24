@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class CameraMouseZoom : MonoBehaviour
 {
-    public float scrollFactor = 0.001f;
+    public float scrollFactor = 0.0004f;
 
     void Update()
     {
@@ -13,7 +13,7 @@ public class CameraMouseZoom : MonoBehaviour
         if (scroll != 0)
         {
             Camera cam = GetComponent<Camera>();
-            cam.orthographicSize += scroll * scrollFactor;
+            cam.orthographicSize -= scroll * scrollFactor * cam.orthographicSize;
         }
     }
 }

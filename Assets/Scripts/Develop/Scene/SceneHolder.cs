@@ -11,20 +11,19 @@ namespace SceneBundle
 {
     public class SceneHolder : MonoBehaviour
     {
-        public List<CommandLine> comandLines = new List<CommandLine>();
+        public List<CommandFile> comandFiles = new List<CommandFile>();
 
 
         public void Build()
         {
 
-            comandLines.Where((x) => x.sceneBuildEvent == SceneBuildEvent.OnBuild).ForEach((line) =>
+            comandFiles.Sort((f) => f.runOrder);
+            comandFiles.ForEach((f) =>
             {
-                line.Execute();
+                f.ExecuteLines();
             });
-            comandLines.Where((x) => x.sceneBuildEvent == SceneBuildEvent.AfterBuild).ForEach((line) =>
-            {
-                line.Execute();
-            });
+
+           
 
         }
 
@@ -32,9 +31,5 @@ namespace SceneBundle
     }
 
 
-    public enum SceneBuildEvent
-    {
-        OnBuild,
-        AfterBuild
-    }
+  
 }

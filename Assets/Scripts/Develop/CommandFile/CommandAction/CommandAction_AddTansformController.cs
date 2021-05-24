@@ -24,7 +24,7 @@ namespace CommandFileBundle
                     x.targetObject = obj;
                 });
 
-                ObjectDate.OnDateUpdate(obj, ObjectDateType.Position2D, (d) =>
+                ObjectDate.OnDateUpdate(obj, ObjectDateType.Position2DLo, (d) =>
                 {
                     Vector2 v = (Vector2)d;
                     string line = $"位置 {v.x} {v.y}";

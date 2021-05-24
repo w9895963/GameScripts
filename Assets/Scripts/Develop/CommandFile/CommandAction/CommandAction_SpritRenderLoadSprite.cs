@@ -25,6 +25,7 @@ namespace CommandFileBundle
                 string localPath = cl.ReadParam<string>(0);
                 string path = cl.Path;
                 var render = obj.GetComponent<SpriteRenderer>();
+                string folderPath = FileF.GetFolderPath(path);
                 render.sprite = FileF.LoadSprite(FileF.GetFilePathInSameFolder(path, localPath));
 
 

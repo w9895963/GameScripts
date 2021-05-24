@@ -23,7 +23,7 @@ public static class FileF
 
 
 
-    public static string[] GetAllFilePathsInFolder(string path, string match = "*", bool includeChildren = false)
+    public static string[] GetAllFilesInFolder(string path, string match = "*", bool includeChildren = false)
     {
         if (!Directory.Exists(path)) { return null; }
         List<string> paths = Directory.GetFiles(path, match).ToList();
@@ -39,18 +39,32 @@ public static class FileF
         }
         return paths.ToArray();
     }
-    public static string[] GetAllFilesInFolderFromLocal(string localPath, string match = "*", bool includeChildren = false)
+
+
+
+    public static string[] GetAllFilesFromLocal(string localPath, string match = "*", bool includeChildren = false)
     {
-        return GetAllFilePathsInFolder(GetFullPath(localPath), match, includeChildren);
+        return GetAllFilesInFolder(GetFullPath(localPath), match, includeChildren);
     }
 
-
+    public static string[] GetAllFoldersFromLocal(string localPath)
+    {
+        return Directory.GetDirectories(GetFullPath(localPath));
+    }
 
     public static string GetFolderName(string path)
     {
         DirectoryInfo file = new DirectoryInfo(path);
         return file.Parent.Name;
     }
+
+    public static string GetFolderPath(string path)
+    {
+        DirectoryInfo file = new DirectoryInfo(path);
+        return file.Parent.FullName;
+    }
+
+
     public static string GetFilePathInSameFolder(string path, string fileName)
     {
 

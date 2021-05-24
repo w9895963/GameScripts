@@ -11,24 +11,32 @@ namespace CommandFileBundle
 {
     public class CommandFile
     {
-        public GameObject gameObject;
+        public List<GameObject> gameobjects = new List<GameObject>();
+        public GameObject currentObject;
         public string path;
         public string[] lines;
-        List<CommandLine> commandLines = new List<CommandLine>();
+        public string sceneName;
+        public int runOrder = 0;
+        public List<CommandLine> commandLines = new List<CommandLine>();
 
         public string FolderName => FileF.GetFolderName(path);
+        public string Name => Path.GetFileName(path);
+
+        public string NameBody => Path.GetFileNameWithoutExtension(path);
 
         public void ReWriteFile(string title, string newLine)
         {
             FileF.ReWriteOrAddLine(path, title, newLine);
         }
 
-        public void AddCommandLinesToScene()
+
+
+        public void ExecuteLines()
         {
-            commandLines.ForEach((cl) =>
-           {
-               cl.AddToScene();
-           });
+            commandLines.ForEach((line) =>
+            {
+                line.Execute();
+            });
         }
 
 
@@ -39,8 +47,24 @@ namespace CommandFileBundle
 
             CommandFile file = new CommandFile();
             file.path = path;
+
             string[] allLine = File.ReadAllLines(path);
             file.lines = allLine;
+            TrySetRunOrder();
+            void TrySetRunOrder()
+            {
+                if (allLine.Length > 0)
+                {
+                    int i;
+                    bool v = int.TryParse(allLine[0], out i);
+                    if (v)
+                    {
+                        file.runOrder = i;
+                    }
+                }
+            }
+
+
 
 
             for (int i = 0; i < allLine.Length; i++)
@@ -67,9 +91,10 @@ namespace CommandFileBundle
     public class CommandLine
     {
         const string CommandActionFolder = "CommandPrefab";
+
+
         public CommandFile commandFile;
         public Action<CommandLine> action;
-        public SceneBundle.SceneBuildEvent sceneBuildEvent;
         public string originLine;
         public int lineIndex;
         public string title;
@@ -79,17 +104,27 @@ namespace CommandFileBundle
 
         public GameObject GameObject
         {
-            get => commandFile?.gameObject;
+            get => commandFile?.currentObject;
             set
             {
                 if (commandFile == null)
                 { return; }
-                commandFile.gameObject = value;
+                commandFile.currentObject = value;
             }
         }
 
+
+
+
+
+        public CommandLine PreLine => AllLines.FindPrevious((x) => x == this);
+        public List<CommandLine> AllLines => commandFile.commandLines;
+
         public string Path => commandFile.path;
+        public string SceneName => commandFile.sceneName;
         public string FolderName => commandFile.FolderName;
+        public string FileName => commandFile.Name;
+        public string FileNameBody => commandFile.NameBody;
         public int ParamsLength => paramaters.IsEmpty() ? 0 : paramaters.Length;
 
 
@@ -113,12 +148,15 @@ namespace CommandFileBundle
             return ts;
         }
 
-        public void AddToScene()
+        public CommandLine GetLine(int lineIndex)
         {
-            SceneHolder sceneHolder = SceneF.FindOrCreateScene(FolderName);
-            sceneHolder.comandLines.Add(this);
-
+            return commandFile.commandLines.Find((x) => x.lineIndex == lineIndex);
         }
+
+
+
+
+
 
 
         public static CommandLine TryGetCommandLine(string line)
@@ -139,7 +177,6 @@ namespace CommandFileBundle
 
             CommandLineActionHolder actionHolder = prefab.GetComponent<CommandLineActionHolder>();
             li.action = actionHolder.Action;
-            li.sceneBuildEvent = actionHolder.onSceneEvent;
             return li;
         }
 
@@ -175,6 +212,10 @@ namespace CommandFileBundle
         }
 
     }
+
+
+
+
 
 
 

@@ -6,9 +6,11 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragScale : MonoBehaviour
+public class Dragtable : MonoBehaviour
 {
     public bool enableUpdateObjectDate = false;
+    public Vector2 startPosition;
+    public Vector2 startObjPosition;
     public UnityEvent OnDragFinished = new UnityEvent();
     void Start()
     {
@@ -22,23 +24,33 @@ public class DragScale : MonoBehaviour
         dragTrigger.eventID = EventTriggerType.Drag;
         dragTrigger.callback.AddListener((d) =>
         {
+
             PointerEventData da = d as PointerEventData;
 
-            Vector2 p = da.position.ScreenToWold();
-            Vector2 scaleValue = p - gameObject.GetPosition2d();
-            gameObject.SetScale(scaleValue);
+            Vector2 deltaP = da.position.ScreenToWold() - startPosition;
+            gameObject.SetPosition(startObjPosition + deltaP);
             UpdateObjectDate();
-
         });
         et.triggers.Add(dragTrigger);
 
+
+        EventTrigger.Entry downTrigger = new EventTrigger.Entry();
+        downTrigger.eventID = EventTriggerType.PointerDown;
+        downTrigger.callback.AddListener((d) =>
+        {
+            InputBundle.SelectedObject.current = gameObject;
+            PointerEventData da = d as PointerEventData;
+            startPosition = da.position.ScreenToWold();
+            startObjPosition = gameObject.GetPosition2d();
+        });
+        et.triggers.Add(downTrigger);
 
 
         EventTrigger.Entry upTrigger = new EventTrigger.Entry();
         upTrigger.eventID = EventTriggerType.EndDrag;
         upTrigger.callback.AddListener((d) =>
         {
-            
+            InputBundle.SelectedObject.current = null;
             OnDragFinished.Invoke();
         });
         et.triggers.Add(upTrigger);
@@ -51,7 +63,7 @@ public class DragScale : MonoBehaviour
     {
         if (enableUpdateObjectDate)
         {
-            ObjectDate.UpdateData(gameObject, ObjectDateType.Scale2D, gameObject.GetScale2d());
+            ObjectDate.UpdateData(gameObject, ObjectDateType.Position2DLo, gameObject.GetPosition2d());
         }
     }
 }

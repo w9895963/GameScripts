@@ -101,6 +101,24 @@ public static class ExtensionMethod
     }
 
 
+
+    public static T FindPrevious<T>(this List<T> list, System.Predicate<T> predicate) where T : class
+    {
+        int v = list.FindIndex(predicate);
+        if (v <= 0)
+        {
+            return null;
+        }
+        else
+        {
+            return list[v - 1];
+        }
+    }
+
+
+
+
+
     #endregion //*endregion
 
 

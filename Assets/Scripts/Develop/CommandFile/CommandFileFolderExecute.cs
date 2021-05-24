@@ -13,9 +13,9 @@ namespace CommandFileBundle
     {
         const string DefaultFolder = "Scripts\\OnLoad";
         const string ScriptFolder = "Scripts";
-        public static void AddAllCommandLinesToScene(string localPath)
+        public static void AddAllCommandFilesInFolderToScene(string localPath, string sceneName)
         {
-            string[] paths = FileF.GetAllFilesInFolderFromLocal(localPath, "*.txt", true);
+            string[] paths = FileF.GetAllFilesFromLocal(localPath, "*.txt", true);
             if (paths.IsEmpty())
             {
                 return;
@@ -23,16 +23,22 @@ namespace CommandFileBundle
             paths.ForEach((path) =>
             {
                 CommandFile commandFile = CommandFileBundle.CommandFile.TryGetCommandFile(path);
-                 if (commandFile == null){ return ; }
-                 commandFile.AddCommandLinesToScene();
+                commandFile.sceneName = sceneName;
+                if (commandFile == null) { return; }
+                SceneBundle.SceneHolder sceneHolder = SceneF.FindOrCreateScene(sceneName);
+                sceneHolder.comandFiles.Add(commandFile);
             });
 
         }
 
-        public static void ReadAllScriptsThenAddToScene()
+        public static void ReadAllScripts()
         {
-            AddAllCommandLinesToScene(ScriptFolder);
+            string[] folderPaths = FileF.GetAllFoldersFromLocal(ScriptFolder);
+            folderPaths.ForEach((folder) =>
+            {
+                AddAllCommandFilesInFolderToScene(folder, Path.GetFileName(folder));
+            });
         }
-       
+
     }
 }

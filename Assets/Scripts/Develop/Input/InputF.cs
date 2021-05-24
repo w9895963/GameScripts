@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ObjectDateType
+public static class InputF
 {
-    Position2DLo,
-    Scale2D,
-    Rotation1D,
+  
 }
