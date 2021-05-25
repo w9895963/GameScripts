@@ -250,6 +250,10 @@ public static class ExtensionMethod
     {
         return f > 0 ? true : false;
     }
+    public static float[] ToArray(this float f)
+    {
+        return new float[1] { f };
+    }
 
 
 

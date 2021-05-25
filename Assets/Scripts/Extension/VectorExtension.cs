@@ -62,6 +62,18 @@ public static class VectorExtension
     }
 
 
+    public static Vector2 Scale(this Vector2 v, float scale)
+    {
+        return new Vector2(v.x * scale, v.y * scale);
+    }
+    public static Vector3 Scale(this Vector3 v, float scale)
+    {
+        return new Vector3(v.x * scale, v.y * scale, v.z * scale);
+    }
+
+
+
+
 
     public static Vector2 ClampMax(this Vector2 vector, float max)
     {
@@ -91,31 +103,13 @@ public static class VectorExtension
     {
         return new Vector3(vector.x, vector.y, z);
     }
-
-
-    //*Vector2?
-    public static Vector2 ToVector2(this Vector2? vector)
+    public static string[] ToStringArray(this Vector2 vector)
     {
-        return vector == null ? Vector2.zero : (Vector2)vector;
-    }
-    public static bool NotNull(this Vector2? vector)
-    {
-        return vector == null ? false : true;
-    }
-    public static bool IsNull(this Vector2? vector)
-    {
-        return vector == null ? true : false;
+        return new string[2] { vector.x.ToString(), vector.y.ToString() };
     }
 
-    //*Vector3
-    public static Vector2 ToVector2(this Vector3 vector)
-    {
-        return (Vector2)vector;
-    }
-    public static Vector2 ToVector2(this Vector3? vector)
-    {
-        return vector != null ? (Vector2)vector : Vector2.zero;
-    }
+
+
 
 
 

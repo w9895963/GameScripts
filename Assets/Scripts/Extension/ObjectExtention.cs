@@ -90,13 +90,13 @@ public static class ObjectExtention
         List<GameObject> objs = gameObject.GetComponentsInChildren<Transform>().Select((t) => t.gameObject).ToList();
         return objs.Contains(child);
     }
-    public static void SetParent(this GameObject gameObject, GameObject parent)
+    public static void SetParent(this GameObject gameObject, GameObject parent, bool stay = true)
     {
-        gameObject.transform.SetParent(parent.transform);
+        gameObject.transform.SetParent(parent.transform, stay);
     }
-    public static void SetParent(this GameObject gameObject, Component parent)
+    public static void SetParent(this GameObject gameObject, Component parent, bool stay = true)
     {
-        gameObject.transform.SetParent(parent.transform);
+        gameObject.transform.SetParent(parent.transform, stay);
     }
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)
     {
@@ -147,8 +147,18 @@ public static class ObjectExtention
     }
     public static void SetPositionLocal(this GameObject gameObject, Vector2 p)
     {
-        SetPositionLocal(gameObject, p.ToVector3(gameObject.transform.position.z));
+        SetPositionLocal(gameObject, p.ToVector3(gameObject.transform.localPosition.z));
     }
+    public static void SetPositionLocal(this GameObject gameObject, float x, float y)
+    {
+        SetPositionLocal(gameObject, new Vector3(x, y, gameObject.transform.localPosition.z));
+    }
+    public static void SetPositionLocal(this GameObject gameObject, float? x, float? y)
+    {
+        Vector3 l = gameObject.transform.localPosition;
+        SetPositionLocal(gameObject, new Vector3(x ?? l.x, y ?? l.y, l.z));
+    }
+
     public static void SetPosition(this GameObject gameObject, Vector2 p)
     {
         Vector2 position = p;
@@ -175,22 +185,36 @@ public static class ObjectExtention
         AddPosition(gameObject, new Vector2(x, y));
     }
 
-
-    public static void SetScale(this GameObject gameObject, float x, float y)
-    {
-
-        Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
-        gameObject.transform.localScale = scale;
-    }
-    public static void SetScale(this GameObject gameObject, Vector2 scale)
-    {
-        Vector3 scale3 = new Vector3(scale.x, scale.y, gameObject.transform.localScale.z);
-        gameObject.transform.localScale = scale3;
-    }
     public static void SetScale(this GameObject gameObject, Vector3 scale)
     {
         gameObject.transform.localScale = scale;
     }
+    public static void SetScale(this GameObject gameObject, float scale)
+    {
+
+        Vector3 scale3 = new Vector3(scale, scale, scale);
+        SetScale(gameObject, scale3);
+    }
+    public static void SetScale(this GameObject gameObject, float x, float y)
+    {
+
+        Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
+        SetScale(gameObject, scale);
+    }
+    public static void SetScale(this GameObject gameObject, float? x, float? y)
+    {
+
+        Vector3 l = gameObject.transform.localScale;
+        Vector3 scale = new Vector3(x ?? l.x, y ?? l.y, l.z);
+        SetScale(gameObject, scale);
+    }
+    public static void SetScale(this GameObject gameObject, Vector2 scale)
+    {
+        Vector3 scale3 = new Vector3(scale.x, scale.y, gameObject.transform.localScale.z);
+        SetScale(gameObject, scale3);
+    }
+
+
     public static void SetRotate(this GameObject gameObject, float angle)
     {
         Quaternion rotation = gameObject.transform.localRotation;

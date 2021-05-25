@@ -41,7 +41,7 @@ namespace CommandFileBundle
                         return path.Contains(parentNames.ToList());
                     });
                     if (o == null) { return; }
-                    obj.SetParent(o);
+                    obj.SetParent(o, false);
                 }
 
 

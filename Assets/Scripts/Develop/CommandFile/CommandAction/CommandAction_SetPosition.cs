@@ -18,6 +18,7 @@ namespace CommandFileBundle
                 float[] vs = cl.ReadParams<float>();
                 if (vs.Length < 2) { return; }
                 obj.SetPositionLocal(new Vector2(vs[0], vs[1]));
+                DateF.AddDate<Date.GameObject.Position, Vector2>(obj, obj.GetPosition2d());
             }
 
 

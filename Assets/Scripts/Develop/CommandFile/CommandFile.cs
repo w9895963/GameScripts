@@ -11,12 +11,12 @@ namespace CommandFileBundle
 {
     public class CommandFile
     {
-        public List<GameObject> gameobjects = new List<GameObject>();
         public GameObject currentObject;
         public string path;
         public string[] lines;
         public string sceneName;
         public int runOrder = 0;
+        public Action afterFileExecute;
         public List<CommandLine> commandLines = new List<CommandLine>();
 
         public string FolderName => FileF.GetFolderName(path);
@@ -31,12 +31,14 @@ namespace CommandFileBundle
 
 
 
+
         public void ExecuteLines()
         {
             commandLines.ForEach((line) =>
             {
                 line.Execute();
             });
+            afterFileExecute?.Invoke();
         }
 
 
@@ -72,12 +74,10 @@ namespace CommandFileBundle
                 var line = allLine[i];
 
                 CommandLine commandLine = CommandLine.TryGetCommandLine(line);
-                if (commandLine != null)
-                {
-                    file.commandLines.Add(commandLine);
-                    commandLine.commandFile = file;
-                    commandLine.lineIndex = i;
-                }
+
+                file.commandLines.Add(commandLine);
+                commandLine.commandFile = file;
+
             }
 
             return file;
@@ -95,10 +95,8 @@ namespace CommandFileBundle
 
         public CommandFile commandFile;
         public Action<CommandLine> action;
-        public string originLine;
-        public int lineIndex;
         public string title;
-        string[] paramaters;
+        public string[] paramaters;
 
 
 
@@ -117,8 +115,22 @@ namespace CommandFileBundle
 
 
 
+        public bool Empty => title.IsEmpty();
         public CommandLine PreLine => AllLines.FindPrevious((x) => x == this);
         public List<CommandLine> AllLines => commandFile.commandLines;
+
+        public int lineIndex => AllLines.FindIndex((x) => x == this);
+
+        public string stringLine
+        {
+            get
+            {
+                string line = "";
+                line += title + " ";
+                paramaters.ForEach((p) => line += p + " ");
+                return line;
+            }
+        }
 
         public string Path => commandFile.path;
         public string SceneName => commandFile.sceneName;
@@ -162,16 +174,14 @@ namespace CommandFileBundle
         public static CommandLine TryGetCommandLine(string line)
         {
 
+            CommandLine li = new CommandLine();
             (string title, string[] paramaters) p = CommandLineSpliter.Split(line);
-            if (p.title.IsEmpty()) { return null; }
+            if (p.title.IsEmpty()) { return li; }
 
             string actionPath = CommandActionFolder + "\\" + p.title;
             GameObject prefab = ResourceLoader.Load<GameObject>(actionPath);
-            if (prefab == null) { return null; }
+            if (prefab == null) { return li; }
 
-            CommandLine li = null;
-            li = new CommandLine();
-            li.originLine = line;
             li.title = p.title;
             li.paramaters = p.paramaters;
 
@@ -183,6 +193,11 @@ namespace CommandFileBundle
         public void Execute()
         {
             action?.Invoke(this);
+        }
+
+        public void WriteLine()
+        {
+            FileF.WriteLine(Path, lineIndex, stringLine);
         }
 
         public static class CommandLineSpliter

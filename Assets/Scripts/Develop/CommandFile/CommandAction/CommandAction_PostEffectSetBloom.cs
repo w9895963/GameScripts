@@ -14,7 +14,7 @@ namespace CommandFileBundle
 
             public override void Action(CommandLine cl)
             {
-                PostEffects postEffects = GameObject.FindObjectOfType<PostEffects>();
+                var postEffects = TagObject.PostEffect.Object;
                 Volume volume = postEffects.GetComponent<Volume>();
                 Bloom bloom;
                 volume.profile.TryGet<Bloom>(out bloom);

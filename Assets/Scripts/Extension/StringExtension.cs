@@ -15,13 +15,37 @@ public static class StringExtension
         string[] vs = str.Split(splitter);
         return new Vector2(float.Parse(vs[0]), float.Parse(vs[1]));
     }
-
-
-    public static string FixPath(this string path)
+    public static float? TryFloat(this string str)
     {
-        path = path.Replace(@"/", "\\");
-        return path;
+        float? re = null;
+        float f;
+        bool v = float.TryParse(str, out f);
+        if (v)
+        {
+            re = f;
+        }
+        return re;
     }
+    public static float?[] TryFloat(this string[] strAr)
+    {
+        int length = strAr.Length;
+        float?[] re = new float?[length];
+        for (int i = 0; i < length; i++)
+        {
+            float f;
+            bool v = float.TryParse(strAr[i], out f);
+            if (v)
+            {
+                re[i] = f;
+            }
+        }
+     
+        return re;
+    }
+    
+
+
+
     public static bool Contains(this string str, List<string> contents)
     {
         for (int i = 0; i < contents.Count; i++)
