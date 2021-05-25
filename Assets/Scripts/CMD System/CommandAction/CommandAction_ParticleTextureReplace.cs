@@ -9,7 +9,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ParticleTextureReplace : CommandLineActionHolder
+        public class CommandAction_ParticleTextureReplace : CommandActionHolder
         {
             public override void Action(CommandLine cm)
             {

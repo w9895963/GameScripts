@@ -10,5 +10,9 @@ namespace Date
         {
 
         }
+        public class Rotate
+        {
+
+        }
     }
 }

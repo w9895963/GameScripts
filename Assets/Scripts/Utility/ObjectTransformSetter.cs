@@ -32,7 +32,7 @@ public class ObjectTransformSetter : MonoBehaviour
             {
                 Vector2 p = (Vector2)d;
                 targetObject?.SetPosition(p);
-                ObjectDate.UpdateData(targetObject, ObjectDateType.Position2DLo, targetObject.GetPositionLocal2d());
+                ObjectDate.UpdateData(targetObject, ObjectDateType.Position2DLo, targetObject.GetPosition2dLo());
             }
 
         });
@@ -42,7 +42,7 @@ public class ObjectTransformSetter : MonoBehaviour
             {
                 float p = (float)d;
                 targetObject?.SetRotate(p);
-                ObjectDate.UpdateData(targetObject, ObjectDateType.Rotation1D, targetObject.GetRotate1D());
+                ObjectDate.UpdateData(targetObject, ObjectDateType.Rotation1D, targetObject.GetRotate1DLo());
             }
 
         });
@@ -52,7 +52,7 @@ public class ObjectTransformSetter : MonoBehaviour
             {
                 Vector2 p = (Vector2)d;
                 targetObject?.SetScale(p);
-                ObjectDate.UpdateData(targetObject, ObjectDateType.Scale2D, targetObject.GetScale2d());
+                ObjectDate.UpdateData(targetObject, ObjectDateType.Scale2D, targetObject.GetScale2dLo());
             }
 
         });

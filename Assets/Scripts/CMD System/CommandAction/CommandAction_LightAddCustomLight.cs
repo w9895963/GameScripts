@@ -10,7 +10,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_LightAddCustomLight : CommandLineActionHolder
+        public class CommandAction_LightAddCustomLight : CommandActionHolder
         {
             const string pathHead = "CommandPrefab/Light/CustomLight/Light";
 
@@ -51,7 +51,7 @@ namespace CommandFileBundle
                 UpdateUseOrder(LPR);
 
                 cl.GameObject = light;
-                SceneF.AddToScene(light, cl.commandFile.sceneName);
+                SceneF.AddToScene(light, cl.SceneName);
             }
 
             class LightPrefabDate

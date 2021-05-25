@@ -7,7 +7,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_LightAddPointLight : CommandLineActionHolder
+        public class CommandAction_LightAddPointLight : CommandActionHolder
         {
             const string pathHead = "CommandPrefab/Light/PointLight/Light";
 
@@ -24,7 +24,7 @@ namespace CommandFileBundle
                 cl.GameObject = light;
 
 
-                SceneF.AddToScene(light, cl.commandFile.sceneName);
+                SceneF.AddToScene(light, cl.SceneName);
 
             }
 

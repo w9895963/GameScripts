@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -62,13 +63,27 @@ public static class VectorExtension
     }
 
 
-    public static Vector2 Scale(this Vector2 v, float scale)
+
+    public static Vector2 MultiplyEach(this Vector2 v, Vector2 n)
     {
-        return new Vector2(v.x * scale, v.y * scale);
+        return new Vector2(v.x * n.x, v.y * n.y);
     }
+   
     public static Vector3 Scale(this Vector3 v, float scale)
     {
         return new Vector3(v.x * scale, v.y * scale, v.z * scale);
+    }
+    public static Vector3 Divide(this Vector3 v, Vector3 s, float preventZero = 0.00001f)
+    {
+        return v.Each((x, i) => x / (s[i] == 0 ? preventZero : s[i]));
+    }
+    public static Vector2 Divide(this Vector2 v, Vector2 s, float preventZero = 0.00001f)
+    {
+        return v.ToVector3().Divide(s, preventZero);
+    }
+    public static Vector3 Each(this Vector3 v, Func<float, int, float> func)
+    {
+        return new Vector3(func(v.x, 0), func(v.y, 1), func(v.z, 2));
     }
 
 

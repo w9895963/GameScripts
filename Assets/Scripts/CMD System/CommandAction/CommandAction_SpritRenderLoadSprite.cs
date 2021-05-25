@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_SpritRenderLoadSprite : CommandLineActionHolder
+        public class CommandAction_SpritRenderLoadSprite : CommandActionHolder
         {
             const string path = "Material/2DCustom";
 

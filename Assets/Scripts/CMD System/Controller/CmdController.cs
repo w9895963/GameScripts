@@ -14,7 +14,7 @@ namespace CommandFileBundle
             public CommandLine cl;
             public Action<string[]> onUpdate;
             public Action<string[]> onFinalUpdate;
-            public virtual void Setup(string[] allParams) { }
+            public virtual void Setup() { }
 
         }
     }

@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_SetRotate : CommandLineActionHolder
+        public class CommandAction_SetRotate : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)

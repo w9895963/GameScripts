@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_SetScale : CommandLineActionHolder
+        public class CommandAction_SetScale : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)
@@ -16,7 +16,7 @@ namespace CommandFileBundle
                 GameObject obj = cl.GameObject;
                 float[] vs = cl.ReadParams<float>();
                 if (vs.Length < 2) { return; }
-                obj.SetScale(vs[0], vs[1]);
+                obj.SetScaleLo(vs[0], vs[1]);
             }
 
 

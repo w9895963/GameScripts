@@ -7,7 +7,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_LightBlend : CommandLineActionHolder
+        public class CommandAction_LightBlend : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)

@@ -81,6 +81,12 @@ public static class ObjectExtention
         }
         return list;
     }
+    public static List<GameObject> GetAllChildAndSelf(this GameObject gameObject)
+    {
+        List<GameObject> gameObjects = GetAllChild(gameObject);
+        gameObjects.Add(gameObject);
+        return gameObjects;
+    }
     public static GameObject FindChild(this GameObject gameObject, string name)
     {
         return gameObject.GetAllChild().Find((x) => x.name == name);
@@ -140,23 +146,23 @@ public static class ObjectExtention
 
 
 
-    public static void SetPositionLocal(this GameObject gameObject, Vector3 p)
+    public static void SetPositionLo(this GameObject gameObject, Vector3 p)
     {
         Vector2 position = p;
         gameObject.transform.localPosition = p;
     }
-    public static void SetPositionLocal(this GameObject gameObject, Vector2 p)
+    public static void SetPositionLo(this GameObject gameObject, Vector2 p)
     {
-        SetPositionLocal(gameObject, p.ToVector3(gameObject.transform.localPosition.z));
+        SetPositionLo(gameObject, p.ToVector3(gameObject.transform.localPosition.z));
     }
-    public static void SetPositionLocal(this GameObject gameObject, float x, float y)
+    public static void SetPositionLo(this GameObject gameObject, float x, float y)
     {
-        SetPositionLocal(gameObject, new Vector3(x, y, gameObject.transform.localPosition.z));
+        SetPositionLo(gameObject, new Vector3(x, y, gameObject.transform.localPosition.z));
     }
-    public static void SetPositionLocal(this GameObject gameObject, float? x, float? y)
+    public static void SetPositionLo(this GameObject gameObject, float? x, float? y)
     {
         Vector3 l = gameObject.transform.localPosition;
-        SetPositionLocal(gameObject, new Vector3(x ?? l.x, y ?? l.y, l.z));
+        SetPositionLo(gameObject, new Vector3(x ?? l.x, y ?? l.y, l.z));
     }
 
     public static void SetPosition(this GameObject gameObject, Vector2 p)
@@ -185,9 +191,16 @@ public static class ObjectExtention
         AddPosition(gameObject, new Vector2(x, y));
     }
 
-    public static void SetScale(this GameObject gameObject, Vector3 scale)
+    public static void SetScale(this GameObject gameObject, Vector3 worldScale)
     {
-        gameObject.transform.localScale = scale;
+        Transform parent = gameObject.transform.parent;
+        Vector3 loScale = worldScale;
+        if (parent != null)
+        {
+            Vector3 parentScale = parent.lossyScale;
+            loScale = worldScale.Divide(parentScale);
+        }
+        gameObject.transform.localScale = loScale;
     }
     public static void SetScale(this GameObject gameObject, float scale)
     {
@@ -213,11 +226,26 @@ public static class ObjectExtention
         Vector3 scale3 = new Vector3(scale.x, scale.y, gameObject.transform.localScale.z);
         SetScale(gameObject, scale3);
     }
+    public static void SetScaleLo(this GameObject gameObject, Vector3 localScale)
+    {
+        gameObject.transform.localScale = localScale;
+    }
+    public static void SetScaleLo(this GameObject gameObject, Vector2 localScale)
+    {
+        Vector3 scale = new Vector3(localScale.x, localScale.y, gameObject.transform.localScale.z);
+        SetScaleLo(gameObject, scale);
+    }
+    public static void SetScaleLo(this GameObject gameObject, float x, float y)
+    {
+        Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
+        SetScaleLo(gameObject, scale);
+    }
+
 
 
     public static void SetRotate(this GameObject gameObject, float angle)
     {
-        Quaternion rotation = gameObject.transform.localRotation;
+        Quaternion rotation = gameObject.transform.rotation;
         Vector3 angle3 = rotation.eulerAngles;
         angle3.z = angle;
         rotation.eulerAngles = angle3;
@@ -235,26 +263,51 @@ public static class ObjectExtention
 
         return (Vector2)gameObject.transform.position;
     }
-    public static Vector2 GetPositionLocal2d(this GameObject gameObject)
+    public static Vector2 GetPosition2dLo(this GameObject gameObject)
     {
 
         return (Vector2)gameObject.transform.localPosition;
     }
-    public static Vector2 GetScale2d(this GameObject gameObject)
+    public static Vector2 GetScale(this GameObject gameObject)
+    {
+
+        return (Vector2)gameObject.transform.lossyScale;
+    }
+    public static Vector2 GetScale2dLo(this GameObject gameObject)
     {
 
         return (Vector2)gameObject.transform.localScale;
     }
+
+
     public static float GetRotate1D(this GameObject gameObject)
+    {
+        return gameObject.transform.rotation.eulerAngles.z;
+    }
+    public static float GetRotate1DLo(this GameObject gameObject)
     {
         return gameObject.transform.localRotation.eulerAngles.z;
     }
-    public static Vector2 GetPositionBottomLeft(this GameObject gameObject)
+
+
+    public static Vector2? GetSpriteSize(this GameObject gameObject)
     {
-        Vector2 position = gameObject.transform.position;
-        position = gameObject.GetComponent<Renderer>().bounds.min;
-        return position;
+        Vector2? size = null;
+        Bounds? bn = null;
+        var renderer = gameObject.GetComponentInChildren<SpriteRenderer>();
+        if (renderer != null) { bn = renderer.sprite.bounds; }
+        size = bn?.size;
+        return size;
     }
+    public static Vector2? GetSize(this GameObject gameObject)
+    {
+        Vector2? size = null;
+        Vector2? originSize = GetSpriteSize(gameObject);
+        Vector2 sc = gameObject.GetScale();
+        if (originSize != null) { size = originSize.Value.MultiplyEach(sc); }
+        return size;
+    }
+
 
 
     public static Rigidbody2D GetRigidbody2D(this GameObject gameObject)

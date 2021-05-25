@@ -10,7 +10,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_CreateObject : CommandLineActionHolder
+        public class CommandAction_CreateObject : CommandActionHolder
         {
             public bool addToScene = true;
             public CommandLine commandLine;
@@ -27,7 +27,7 @@ namespace CommandFileBundle
 
                 if (addToScene)
                 {
-                    SceneF.AddToScene(obj, cl.commandFile.sceneName);
+                    SceneF.AddToScene(obj, cl.SceneName);
                 }
 
 

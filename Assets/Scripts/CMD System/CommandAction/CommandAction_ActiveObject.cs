@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ActiveObject : CommandLineActionHolder
+        public class CommandAction_ActiveObject : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)

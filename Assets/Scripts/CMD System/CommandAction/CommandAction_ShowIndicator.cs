@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ShowIndicator : CommandLineActionHolder
+        public class CommandAction_ShowIndicator : CommandActionHolder
         {
             public override void Action(CommandLine cl)
             {

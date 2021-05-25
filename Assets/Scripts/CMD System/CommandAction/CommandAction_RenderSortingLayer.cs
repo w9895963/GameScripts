@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_RenderSortingLayer : CommandLineActionHolder
+        public class CommandAction_RenderSortingLayer : CommandActionHolder
         {
             static Dictionary<string, string> nameToLayerDic = new Dictionary<string, string>()
             {

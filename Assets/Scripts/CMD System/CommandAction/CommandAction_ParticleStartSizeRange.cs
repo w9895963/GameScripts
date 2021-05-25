@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ParticleStartSizeRange : CommandLineActionHolder
+        public class CommandAction_ParticleStartSizeRange : CommandActionHolder
         {
             public override void Action(CommandLine cm)
             {

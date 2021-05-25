@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ParticleEmission : CommandLineActionHolder
+        public class CommandAction_ParticleEmission : CommandActionHolder
         {
             public override void Action(CommandLine cm)
             {

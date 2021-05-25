@@ -20,22 +20,25 @@ namespace CommandFileBundle
 
             private void onEnd(OnPointerDrag.DragDate d)
             {
-                onFinalUpdate?.Invoke(cl.GameObject.GetPositionLocal2d().ToStringArray());
+                onFinalUpdate?.Invoke(cl.GameObject.GetPosition2dLo().ToStringArray());
             }
 
             private void onDrag(OnPointerDrag.DragDate d)
             {
                 cl.GameObject.SetPosition(d.position);
                 gameObject.SetPosition(d.position);
-                onUpdate?.Invoke(cl.GameObject.GetPositionLocal2d().ToStringArray());
+                onUpdate?.Invoke(cl.GameObject.GetPosition2dLo().ToStringArray());
             }
 
 
-            public override void Setup(string[] prs)
+            public override void Setup()
             {
                 BasicEvent.OnPointerDrag.Add(gameObject, onDrag, onEnd, onStart);
+                var prs = cl.paramaters;
                 if (prs.IsEmpty()) return;
-                cl.commandFile.afterFileExecute += () => gameObject.SetPosition(cl.GameObject.GetPosition2d());
+
+                gameObject.SetPosition(cl.GameObject.GetPosition2d());
+
 
             }
         }

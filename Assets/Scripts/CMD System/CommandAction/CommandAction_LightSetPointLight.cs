@@ -7,7 +7,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_LightSetPointLight : CommandLineActionHolder
+        public class CommandAction_LightSetPointLight : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)

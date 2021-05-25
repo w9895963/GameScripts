@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_SetPosition : CommandLineActionHolder
+        public class CommandAction_SetPosition : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)
@@ -17,7 +17,7 @@ namespace CommandFileBundle
 
                 float[] vs = cl.ReadParams<float>();
                 if (vs.Length < 2) { return; }
-                obj.SetPositionLocal(new Vector2(vs[0], vs[1]));
+                obj.SetPositionLo(new Vector2(vs[0], vs[1]));
                 DateF.AddDate<Date.GameObject.Position, Vector2>(obj, obj.GetPosition2d());
             }
 

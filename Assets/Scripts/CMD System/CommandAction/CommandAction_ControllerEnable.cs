@@ -7,16 +7,18 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_ControllerEnable : CommandLineActionHolder
+        public class CommandAction_ControllerEnable : CommandActionHolder
         {
             const string prefabFolderPath = "CommandPrefab/Controller/";
+
+            public override int RunOrder => 1;
 
 
 
 
             public override void Action(CommandLine cl)
             {
-                foreach (var line in cl.commandFile.commandLines)
+                foreach (var line in cl.AllLines)
                 {
                     if (line.Empty) continue;
                     string prefabName = line.title;
@@ -31,20 +33,20 @@ namespace CommandFileBundle
 
 
                     CommandFileBundle.Controller.Controller ctl = ctlObj.GetComponent<Controller.Controller>();
-                    ctl.cl=line;
+                    
+                    ctl.cl = line;
                     ctl.onUpdate += (d) =>
                     {
-                        line.paramaters = d;
+                        line.paramaters = d.ToList();
                         line.Execute();
                     };
                     ctl.onFinalUpdate += (d) =>
                     {
-                        line.paramaters = d;
-                        line.Execute();
+                        line.paramaters = d.ToList();
                         line.WriteLine();
                     };
 
-                    ctl.Setup(line.paramaters);
+                    ctl.Setup();
                 }
 
 

@@ -8,7 +8,7 @@ namespace CommandFileBundle
 {
     namespace ActionComponent
     {
-        public class CommandAction_MoveWithCamera : CommandLineActionHolder
+        public class CommandAction_MoveWithCamera : CommandActionHolder
         {
 
             public override void Action(CommandLine cl)
