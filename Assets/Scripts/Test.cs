@@ -8,6 +8,7 @@ using UnityEngine.Experimental.Rendering.Universal;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 public class Test : MonoBehaviour
 {
@@ -25,7 +26,15 @@ public class Test : MonoBehaviour
     }
     private void Start()
     {
-       
+        Dropdown dropdown = gameObject.GetComponentInChildren<Dropdown>();
+        var ip = gameObject.GetComponentInChildren<InputField>();
+        InputField inputField = obj.GetComponent<InputField>();
+        ip.onEndEdit.AddListener((s) =>
+        {
+            dropdown.Show();
+            dropdown.Select();
+        });
+
     }
     private void OnEnable()
     {
@@ -50,6 +59,7 @@ public class Test : MonoBehaviour
     [ContextMenu("Test")]
     void DoSomething()
     {
+
     }
 
 

@@ -17,7 +17,7 @@ namespace BasicEvent
             void Start()
             {
                 onStart?.Invoke();
-                CommandFileBundle.FileReader.ReadAllScripts();
+                CMDBundle.FileReader.ReadAllScripts();
                 SceneF.FindScene(sceneName)?.Build();
             }
 

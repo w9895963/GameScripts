@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-
-namespace CMDBundle
+namespace UIBundle
 {
-    namespace Component
+    public class DragWidth : MonoBehaviour
     {
-        public class CommandFilePrefabDateComp : MonoBehaviour
+        private void Start()
         {
             
         }
     }
 }
+
+
+

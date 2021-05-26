@@ -7,11 +7,10 @@ using UnityEngine;
 
 
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     public static class FileReader
     {
-        const string DefaultFolder = "Scripts\\OnLoad";
         const string ScriptFolder = "Scripts";
         public static void AddAllCommandFilesInFolderToScene(string localPath, string sceneName)
         {
@@ -22,7 +21,7 @@ namespace CommandFileBundle
             }
             paths.ForEach((path) =>
             {
-                CommandFile commandFile = CommandFileBundle.CommandFile.TryGetCommandFile(path);
+                CommandFile commandFile = CMDBundle.CommandFile.TryGetCommandFile(path);
                 commandFile.sceneName = sceneName;
                 if (commandFile == null) { return; }
                 SceneBundle.SceneHolder sceneHolder = SceneF.FindOrCreateScene(sceneName);
@@ -33,6 +32,7 @@ namespace CommandFileBundle
 
         public static void ReadAllScripts()
         {
+            CommandFile.AllFiles = new List<CommandFile>();
             string[] folderPaths = FileF.GetAllFoldersFromLocal(ScriptFolder);
             folderPaths.ForEach((folder) =>
             {

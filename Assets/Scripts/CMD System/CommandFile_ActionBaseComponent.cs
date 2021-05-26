@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     public class CommandActionHolder : MonoBehaviour
     {

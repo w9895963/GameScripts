@@ -24,7 +24,8 @@ namespace TagBundle
 }
 
 
-public static class TagObject
+public static class TagFinder
 {
     public static TagObj PostEffect = new TagObj("PostEffect");
+    public static TagObj CommandEditor = new TagObj("CommandEditor");
 }

@@ -28,6 +28,7 @@ public static class VectorExtension
     }
 
 
+
     public static Vector2 ScreenToWold(this Vector2 vector)
     {
         return Camera.main.ScreenToWorldPoint(vector);
@@ -36,6 +37,7 @@ public static class VectorExtension
     {
         return Camera.main.WorldToScreenPoint(vector);
     }
+
 
 
     public static Vector2 Rotate(this Vector2 vector, float angle)
@@ -52,7 +54,6 @@ public static class VectorExtension
         angle = angle.Abs() * v.Sign();
         return vector.Rotate(angle);
     }
-
     public static float Angle(this Vector2 vector, Vector2 to)
     {
         return Vector2.Angle(vector, to);
@@ -68,7 +69,6 @@ public static class VectorExtension
     {
         return new Vector2(v.x * n.x, v.y * n.y);
     }
-   
     public static Vector3 Scale(this Vector3 v, float scale)
     {
         return new Vector3(v.x * scale, v.y * scale, v.z * scale);
@@ -88,6 +88,10 @@ public static class VectorExtension
 
 
 
+   
+
+
+
 
 
     public static Vector2 ClampMax(this Vector2 vector, float max)
@@ -101,6 +105,7 @@ public static class VectorExtension
             return vector;
         }
     }
+
 
 
     public static bool IsSameSide(this Vector2 vector, Vector2 to)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     namespace ActionComponent
     {
@@ -32,7 +32,7 @@ namespace CommandFileBundle
                     if (ctlObj == null) continue;
 
 
-                    CommandFileBundle.Controller.Controller ctl = ctlObj.GetComponent<Controller.Controller>();
+                    CMDBundle.Controller.Controller ctl = ctlObj.GetComponent<Controller.Controller>();
                     
                     ctl.cl = line;
                     ctl.onUpdate += (d) =>

@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering.Universal;
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     namespace ActionComponent
     {

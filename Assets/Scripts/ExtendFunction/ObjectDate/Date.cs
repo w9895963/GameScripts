@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DateBundle;
 using UnityEngine;
 
@@ -21,12 +22,20 @@ namespace DateBundle
 
         public static void AddDate<T, D>(System.Object obj, D date)
         {
-            DateHolder objectDate = GlobalDate.ObjectDict.GetOrCreate(obj);
+            Dictionary<object, DateHolder> dic = GlobalDate.ObjectDict;
+            DateHolder objectDate = dic.TryGetValue(obj);
+            if (objectDate == null)
+            {
+                dic.Add(obj, new DateHolder());
+                objectDate = dic[obj];
+            }
+
             Type key = typeof(T);
             objectDate.dateDict.Set(key, date);
             var action = objectDate.onDateUpdateDict.TryGetValue(key) as Action<D>;
             action?.Invoke(date);
         }
+
 
 
         public static D GetDate<T, D>(System.Object obj)
@@ -58,6 +67,36 @@ namespace DateBundle
             act -= action;
             acD[key] = act as Delegate;
         }
+
+
+
+        public static O FindObjectOfDate<O, T, D>(D date) where O : class
+        {
+            KeyValuePair<object, DateHolder>[] keyValuePairs = GlobalDate.ObjectDict.ToArray();
+
+            KeyValuePair<object, DateHolder> keyValuePair = keyValuePairs.ToList().Find((p) =>
+            {
+                if (p.Key.GetType() == typeof(GameObject))
+                {
+                    if (((GameObject)p.Key) == null)
+                    {
+                        GlobalDate.ObjectDict.Remove(p.Key);
+                        return false;
+                    }
+                }
+                Dictionary<Type, object> dateDic = p.Value.dateDict;
+                Type key = typeof(T);
+                bool v = dateDic.ContainsKey(key);
+                if (!v) return false;
+                System.Object d = date;
+                if (d == dateDic[key]) return true;
+                return false;
+            });
+
+            if (keyValuePair.Key == null) { return null; }
+
+            return (O)keyValuePair.Key;
+        }
     }
 
 }
@@ -72,6 +111,9 @@ public static class DateF
     {
         DateHolder.AddDate<T, T>(obj, date);
     }
+
+
+
 
 
 
@@ -95,6 +137,12 @@ public static class DateF
         DateBundle.DateHolder.AddAction<T, D>(obj, action);
     }
 
+
+
+    public static O FindObjectOfDate<O, T, D>(D date) where O : class
+    {
+        return DateBundle.DateHolder.FindObjectOfDate<O, T, D>(date);
+    }
 }
 
 

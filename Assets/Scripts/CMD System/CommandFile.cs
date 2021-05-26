@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 using SceneBundle;
 using UnityEngine;
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     public class CommandFile
     {
+        public static List<CommandFile> AllFiles = new List<CommandFile>();
         public GameObject currentObject;
         public string path;
         public string[] lines;
@@ -24,10 +25,7 @@ namespace CommandFileBundle
 
         public string NameBody => Path.GetFileNameWithoutExtension(path);
 
-        public void ReWriteFile(string title, string newLine)
-        {
-            FileF.ReWriteOrAddLine(path, title, newLine);
-        }
+
 
 
 
@@ -35,7 +33,7 @@ namespace CommandFileBundle
         public void ExecuteLines()
         {
 
-            List<CommandLine> sortLines =commandLines.ToList();
+            List<CommandLine> sortLines = commandLines.ToList();
             sortLines.Sort((l) => l.runOrder);
             sortLines.ForEach((line) =>
             {
@@ -51,6 +49,7 @@ namespace CommandFileBundle
             if (!exist) { return null; }
 
             CommandFile file = new CommandFile();
+            AllFiles.Add(file);
             file.path = path;
 
             string[] allLine = File.ReadAllLines(path);
@@ -87,6 +86,9 @@ namespace CommandFileBundle
 
             return file;
         }
+
+
+
 
 
     }

@@ -57,6 +57,9 @@ public static class GameObjectF
         var ts = GameObject.FindObjectsOfType<GameObject>();
         return ts.Where((x) => x.layer == (int)layer).ToArray();
     }
+
+
+    //*Prefab
     public static GameObject CreateFromPrefab(string path, string name = null)
     {
         GameObject prefab = ResourceLoader.Load<GameObject>(path);
@@ -64,6 +67,10 @@ public static class GameObjectF
         GameObject obj = GameObject.Instantiate(prefab);
         obj.name = name ?? obj.name;
         return obj;
+    }
+    public static GameObject FindOrCretePrefab(string prefabPath)
+    {
+       return PrefabBundle.PrefabCreator.FindOrCrete(prefabPath);
     }
 
 }

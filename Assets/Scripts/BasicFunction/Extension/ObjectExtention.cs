@@ -46,8 +46,7 @@ public static class ObjectExtention
     }
 
 
-
-
+    #region Component Or Relation
     public static GameObject CreateChild(this GameObject gameObject, string name)
     {
         GameObject obj = new GameObject(name);
@@ -64,8 +63,12 @@ public static class ObjectExtention
     }
     public static GameObject CreateChildFrom(this GameObject gameObject, string resourcePath, string name = null)
     {
+
         GameObject prefab = ResourceLoader.Load<GameObject>(resourcePath); ;
-        GameObject obj = GameObject.Instantiate(prefab, gameObject.transform);
+        GameObject obj = GameObject.Instantiate(prefab);
+
+        obj.SetParent(gameObject);
+
         if (name != null)
         {
             obj.name = name;
@@ -74,12 +77,37 @@ public static class ObjectExtention
     }
     public static List<GameObject> GetAllChild(this GameObject gameObject)
     {
-        List<GameObject> list = new List<GameObject>();
-        for (int i = 0; i < gameObject.transform.childCount; i++)
+        List<GameObject> childlist = new List<GameObject>();
+
+        List<GameObject> currCheck = GetDirectChildren(gameObject);
+
+
+        do
         {
-            list.Add(gameObject.transform.GetChild(i).gameObject);
+            childlist.AddRange(currCheck);
+            List<GameObject> childrenCollect = new List<GameObject>();
+            currCheck.ForEach((obj) =>
+            {
+                List<GameObject> children = GetDirectChildren(obj);
+                childrenCollect.AddRange(children);
+            });
+            currCheck = childrenCollect;
+
+        } while (currCheck.Count > 0);
+
+
+
+        static List<GameObject> GetDirectChildren(GameObject gameObject)
+        {
+            List<GameObject> childlist = new List<GameObject>();
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                childlist.Add(gameObject.transform.GetChild(i).gameObject);
+            }
+            return childlist;
         }
-        return list;
+
+        return childlist;
     }
     public static List<GameObject> GetAllChildAndSelf(this GameObject gameObject)
     {
@@ -102,7 +130,7 @@ public static class ObjectExtention
     }
     public static void SetParent(this GameObject gameObject, Component parent, bool stay = true)
     {
-        gameObject.transform.SetParent(parent.transform, stay);
+        SetParent(gameObject, parent.gameObject, stay);
     }
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)
     {
@@ -140,12 +168,14 @@ public static class ObjectExtention
         }
         return com;
     }
+    #endregion
+    // * Region Component End---------------------------------- 
 
 
 
 
 
-
+    #region Tansform
     public static void SetPositionLo(this GameObject gameObject, Vector3 p)
     {
         Vector2 position = p;
@@ -288,6 +318,11 @@ public static class ObjectExtention
     {
         return gameObject.transform.localRotation.eulerAngles.z;
     }
+
+    #endregion
+    // * Region Tansform End---------------------------------- 
+
+
 
 
     public static Vector2? GetSpriteSize(this GameObject gameObject)

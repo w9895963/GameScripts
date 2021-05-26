@@ -7,7 +7,7 @@ using UnityEngine;
 
 
 
-namespace CommandFileBundle
+namespace CMDBundle
 {
     public class CommandLine
     {

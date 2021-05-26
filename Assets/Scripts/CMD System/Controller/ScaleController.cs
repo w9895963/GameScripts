@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BasicEvent;
 using UnityEngine;
-namespace CommandFileBundle
+namespace CMDBundle
 {
     namespace Controller
     {
