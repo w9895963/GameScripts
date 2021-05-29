@@ -32,7 +32,7 @@ namespace CMDBundle
 
         public static void ReadAllScripts()
         {
-            CommandFile.AllFiles = new List<CommandFile>();
+            CommandFile.GlobalAllFiles = new List<CommandFile>();
             string[] folderPaths = FileF.GetAllFoldersFromLocal(ScriptFolder);
             folderPaths.ForEach((folder) =>
             {

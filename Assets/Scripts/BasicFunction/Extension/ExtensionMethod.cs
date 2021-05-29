@@ -8,18 +8,7 @@ using UnityEngine.EventSystems;
 
 public static class ExtensionMethod
 {
-    public static EventTrigger Ex_AddInputToTrigger(this Collider2D collider,
-        EventTriggerType type,
-        UnityAction<BaseEventData> action)
-    {
-        ///////////////////////////
-        EventTrigger trigger = collider.gameObject.AddComponent<EventTrigger>();
-        EventTrigger.Entry entry = new EventTrigger.Entry();
-        entry.eventID = type;
-        entry.callback.AddListener(action);
-        trigger.triggers.Add(entry);
-        return trigger;
-    }
+
 
 
     #region //*Array & List
@@ -63,14 +52,10 @@ public static class ExtensionMethod
     }
 
 
-    public static List<T> ExpendTo<T>(this List<T> source, int index) where T : new()
+    public static List<T> RemoveNull<T>(this List<T> source)
     {
-        if (source.Count <= index)
-        {
-            source.Add(index, new T());
-        }
+        source.RemoveAll((x) => x == null);
         return source;
-
     }
 
 
@@ -85,24 +70,7 @@ public static class ExtensionMethod
     }
 
 
-
-
-    public static void ForEach<T>(this T[] source, System.Action<T> action)
-    {
-        foreach (var t in source)
-        {
-            action(t);
-        }
-    }
-
-    public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
-    {
-        enumeration.ToArray().ForEach(action);
-    }
-
-
-
-    public static T FindPrevious<T>(this List<T> list, System.Predicate<T> predicate) where T : class
+    public static T GetPrevious<T>(this List<T> list, System.Predicate<T> predicate) where T : class
     {
         int v = list.FindIndex(predicate);
         if (v <= 0)
@@ -114,6 +82,30 @@ public static class ExtensionMethod
             return list[v - 1];
         }
     }
+
+
+
+    public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+    {
+        foreach (var t in enumeration)
+        {
+            action(t);
+        }
+
+    }
+    public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T, int> action)
+    {
+        int ind = 0;
+        foreach (var t in enumeration)
+        {
+            action(t, ind);
+            ind++;
+        }
+    }
+
+
+
+
 
 
 
@@ -265,10 +257,7 @@ public static class ExtensionMethod
     #endregion
 
 
-    /* public static bool IsEmpty(this string str)
-    {
-        return string.IsNullOrWhiteSpace(str);
-    } */
+
 
 
 
@@ -286,6 +275,13 @@ public static class ExtensionMethod
     #endregion
 
 
+
+    #region System.Object
+    public static bool IsType<T>(this System.Object obj)
+    {
+        return obj.GetType() == typeof(T);
+    }
+    #endregion
 
 
 

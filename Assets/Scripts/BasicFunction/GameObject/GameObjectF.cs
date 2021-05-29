@@ -52,6 +52,9 @@ public static class GameObjectF
         }
 
     }
+
+
+
     public static GameObject[] GetObjectsInLayer(Layer layer)
     {
         var ts = GameObject.FindObjectsOfType<GameObject>();
@@ -68,9 +71,9 @@ public static class GameObjectF
         obj.name = name ?? obj.name;
         return obj;
     }
-    public static GameObject FindOrCretePrefab(string prefabPath)
+    public static GameObject FindOrCretePrefab(string prefabPath, GameObject parent = null)
     {
-       return PrefabBundle.PrefabCreator.FindOrCrete(prefabPath);
+        return PrefabBundle.PrefabCreator.FindOrCreate(prefabPath, parent);
     }
 
 }

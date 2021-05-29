@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace UIBundle
 {
-    public static class ShareDate
+    public class Canvas
     {
-        public const string canvasPrefabPath = "Prefab/DefaultCanvas";
+        public const string canvasPrefabPath = "Prefab/UI_Canvas";
     }
 }

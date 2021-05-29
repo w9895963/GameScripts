@@ -18,8 +18,10 @@ namespace CMDBundle
                 Volume volume = postEffects.GetComponent<Volume>();
                 Bloom bloom;
                 volume.profile.TryGet<Bloom>(out bloom);
-                string[] vs = cl.ReadParams<string>();
-                Setter.Set(vs[0], (v) => volume.weight = v);
+                float[] vs = cl.ReadParams<float>();
+                if (vs.Length == 0) return;
+
+                volume.weight = vs[0];
             }
 
 

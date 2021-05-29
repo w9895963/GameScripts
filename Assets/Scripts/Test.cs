@@ -12,10 +12,22 @@ using UnityEngine.UI;
 
 public class Test : MonoBehaviour
 {
-    public string path;
+    public string str;
     public GameObject obj;
+    public GameObject obj2;
+    public List<int> d;
+    public Vector2 v;
+    Func<string> act;
+    System.Object o;
 
-    private Rigidbody2D body => gameObject.GetRigidbody2D();
+
+
+    [ContextMenu("Test")]
+    void DoSomething()
+    {
+
+
+    }
 
     private void Awake()
     {
@@ -26,15 +38,8 @@ public class Test : MonoBehaviour
     }
     private void Start()
     {
-        Dropdown dropdown = gameObject.GetComponentInChildren<Dropdown>();
-        var ip = gameObject.GetComponentInChildren<InputField>();
-        InputField inputField = obj.GetComponent<InputField>();
-        ip.onEndEdit.AddListener((s) =>
-        {
-            dropdown.Show();
-            dropdown.Select();
-        });
 
+        EditableBundle.ObjectEditUIBuilder.Build(gameObject);
     }
     private void OnEnable()
     {
@@ -56,11 +61,7 @@ public class Test : MonoBehaviour
     }
 
 
-    [ContextMenu("Test")]
-    void DoSomething()
-    {
 
-    }
 
 
 

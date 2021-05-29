@@ -11,7 +11,7 @@ namespace CMDBundle
 {
     public class CommandFile
     {
-        public static List<CommandFile> AllFiles = new List<CommandFile>();
+        public static List<CommandFile> GlobalAllFiles = new List<CommandFile>();
         public GameObject currentObject;
         public string path;
         public string[] lines;
@@ -24,6 +24,7 @@ namespace CMDBundle
         public string Name => Path.GetFileName(path);
 
         public string NameBody => Path.GetFileNameWithoutExtension(path);
+        public List<CommandFile> AllFiles => GlobalAllFiles;
 
 
 
@@ -42,6 +43,12 @@ namespace CMDBundle
             afterFileExecute?.Invoke();
         }
 
+        public CommandFile Find(string localPath)
+        {
+            string filePath = FileF.GetFullPathFromDataFolder($"Scripts/{localPath}");
+            return GlobalAllFiles.Find((x) => FileF.AreSamePath(x.path, filePath));
+        }
+
 
         public static CommandFile TryGetCommandFile(string path)
         {
@@ -49,11 +56,13 @@ namespace CMDBundle
             if (!exist) { return null; }
 
             CommandFile file = new CommandFile();
-            AllFiles.Add(file);
+            GlobalAllFiles.Add(file);
             file.path = path;
 
             string[] allLine = File.ReadAllLines(path);
             file.lines = allLine;
+
+
             TrySetRunOrder();
             void TrySetRunOrder()
             {

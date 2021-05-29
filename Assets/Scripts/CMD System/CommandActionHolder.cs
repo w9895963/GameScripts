@@ -11,7 +11,14 @@ namespace CMDBundle
     {
         public virtual int RunOrder => 0;
 
+        public virtual bool IsRealTimeAction => false;
+        public virtual string[] ParamNames => null;
+
+
         public virtual void Action(CommandLine commandLine) { }
+
+
+
 
     }
 

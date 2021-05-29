@@ -14,11 +14,11 @@ public class EditorMode : MonoBehaviour
     {
         if (reload)
         {
-            reloadScene.performed += act;
+            reloadScene.performed += Reload;
             reloadScene.Enable();
             BasicEvent.OnDestroyEvent.Add(gameObject, () =>
             {
-                reloadScene.performed -= act;
+                reloadScene.performed -= Reload;
             });
         }
 
@@ -31,7 +31,7 @@ public class EditorMode : MonoBehaviour
         }
     }
 
-    private void act(InputAction.CallbackContext d)
+    private void Reload(InputAction.CallbackContext d)
     {
         float v = d.ReadValue<float>();
         if (v > 0)

@@ -26,9 +26,12 @@ namespace CMDBundle
                     li.pointLightInnerAngle = vs[3];
                 }
 
-                
+
 
             }
+
+            public override string[] ParamNames => new string[4] { "最大范围", "最小范围", "最大角度", "最小角度" };
+            public override bool IsRealTimeAction => true;
 
 
 

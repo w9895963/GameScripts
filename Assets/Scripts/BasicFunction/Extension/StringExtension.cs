@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public static class StringExtension
@@ -39,18 +42,30 @@ public static class StringExtension
                 re[i] = f;
             }
         }
-     
+
         return re;
     }
-    
 
 
-
-    public static bool Contains(this string str, List<string> contents)
+    public static string[] SplitWhite(this string str)
     {
-        for (int i = 0; i < contents.Count; i++)
+        return Regex.Split(str, @"\s+");
+    }
+
+
+    public static string ToPath(this string str)
+    {
+        return Path.GetFullPath(str);
+    }
+
+
+
+
+    public static bool Contains(this string str, IEnumerable<string> contents)
+    {
+        foreach (var item in contents)
         {
-            if (!str.Contains(contents[i]))
+            if (!str.Contains(item))
             {
                 return false;
             }

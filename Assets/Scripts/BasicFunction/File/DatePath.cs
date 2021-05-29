@@ -4,48 +4,55 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-public class DataFile
+
+
+namespace FileBundle
 {
-
-
-    const string DataFolderName = "DataFolder";
-    public static string DataFolderPath
+    public class LocalFile
     {
-        get
+
+
+        const string DataFolderName = "DataFolder";
+        public static string DataFolderPath
         {
-            switch (Application.platform)
+            get
             {
-                case RuntimePlatform.WindowsPlayer:
-                    return new DirectoryInfo(Application.dataPath).Parent.FullName + "\\" + DataFolderName;
-                case RuntimePlatform.WindowsEditor:
-                    return new DirectoryInfo(Application.dataPath).Parent.Parent.FullName + "\\" + DataFolderName;
-                default:
-                    return Application.dataPath;
+                switch (Application.platform)
+                {
+                    case RuntimePlatform.WindowsPlayer:
+                        return new DirectoryInfo(Application.dataPath).Parent.FullName + "\\" + DataFolderName;
+                    case RuntimePlatform.WindowsEditor:
+                        return new DirectoryInfo(Application.dataPath).Parent.Parent.FullName + "\\" + DataFolderName;
+                    default:
+                        return Application.dataPath;
+                }
+
             }
-
         }
-    }
 
 
 
-    public readonly string localPath;
-    public string FullPath => Path.Combine(DataFolderPath, localPath);
-    public bool IsFile => File.Exists(FullPath);
-    public bool IsDirectory => Directory.Exists(FullPath);
+        public readonly string localPath;
+        public string FullPath => Path.Combine(DataFolderPath, localPath);
+        public bool IsFile => File.Exists(FullPath);
+        public bool IsDirectory => Directory.Exists(FullPath);
 
-    private DataFile(string localPath)
-    {
-        this.localPath = localPath;
-    }
-
-    public static DataFile TryGet(string localPath)
-    {
-        DataFile re = null;
-        string path = Path.Combine(DataFolderPath, localPath);
-        if (File.Exists(path) | Directory.Exists(path))
+        private LocalFile(string localPath)
         {
-            re = new DataFile(localPath);
+            this.localPath = localPath;
         }
-        return re;
+
+        public static LocalFile TryGet(string localPath)
+        {
+            LocalFile re = null;
+            string path = Path.Combine(DataFolderPath, localPath);
+            path = Path.GetFullPath(path);
+            if (File.Exists(path) | Directory.Exists(path))
+            {
+                re = new LocalFile(localPath);
+            }
+            return re;
+        }
     }
+
 }

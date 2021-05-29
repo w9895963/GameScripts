@@ -1,46 +1,60 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using PrefabBundle.Component;
 using UnityEngine;
 
 namespace PrefabBundle
 {
+
+
     namespace Component
     {
         public class Prefab : MonoBehaviour
         {
-            public GameObject prefab;
+            public string prefabPath;
         }
     }
 
-    namespace Date
-    {
-        public class PrefabObject
-        {
 
-        }
-    }
+
 
 
 
     public static class PrefabCreator
     {
-        public static GameObject FindOrCrete(string prefabPath)
+        public static List<GameObject> AllPrefabInstants;
+        public static GameObject FindOrCreate(string prefabPath, GameObject parent = null)
         {
-            GameObject prefab = ResourceLoader.Load<GameObject>(prefabPath);
-
-            GameObject inst = DateF.FindObjectOfDate<GameObject, Date.PrefabObject, GameObject>(prefab);
-            if (inst == null)
+            if (AllPrefabInstants == null)
             {
-                inst = GameObject.Instantiate(prefab);
-                DateF.AddDate<Date.PrefabObject, GameObject>(inst, prefab);
+                Component.Prefab[] prefabs = GameObject.FindObjectsOfType<Component.Prefab>();
+                AllPrefabInstants = new List<GameObject>(prefabs.Select((x) => x.gameObject));
             }
 
+            AllPrefabInstants.RemoveNull();
+            GameObject marchObject = AllPrefabInstants.Find((x) =>
+               {
+                   Component.Prefab prefab = x.GetComponent<Component.Prefab>();
+                   GameObject gameObject = prefab.gameObject;
+                   bool prefabSame = prefab.prefabPath == prefabPath;
+                   bool childTest = gameObject.IsChildOf(parent);
+                   return prefabSame & childTest;
+               });
 
+            if (marchObject == null)
+            {
+                GameObject gameObject = GameObjectF.CreateFromPrefab(prefabPath);
+                gameObject.GetComponent<Component.Prefab>(true).prefabPath = prefabPath;
+                gameObject.SetParent(parent, false);
+                return gameObject;
+            }
+            else
+            {
+                return marchObject.gameObject;
+            }
 
-            return inst;
         }
+
     }
 
 }

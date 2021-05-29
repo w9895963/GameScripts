@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 public static class ObjectExtention
 {
+    #region Destroy
     public static void Destroy(this List<Object> objects)
     {
         foreach (var obj in objects)
@@ -44,6 +45,9 @@ public static class ObjectExtention
             GameObject.Destroy(obj);
         }
     }
+    #endregion
+    // * Region Destroy End---------------------------------- 
+
 
 
     #region Component Or Relation
@@ -61,13 +65,13 @@ public static class ObjectExtention
         GameObject obj = GameObject.Instantiate(prefab, gameObject.transform);
         return obj;
     }
-    public static GameObject CreateChildFrom(this GameObject gameObject, string resourcePath, string name = null)
+    public static GameObject CreateChildFrom(this GameObject gameObject, string resourcePath, string name = null, bool stay = false)
     {
 
         GameObject prefab = ResourceLoader.Load<GameObject>(resourcePath); ;
         GameObject obj = GameObject.Instantiate(prefab);
 
-        obj.SetParent(gameObject);
+        obj.SetParent(gameObject, stay);
 
         if (name != null)
         {
@@ -75,12 +79,22 @@ public static class ObjectExtention
         }
         return obj;
     }
-    public static List<GameObject> GetAllChild(this GameObject gameObject)
+
+
+    public static List<GameObject> GetDirectChildren(this GameObject gameObject)
+    {
+        List<GameObject> childlist = new List<GameObject>();
+        for (int i = 0; i < gameObject.transform.childCount; i++)
+        {
+            childlist.Add(gameObject.transform.GetChild(i).gameObject);
+        }
+        return childlist;
+    }
+    public static List<GameObject> GetAllChildren(this GameObject gameObject)
     {
         List<GameObject> childlist = new List<GameObject>();
 
         List<GameObject> currCheck = GetDirectChildren(gameObject);
-
 
         do
         {
@@ -96,48 +110,46 @@ public static class ObjectExtention
         } while (currCheck.Count > 0);
 
 
-
-        static List<GameObject> GetDirectChildren(GameObject gameObject)
-        {
-            List<GameObject> childlist = new List<GameObject>();
-            for (int i = 0; i < gameObject.transform.childCount; i++)
-            {
-                childlist.Add(gameObject.transform.GetChild(i).gameObject);
-            }
-            return childlist;
-        }
-
         return childlist;
     }
+
     public static List<GameObject> GetAllChildAndSelf(this GameObject gameObject)
     {
-        List<GameObject> gameObjects = GetAllChild(gameObject);
+        List<GameObject> gameObjects = GetAllChildren(gameObject);
         gameObjects.Add(gameObject);
         return gameObjects;
     }
-    public static GameObject FindChild(this GameObject gameObject, string name)
-    {
-        return gameObject.GetAllChild().Find((x) => x.name == name);
-    }
-    public static bool HasChild(this GameObject gameObject, GameObject child)
-    {
-        List<GameObject> objs = gameObject.GetComponentsInChildren<Transform>().Select((t) => t.gameObject).ToList();
-        return objs.Contains(child);
-    }
+
+
     public static void SetParent(this GameObject gameObject, GameObject parent, bool stay = true)
     {
-        gameObject.transform.SetParent(parent.transform, stay);
+        Transform parentT = null;
+        if (parent != null)
+        {
+            parentT = parent.transform;
+        }
+        gameObject.transform.SetParent(parentT, stay);
     }
-    public static void SetParent(this GameObject gameObject, Component parent, bool stay = true)
+    public static void SetParent(this GameObject gameObject, Component parentComp, bool stay = true)
     {
-        SetParent(gameObject, parent.gameObject, stay);
+        GameObject parent = parentComp == null ? null : parentComp.gameObject;
+        SetParent(gameObject, parent, stay);
     }
+
     public static List<GameObject> GetParentsAndSelf(this GameObject gameObject)
     {
         List<GameObject> all = GetParents(gameObject);
         if (gameObject) all.Add(gameObject);
         return all;
     }
+
+    public static GameObject GetParent(this GameObject gameObject)
+    {
+        Transform parent = gameObject.transform.parent;
+        if (parent == null) return null;
+        return parent.gameObject;
+    }
+
     public static List<GameObject> GetParents(this GameObject gameObject)
     {
         List<GameObject> all = new List<GameObject>();
@@ -149,11 +161,19 @@ public static class ObjectExtention
         }
         return all;
     }
-    public static GameObject GetParent(this GameObject gameObject)
+
+
+    public static bool IsChildOf(this GameObject gameObject, GameObject parent)
     {
-        Transform parent = gameObject == null ? null : gameObject.transform.parent;
-        return parent ? parent.gameObject : null;
+        List<GameObject> parents = gameObject.GetParents();
+        if (parent == null)
+        {
+            return parents.Count == 0;
+        }
+        return parents.Contains(parent);
     }
+
+
     public static T GetComponent<T>(this GameObject gameObject, bool autoAdd = false) where T : Component
     {
 
@@ -167,6 +187,14 @@ public static class ObjectExtention
             com = gameObject.AddComponent<T>();
         }
         return com;
+    }
+
+
+    public static bool HasComponent<T>(this GameObject gameObject)
+    {
+        T tr;
+        bool v = gameObject.TryGetComponent<T>(out tr);
+        return v;
     }
     #endregion
     // * Region Component End---------------------------------- 
@@ -185,32 +213,29 @@ public static class ObjectExtention
     {
         SetPositionLo(gameObject, p.ToVector3(gameObject.transform.localPosition.z));
     }
-    public static void SetPositionLo(this GameObject gameObject, float x, float y)
-    {
-        SetPositionLo(gameObject, new Vector3(x, y, gameObject.transform.localPosition.z));
-    }
+
     public static void SetPositionLo(this GameObject gameObject, float? x, float? y)
     {
         Vector3 l = gameObject.transform.localPosition;
         SetPositionLo(gameObject, new Vector3(x ?? l.x, y ?? l.y, l.z));
     }
-
-    public static void SetPosition(this GameObject gameObject, Vector2 p)
-    {
-        Vector2 position = p;
-        gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
-    }
-    public static void SetPosition(this GameObject gameObject, float x, float y)
-    {
-
-        Vector2 position = new Vector2(x, y);
-        gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
-    }
-
     public static void SetPosition(this GameObject gameObject, Vector3 p)
     {
         gameObject.transform.position = p;
     }
+    public static void SetPosition(this GameObject gameObject, Vector2 p)
+    {
+        Vector2 position = p;
+        Vector3 vector3 = new Vector3(position.x, position.y, gameObject.transform.position.z);
+        SetPosition(gameObject, vector3);
+    }
+    public static void SetPosition(this GameObject gameObject, float? x, float? y)
+    {
+        Vector3 l = gameObject.transform.position;
+        SetPosition(gameObject, new Vector2(x ?? l.x, y ?? l.y));
+    }
+
+
 
     public static void AddPosition(this GameObject gameObject, Vector2 vector2)
     {
@@ -220,6 +245,7 @@ public static class ObjectExtention
     {
         AddPosition(gameObject, new Vector2(x, y));
     }
+
 
     public static void SetScale(this GameObject gameObject, Vector3 worldScale)
     {
@@ -260,6 +286,16 @@ public static class ObjectExtention
     {
         gameObject.transform.localScale = localScale;
     }
+    public static void SetScaleLo(this GameObject gameObject, float? x, float? y, float? z)
+    {
+        Vector3 l = gameObject.transform.localScale;
+        l = new Vector3(x ?? l.x, y ?? l.y, z ?? l.z);
+        SetScaleLo(gameObject, l);
+    }
+    public static void SetScaleLo(this GameObject gameObject, float? x, float? y)
+    {
+        SetScaleLo(gameObject, x, y, null);
+    }
     public static void SetScaleLo(this GameObject gameObject, Vector2 localScale)
     {
         Vector3 scale = new Vector3(localScale.x, localScale.y, gameObject.transform.localScale.z);
@@ -270,6 +306,7 @@ public static class ObjectExtention
         Vector3 scale = new Vector3(x, y, gameObject.transform.localScale.z);
         SetScaleLo(gameObject, scale);
     }
+
 
 
 
@@ -322,7 +359,12 @@ public static class ObjectExtention
     #endregion
     // * Region Tansform End---------------------------------- 
 
-
+    public static void SetHeight(this GameObject gameObject, float height)
+    {
+        RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+        float width = rectTransform.sizeDelta.x;
+        rectTransform.sizeDelta = new Vector2(width, height);
+    }
 
 
     public static Vector2? GetSpriteSize(this GameObject gameObject)

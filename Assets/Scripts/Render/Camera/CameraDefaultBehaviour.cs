@@ -7,7 +7,7 @@ using UnityEngine;
 public class CameraDefaultBehaviour : MonoBehaviour
 {
     public bool followPlayer = false;
-    private void Awake()
+    private void Start()
     {
         if (followPlayer)
         {

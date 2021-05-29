@@ -33,7 +33,7 @@ namespace CMDBundle
                 float endAngle = Vector2.right.SignedAngle(d.position - center);
                 gameObject.SetRotate(endAngle);
                 obj.SetRotate(endAngle);
-                var list = obj.GetAllChild();
+                var list = obj.GetAllChildren();
 
 
                 obj.GetAllChildAndSelf().ForEach((o) =>

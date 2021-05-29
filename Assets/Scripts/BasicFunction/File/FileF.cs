@@ -16,12 +16,21 @@ public static class FileF
         return FileBundle.TextureLoader.LoadSprite(path, pixelsPerUnit);
     }
 
-    public static string GetFullPath(string localPath)
+
+    #region Path And File
+
+    public static string DataFolderPath => FileBundle.LocalFile.DataFolderPath;
+
+    
+    public static string GetFullPathFromDataFolder(string localPath)
     {
-        return DataFile.TryGet(localPath)?.FullPath;
+        return FileBundle.LocalFile.TryGet(localPath)?.FullPath;
     }
 
-
+    public static bool AreSamePath(string path1, string path2)
+    {
+        return Path.GetFullPath(path1) == Path.GetFullPath(path2);
+    }
 
     public static string[] GetAllFilesInFolder(string path, string match = "*", bool includeChildren = false)
     {
@@ -44,12 +53,12 @@ public static class FileF
 
     public static string[] GetAllFilesFromLocal(string localPath, string match = "*", bool includeChildren = false)
     {
-        return GetAllFilesInFolder(GetFullPath(localPath), match, includeChildren);
+        return GetAllFilesInFolder(GetFullPathFromDataFolder(localPath), match, includeChildren);
     }
 
     public static string[] GetAllFoldersFromLocal(string localPath)
     {
-        return Directory.GetDirectories(GetFullPath(localPath));
+        return Directory.GetDirectories(GetFullPathFromDataFolder(localPath));
     }
 
     public static string GetFolderName(string path)
@@ -64,12 +73,16 @@ public static class FileF
         return file.Parent.FullName;
     }
 
-
     public static string GetFilePathInSameFolder(string path, string fileName)
     {
 
         return Path.GetDirectoryName(path) + "\\" + fileName;
     }
+    #endregion
+    // * Region Path And File End---------------------------------- 
+
+
+
 
     public static void ReWriteOrAddLine(string path, string title, string newLine)
     {

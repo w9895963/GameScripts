@@ -15,11 +15,12 @@ namespace CMDBundle
 
 
         public CommandFile commandFile;
-        public Action<CommandLine> action;
+
+        public CommandActionHolder actionHolder;
+
         public string title;
         public int runOrder = 0;
         public List<string> paramaters;
-
 
 
         public GameObject GameObject
@@ -34,12 +35,12 @@ namespace CMDBundle
         }
 
         public bool Empty => title.IsEmpty();
-        public CommandLine PreLine => AllLines.FindPrevious((x) => x == this);
+        public CommandLine PreLine => AllLines.GetPrevious((x) => x == this);
         public List<CommandLine> AllLines => commandFile.commandLines.ToList();
 
         public int lineIndex => AllLines.FindIndex((x) => x == this);
 
-        public string stringLine
+        public string StringLine
         {
             get
             {
@@ -78,19 +79,19 @@ namespace CMDBundle
             return ts;
         }
 
-       
+
 
 
         public void WriteLine()
         {
-            FileF.WriteLine(Path, lineIndex, stringLine);
+            FileF.WriteLine(Path, lineIndex, StringLine);
         }
 
 
 
         public void Execute()
         {
-            action?.Invoke(this);
+            actionHolder?.Action(this);
         }
 
 
@@ -103,13 +104,15 @@ namespace CMDBundle
 
             string actionPath = CommandActionFolder + "\\" + p.title;
             GameObject prefab = ResourceLoader.Load<GameObject>(actionPath);
-            if (prefab == null) { return li; }
-
             li.title = p.title;
             li.paramaters = p.paramaters.ToList();
 
+
+            if (prefab == null) { return li; }
+
+
             CommandActionHolder actionHolder = prefab.GetComponent<CommandActionHolder>();
-            li.action = actionHolder.Action;
+            li.actionHolder = actionHolder;
             li.runOrder = actionHolder.RunOrder;
             return li;
         }
