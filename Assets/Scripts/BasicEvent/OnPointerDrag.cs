@@ -19,8 +19,7 @@ namespace BasicEvent
 
     public class OnPointerDrag
     {
-        const string backgroundObjectName = "BackgroundUIDragObject";
-        const string backgroundObtectPath = "Prefab/BackgroundUI";
+        static PrefabBundle.Prefab backGroundPrefab = PrefabI.BackgroundUI;
 
         public class DragDate
         {
@@ -102,11 +101,9 @@ namespace BasicEvent
         }
         public static void EmptyDrag(Action<DragDate> onDrag = null, Action<DragDate> onEnd = null, Action<DragDate> onStart = null)
         {
-            GameObject gameObject = GameObject.Find(backgroundObjectName);
-            if (gameObject == null)
-            {
-                gameObject = GameObjectF.CreateFromPrefab(backgroundObtectPath);
-            }
+
+            var gameObject = PrefabF.FindOrCretePrefab(backGroundPrefab);
+
             gameObject.GetComponentInParent<Canvas>().worldCamera = Camera.main;
 
             Add(gameObject, onDrag, onEnd, onStart);

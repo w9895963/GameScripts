@@ -104,6 +104,24 @@ public static class ExtensionMethod
     }
 
 
+    public static bool TryGet<T>(this T[] array, int ind, out T t)
+    {
+        bool re = false;
+        T tOUt = default;
+        if (array != null)
+        {
+            if (array.Length > ind)
+            {
+                tOUt = array[ind];
+                re = true;
+            }
+        }
+        t = tOUt;
+        return re;
+    }
+
+
+
 
 
 
@@ -285,14 +303,6 @@ public static class ExtensionMethod
 
 
 
-    #region //* Other
-    public static bool IsList(this System.Type type)
-    {
-        return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
-    }
-
-
-    #endregion
 
 
 

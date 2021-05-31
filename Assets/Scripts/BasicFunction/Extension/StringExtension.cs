@@ -51,7 +51,17 @@ public static class StringExtension
     {
         return Regex.Split(str, @"\s+");
     }
-
+    public static int? TryInt(this string str)
+    {
+        int? re = null;
+        int f;
+        bool v = int.TryParse(str, out f);
+        if (v)
+        {
+            re = f;
+        }
+        return re;
+    }
 
     public static string ToPath(this string str)
     {

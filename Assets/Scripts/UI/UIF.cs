@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UIBundle;
+using System;
 
 public static class UIF
 {
+
 
     public static float GetChildrenHeight(GameObject parent)
     {
@@ -18,9 +21,6 @@ public static class UIF
     }
 
 
-    public static GameObject GetCanvas()
-    {
-        return GameObjectF.FindOrCretePrefab(UIBundle.Canvas.canvasPrefabPath);
-    }
+
 
 }

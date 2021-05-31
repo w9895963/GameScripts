@@ -80,6 +80,13 @@ public static class ObjectExtention
         return obj;
     }
 
+    public static GameObject[] DestroyChildren(this GameObject gameObject)
+    {
+        List<GameObject> gameObjectsDestroyed = gameObject.GetDirectChildren();
+        gameObjectsDestroyed.Destroy();
+        return gameObjectsDestroyed.ToArray();
+    }
+
 
     public static List<GameObject> GetDirectChildren(this GameObject gameObject)
     {

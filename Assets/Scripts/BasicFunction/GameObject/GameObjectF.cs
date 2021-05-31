@@ -71,9 +71,8 @@ public static class GameObjectF
         obj.name = name ?? obj.name;
         return obj;
     }
-    public static GameObject FindOrCretePrefab(string prefabPath, GameObject parent = null)
-    {
-        return PrefabBundle.PrefabCreator.FindOrCreate(prefabPath, parent);
-    }
+  
+   
+   
 
 }

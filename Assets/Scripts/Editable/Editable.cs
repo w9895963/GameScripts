@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UIBundle;
 using UnityEngine;
+using EditableBundle.DateType;
 
 
 
@@ -13,11 +14,15 @@ namespace EditableBundle
 
     namespace EditDateGenerator
     {
+
         public static class CreateDateList
         {
             private static List<SingleGen> AllCreator = new List<SingleGen>()
             {
-                new PositionDateGen()
+                new PositionDateGen(),
+                new ScaleDateGen(),
+                new SortLayerDateGen(),
+                new SpriteDateGen(),
             };
             public static EditDate[] Create(GameObject gameObject)
             {
@@ -51,107 +56,40 @@ namespace EditableBundle
 
 
         }
-        public class PositionDateGen : SingleGen
-        {
-            public override EditDate EditDateGen(GameObject gameObject)
-            {
-                if (!gameObject.HasComponent<Transform>()) return null;
-                return new Editable_Position();
-            }
-        }
+
+
     }
 
 
-    public class EditDate
+
+
+
+
+    public abstract class EditDate
     {
         public GameObject gameObject;
-        public virtual string Title
-        {
-            get
-            {
-                (string title, string[] pars) names;
-                TypeToNameDic.TryGetValue(this.GetType(), out names);
-                return names.title;
-            }
-        }
-        public virtual string[] ParamNames
-        {
-            get
-            {
-                (string title, string[] pars) names;
-                TypeToNameDic.TryGetValue(this.GetType(), out names);
-                return names.pars;
-            }
-        }
-
-
-        public void Initial(GameObject gameObject)
-        {
-            this.gameObject = gameObject;
-        }
-
-
-
-
-        public virtual System.Object[] GetDate()
-        {
-            return default;
-        }
-
-        public virtual void ApplayDate(System.Object[] date) { }
 
 
 
 
 
-        public static Dictionary<System.Type, (string title, string[] pars)> TypeToNameDic = new Dictionary<Type, (string title, string[] pars)>
-        {
-            { typeof(Editable_Position), ("位置", new[] { "X", "Y" }) },
-        };
+
+        public virtual GameObject[] BuildUi => ObjectEditorBuilder.DefaultUiBuildMethod(this);
+        public virtual BuildUiConfig BuildUiConfig => new BuildUiConfig();
+
+
+
+        public abstract System.Object[] GetDate();
+
+        public abstract void ApplayDate(System.Object[] date);
+
+
+
     }
 
-
-    public class Editable_Position : EditDate
+    public class BuildUiConfig
     {
-
-
-        public override System.Object[] GetDate()
-        {
-            Vector2 p = gameObject.GetPosition2dLo();
-            System.Object[] re = new System.Object[] { p.x, p.y };
-            return re;
-        }
-
-        public override void ApplayDate(System.Object[] dates)
-        {
-            gameObject.SetPositionLo((float?)dates[0], (float?)dates[1]);
-        }
-
-
+        public string title;
+        public string[] paramNames;
     }
-    public class Editable_Scale : EditDate
-    {
-
-
-
-        public override System.Object[] GetDate()
-        {
-            Vector2 p = gameObject.GetScale2dLo();
-            System.Object[] re = new System.Object[] { p.x, p.y };
-            return re;
-        }
-
-        public override void ApplayDate(System.Object[] dates)
-        {
-            gameObject.SetScaleLo((float?)dates[0], (float?)dates[1]);
-        }
-
-
-
-    }
-
-
-
-
-
 }

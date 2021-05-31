@@ -39,7 +39,9 @@ public class Test : MonoBehaviour
     private void Start()
     {
 
-        EditableBundle.ObjectEditUIBuilder.Build(gameObject);
+        // PrefabI.UI_Canvas.CreateInstance();
+        // PrefabBundle.Component.PrefabCom[] prefabComs = GameObject.FindObjectsOfType<PrefabBundle.Component.PrefabCom>(true);
+        // prefabComs.LogEach();
     }
     private void OnEnable()
     {
