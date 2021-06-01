@@ -5,29 +5,30 @@ using EditableBundle.DateType;
 
 namespace EditableBundle
 {
-  
+    
 
     namespace DateType
     {
-        public class Editable_Scale : EditDate
+        public class Editable_Name : EditDate
         {
             public override BuildUiConfig UiConfig => new BuildUiConfig()
             {
-                title = "缩放",
-                paramNames = new[] { "X", "Y" },
+                title = "名字属性",
+                paramNames = new[] { "名字" },
             };
 
 
             public override System.Object[] GetDate()
             {
-                Vector2 p = gameObject.GetScale2dLo();
-                System.Object[] re = new System.Object[] { p.x, p.y };
+                string p = gameObject.name;
+                System.Object[] re = new System.Object[] { p };
                 return re;
             }
 
             public override void ApplayDate(System.Object[] dates)
             {
-                gameObject.SetScaleLo((float?)dates[0], (float?)dates[1]);
+                string v = (string)dates[0];
+                gameObject.name = v.IsEmpty() ? gameObject.name : v;
             }
 
 

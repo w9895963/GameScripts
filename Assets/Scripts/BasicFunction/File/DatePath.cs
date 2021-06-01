@@ -34,23 +34,27 @@ namespace FileBundle
 
         public readonly string localPath;
         public string FullPath => Path.Combine(DataFolderPath, localPath);
-        public bool IsFile => File.Exists(FullPath);
-        public bool IsDirectory => Directory.Exists(FullPath);
+
 
         private LocalFile(string localPath)
         {
             this.localPath = localPath;
         }
 
-        public static LocalFile TryGet(string localPath)
+        public static LocalFile TryGet(string localPath, bool autoCreateFolder = false)
         {
             LocalFile re = null;
             string path = Path.Combine(DataFolderPath, localPath);
             path = Path.GetFullPath(path);
-            if (File.Exists(path) | Directory.Exists(path))
+            var dirPath = new FileInfo(path).Directory.FullName;
+            bool notExists = !Directory.Exists(dirPath);
+            if (notExists & autoCreateFolder)
             {
-                re = new LocalFile(localPath);
+                Directory.CreateDirectory(dirPath);
             }
+
+            re = new LocalFile(localPath);
+
             return re;
         }
     }

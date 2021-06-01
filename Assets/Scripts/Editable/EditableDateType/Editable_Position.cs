@@ -5,23 +5,13 @@ using EditableBundle.DateType;
 
 namespace EditableBundle
 {
-    namespace EditDateGenerator
-    {
-        public class PositionDateGen : SingleGen
-        {
-            public override EditDate EditDateGen(GameObject gameObject)
-            {
-                if (!gameObject.HasComponent<Transform>()) return null;
-                return new Editable_Position();
-            }
-        }
-    }
+    
 
     namespace DateType
     {
         public class Editable_Position : EditDate
         {
-            public override BuildUiConfig BuildUiConfig => new BuildUiConfig()
+            public override BuildUiConfig UiConfig => new BuildUiConfig()
             {
                 title = "位置",
                 paramNames = new[] { "X", "Y" },

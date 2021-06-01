@@ -19,7 +19,7 @@ namespace FileBundle
             {
                 if (File.Exists(path))
                 {
-                    texture = new Texture2D(2, 2);
+                    texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
                     texture.filterMode = filterMode;
                     byte[] bytes = File.ReadAllBytes(path);
                     bool loadSuccess = ImageConversion.LoadImage(texture, bytes);

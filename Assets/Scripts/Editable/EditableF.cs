@@ -11,7 +11,10 @@ public static class EditableF
 
     public static void ShowObjectEditor(GameObject gameObject)
     {
-        EditableBundle.UIFunc.EnableEditor();
-        EditableBundle.ObjectEditorBuilder.BuildEditorFor(gameObject);
+        EditableBundle.Func.Editor_Enable.EnableEditor();
+        EditableBundle.Func.Editor_ListAllEditableDate.BuildEditorFor(gameObject);
     }
+
+
+   
 }

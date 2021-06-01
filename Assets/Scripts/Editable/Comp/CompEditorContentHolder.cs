@@ -9,7 +9,7 @@ namespace EditableBundle
 {
     namespace Comp
     {
-        public class MarkEditorContentHolder : MonoBehaviour
+        public class CompEditorContentHolder : MonoBehaviour
         {
 
         }

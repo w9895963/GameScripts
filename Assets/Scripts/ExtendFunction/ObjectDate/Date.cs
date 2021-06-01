@@ -15,12 +15,12 @@ namespace DateBundle
     }
     public class DateHolder
     {
-        public Dictionary<System.Type, System.Object> dateDict = new Dictionary<System.Type, System.Object>();
+        public Dictionary<System.Type, Delegate> dateGetDict = new Dictionary<System.Type, Delegate>();
         public Dictionary<System.Type, Delegate> onDateUpdateDict = new Dictionary<System.Type, Delegate>();
 
 
 
-        public static void AddDate<T, D>(System.Object obj, D date)
+        public static void SetDate<T, D>(System.Object obj, Func<D> getFunc)
         {
             Dictionary<object, DateHolder> dic = GlobalDate.DateHolderDict;
             DateHolder objectDate = dic.TryGetValue(obj);
@@ -31,21 +31,31 @@ namespace DateBundle
             }
 
             Type key = typeof(T);
-            objectDate.dateDict.Set(key, date);
-            var action = objectDate.onDateUpdateDict.TryGetValue(key) as Action<D>;
-            action?.Invoke(date);
+            objectDate.dateGetDict.Set(key, getFunc);
         }
 
 
+
+
+
+
+        public static void AddDate<T, D>(System.Object obj, D date)
+        {
+            SetDate<T, D>(obj, () => date);
+            CallAction<T, D>(obj);
+        }
 
         public static D GetDate<T, D>(System.Object obj)
         {
             DateHolder objectDate = GlobalDate.DateHolderDict[obj];
             Type key = typeof(T);
 
-            return (D)objectDate.dateDict[key];
+            return ((Func<D>)objectDate.dateGetDict[key]).Invoke();
 
         }
+
+
+
 
         public static void AddAction<T, D>(System.Object obj, Action<D> action)
         {
@@ -68,6 +78,16 @@ namespace DateBundle
             acD[key] = act as Delegate;
         }
 
+        public static void CallAction<T, D>(System.Object obj)
+        {
+            Dictionary<object, DateHolder> dic = GlobalDate.DateHolderDict;
+            DateHolder objectDate = dic.TryGetValue(obj);
+            Type key = typeof(T);
+            var date = ((Func<D>)objectDate.dateGetDict[key]).Invoke();
+            var action = objectDate.onDateUpdateDict.TryGetValue(key) as Action<D>;
+            action?.Invoke(date);
+        }
+
 
 
         public static O FindObjectOfDate<O, T, D>(D date) where O : class
@@ -81,42 +101,21 @@ namespace DateBundle
                 }
 
 
-                Dictionary<Type, System.Object> dateDic = GlobalDate.DateHolderDict[DateHolderKey].dateDict;
+                Dictionary<Type, Delegate> dateFuncDict = GlobalDate.DateHolderDict[DateHolderKey].dateGetDict;
                 Type key = typeof(T);
-                bool v = dateDic.ContainsKey(key);
-                if (!dateDic.ContainsKey(key)) continue;
+                bool v = dateFuncDict.ContainsKey(key);
+                if (!v) continue;
 
                 System.Object d = date;
-                if (d == dateDic[key]) return (O)DateHolderKey;
+                System.Object d1 = ((Func<D>)dateFuncDict[key]).Invoke();
+                if (d == d1) return (O)DateHolderKey;
             }
             return null;
 
-            // KeyValuePair<object, DateHolder>[] keyValuePairs = GlobalDate.DateHolderDict.ToArray();
-
-            // KeyValuePair<object, DateHolder> keyValuePair = keyValuePairs.ToList().Find((p) =>
-            // {
-            //     if (p.Key.GetType() == typeof(GameObject))
-            //     {
-            //         if (((GameObject)p.Key) == null)
-            //         {
-            //             GlobalDate.DateHolderDict.Remove(p.Key);
-            //             return false;
-            //         }
-            //     }
-            //     Dictionary<Type, object> dateDic = p.Value.dateDict;
-            //     Type key = typeof(T);
-            //     bool v = dateDic.ContainsKey(key);
-            //     if (!v) return false;
-            //     System.Object d = date;
-            //     if (d == dateDic[key]) return true;
-            //     return false;
-            // });
-
-            // if (keyValuePair.Key == null) { return null; }
-
-            // return (O)keyValuePair.Key;
         }
     }
+
+
 
 }
 
@@ -136,8 +135,6 @@ public static class DateF
 
 
 
-
-
     public static D GetDate<T, D>(System.Object obj)
     {
         return DateHolder.GetDate<T, D>(obj);
@@ -151,9 +148,14 @@ public static class DateF
 
 
 
+
     public static void AddAction<T, D>(System.Object obj, Action<D> action)
     {
         DateBundle.DateHolder.AddAction<T, D>(obj, action);
+    }
+    public static void AddAction<T>(System.Object obj, Action<T> action)
+    {
+        DateBundle.DateHolder.AddAction<T, T>(obj, action);
     }
 
 

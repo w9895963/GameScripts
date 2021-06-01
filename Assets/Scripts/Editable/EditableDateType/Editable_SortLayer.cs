@@ -5,17 +5,7 @@ using EditableBundle.DateType;
 
 namespace EditableBundle
 {
-    namespace EditDateGenerator
-    {
-        public class SortLayerDateGen : SingleGen
-        {
-            public override EditDate EditDateGen(GameObject gameObject)
-            {
-                if (!gameObject.HasComponent<Renderer>()) return null;
-                return new Editable_SortLayer();
-            }
-        }
-    }
+   
 
     namespace DateType
     {
@@ -30,7 +20,7 @@ namespace EditableBundle
                 (5, "Foreground"),
             };
 
-            public override BuildUiConfig BuildUiConfig => new BuildUiConfig()
+            public override BuildUiConfig UiConfig => new BuildUiConfig()
             {
                 title = "图层属性",
                 paramNames = new[] { "图层", "层内顺序" },
@@ -40,6 +30,7 @@ namespace EditableBundle
             public override System.Object[] GetDate()
             {
                 var com = gameObject.GetComponent<Renderer>();
+                if (com == null) return null;
                 string layerName = com.sortingLayerName;
                 int layerIndex = nameInd.Find((x) => x.name == layerName).i;
                 int order = com.sortingOrder;

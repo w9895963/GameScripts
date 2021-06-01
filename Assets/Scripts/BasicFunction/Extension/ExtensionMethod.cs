@@ -24,6 +24,15 @@ public static class ExtensionMethod
         }
         source[index] = newMember;
     }
+    public static T Add<T>(this List<T> source, Action<T> beforeAction) where T : new()
+    {
+        T t = new T();
+        beforeAction(t);
+        source.Add(t);
+        return t;
+    }
+
+
     public static void AddNotHas<T>(this List<T> source, T newMember)
     {
         if (!source.Contains(newMember))
@@ -119,11 +128,6 @@ public static class ExtensionMethod
         t = tOUt;
         return re;
     }
-
-
-
-
-
 
 
 

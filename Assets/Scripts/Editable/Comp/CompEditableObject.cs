@@ -4,21 +4,12 @@ using UnityEngine;
 
 
 
-
 namespace EditableBundle
 {
     namespace Comp
     {
-
-        public class ToolBarFunction : MonoBehaviour
+        public class CompEditableObject : MonoBehaviour
         {
-
-
-
-            public void SelectObject()
-            {
-            }
         }
     }
-
 }

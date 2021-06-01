@@ -21,10 +21,10 @@ public static class FileF
 
     public static string DataFolderPath => FileBundle.LocalFile.DataFolderPath;
 
-    
-    public static string GetFullPathFromDataFolder(string localPath)
+
+    public static string GetFullPathFromDataFolder(string localPath, bool autoCreateMissFolder = false)
     {
-        return FileBundle.LocalFile.TryGet(localPath)?.FullPath;
+        return FileBundle.LocalFile.TryGet(localPath, autoCreateMissFolder)?.FullPath;
     }
 
     public static bool AreSamePath(string path1, string path2)
@@ -51,7 +51,8 @@ public static class FileF
 
 
 
-    public static string[] GetAllFilesFromLocal(string localPath, string match = "*", bool includeChildren = false)
+
+    public static string[] GetAllFilesInLocalFolder(string localPath, string match = "*", bool includeChildren = false)
     {
         return GetAllFilesInFolder(GetFullPathFromDataFolder(localPath), match, includeChildren);
     }

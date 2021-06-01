@@ -14,7 +14,11 @@ namespace EditableBundle
         {
             public static void FindObject()
             {
-                UIFuncObjectFinder.BuiltSelection();
+                Func.Editor_SelectObject.BuiltSelection();
+            }
+            public static void CreatePrefab()
+            {
+                Func.Editor_CreatePrefab.ShowCreateList();
             }
         }
     }

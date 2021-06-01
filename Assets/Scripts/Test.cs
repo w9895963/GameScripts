@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 public class Test : MonoBehaviour
 {
+    public InputAction testKey = new InputAction("TestKey", InputActionType.Button, "<Keyboard>/f11");
     public string str;
     public GameObject obj;
     public GameObject obj2;
@@ -26,11 +27,16 @@ public class Test : MonoBehaviour
     void DoSomething()
     {
 
-
+        EditableBundle.Func.SaveAllDate.Save();
     }
 
     private void Awake()
     {
+        testKey.performed += (d) =>
+        {
+            DoSomething();
+        };
+        testKey.Enable();
     }
     private void Reset()
     {
@@ -39,9 +45,7 @@ public class Test : MonoBehaviour
     private void Start()
     {
 
-        // PrefabI.UI_Canvas.CreateInstance();
-        // PrefabBundle.Component.PrefabCom[] prefabComs = GameObject.FindObjectsOfType<PrefabBundle.Component.PrefabCom>(true);
-        // prefabComs.LogEach();
+
     }
     private void OnEnable()
     {

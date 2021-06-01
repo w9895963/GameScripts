@@ -14,7 +14,7 @@ namespace CMDBundle
         const string ScriptFolder = "Scripts";
         public static void AddAllCommandFilesInFolderToScene(string localPath, string sceneName)
         {
-            string[] paths = FileF.GetAllFilesFromLocal(localPath, "*.txt", true);
+            string[] paths = FileF.GetAllFilesInLocalFolder(localPath, "*.txt", true);
             if (paths.IsEmpty())
             {
                 return;

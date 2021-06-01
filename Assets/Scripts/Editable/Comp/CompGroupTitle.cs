@@ -9,10 +9,13 @@ namespace EditableBundle
 
     namespace Comp
     {
-        public class CompTitle : MonoBehaviour
+        public class CompGroupTitle : MonoBehaviour
         {
+
             public Text titleTextComponent;
             public string titleText { set => titleTextComponent.text = value; get => titleTextComponent.text; }
+
+           
         }
     }
 

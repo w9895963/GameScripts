@@ -11,7 +11,7 @@ namespace EditableBundle
 {
     namespace Comp
     {
-        public class MarkEditorContentItem_EditLine : MonoBehaviour
+        public class CompItemStringEditor : MonoBehaviour
         {
             public Text title;
             public InputField content;
