@@ -31,19 +31,61 @@ namespace EditableBundle
                 CompGroupTitle com = title.GetComponent<CompGroupTitle>();
                 com.titleText = toolName;
 
-                editDates.ForEach(((editDate) =>
+                editDates = SortBySameTitle(editDates);
+
+                editDates.ForEach(((editDate, i) =>
                 {
-                    GameObject[] UiObjects = editDate.UiObjects;
-                    UiObjects.ForEach((obj) =>
+                    GameObject[] UiItems = editDate.UiObjects;
+
+                    bool prevTitleNotSame = !PrevTitleSameTest(editDates, i);
+                    if (prevTitleNotSame)
+                    {
+                        UiItems[0].SetParent(contentHolder, false);
+                    }
+                    else
+                    {
+                        UiItems[0].Destroy();
+                    }
+
+                    UiItems.Where((x, i) => i >= 1).ForEach((obj) =>
                     {
                         obj.SetParent(contentHolder, false);
                     });
 
                 }));
 
+                static EditDate[] SortBySameTitle(EditDate[] editDates)
+                {
+                    List<EditDate> ds = editDates.ToList();
+                    List<string> titleCollection = new List<string>();
+                    ds.Sort((x) =>
+                    {
+                        string tit = x.UiConfig.title;
+                        bool hasTitle = titleCollection.Contains(tit);
+                        if (!hasTitle)
+                        {
+                            titleCollection.Add(tit);
+                        }
+                        return titleCollection.Count;
+                    });
+                    editDates = ds.ToArray();
+                    return editDates;
+                }
 
+                static bool PrevTitleSameTest(EditDate[] editDates, int i)
+                {
+                    bool re = false;
+                    if (i > 0)
+                    {
+                        if (editDates[i - 1].UiConfig.title == editDates[i].UiConfig.title)
+                        {
+                            re = true;
+                        }
+                    }
+
+                    return re;
+                }
             }
-
 
 
 
@@ -65,31 +107,20 @@ namespace EditableBundle
             {
                 string[] ns = editDate.UiConfig.paramNames;
                 string parmName = editDate.UiConfig.paramNames[i];
-                object[] ds = editDate.GetDate();
-                BuildUiConfig.ParamConfig cfg = editDate.UiConfig.ParamConfigs?[i];
-                var date = ds[i];
-                int count = ds.Length;
+                object[] allDate = editDate.GetDate();
+                BuildUiConfig.ParamConfig UiConfig = editDate.UiConfig.ParamConfigs?[i];
+                var date = allDate[i];
+                int count = allDate.Length;
                 GameObject re = null;
-                if (cfg == null)
+                if (UiConfig == null)
                 {
                     re = AutoBuildUi();
                 }
                 else
                 {
-                    if (cfg.UiType == BuildUiConfig.ParamUiItem.DropList)
+                    if (UiConfig.UiType == BuildUiConfig.ParamUiItem.DropList)
                     {
-                        re = PrefabI.UI_EditorItem_Selection.CreateInstance((obj) =>
-                        {
-                            CompItemSelection com = obj.GetComponent<Comp.CompItemSelection>();
-                            com.Title = parmName;
-                            int value = cfg.dropListValue?.Invoke() ?? 0;
-                            com.SetSelection(cfg.dropListContents, value, (ind) =>
-                            {
-                                System.Object[] dates = new System.Object[2];
-                                dates[i] = ind;
-                                editDate.ApplayDate(dates);
-                            });
-                        });
+                        re = BuildDropList();
                     }
                 }
 
@@ -105,7 +136,11 @@ namespace EditableBundle
                         bool v1 = ns.TryGet(i, out st);
                         if (v1) com.title.text = st;
 
-                        com.content.text = date.ToString();
+                        com.content.text = editDate.GetDate()[i].ToString();
+                        editDate.OnDateUpdate += () =>
+                        {
+                            com.content.text = editDate.GetDate()[i].ToString();
+                        };
                         com.content.onValueChanged.AddListener((st) =>
                         {
                             System.Object[] dat = new System.Object[count];
@@ -127,9 +162,25 @@ namespace EditableBundle
 
                     return re;
                 }
+
+                GameObject BuildDropList()
+                {
+                    return PrefabI.UI_EditorItem_Selection.CreateInstance((obj) =>
+                    {
+                        CompItemSelection com = obj.GetComponent<Comp.CompItemSelection>();
+                        com.Title = parmName;
+                        int value = UiConfig.dropListValue?.Invoke() ?? 0;
+                        com.SetSelection(UiConfig.dropListContents, value, (ind) =>
+                        {
+                            System.Object[] dates = new System.Object[2];
+                            dates[i] = ind;
+                            editDate.ApplayDate(dates);
+                        });
+                    });
+                }
             }
 
-          
+
 
             public static GameObject[] DefaultUiBuildMethod(EditDate editDate)
             {

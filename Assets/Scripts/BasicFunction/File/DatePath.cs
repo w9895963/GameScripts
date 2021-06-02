@@ -57,6 +57,16 @@ namespace FileBundle
 
             return re;
         }
+        public static string GetLocalPath(string fullPath)
+        {
+            if (fullPath.IsEmpty()) return null;
+
+            fullPath = Path.GetFullPath(fullPath);
+            string dataFolderPath = DataFolderPath;
+            dataFolderPath = Path.GetFullPath(dataFolderPath);
+            string localPath = fullPath.TrimStart(dataFolderPath.ToCharArray());
+            return localPath;
+        }
     }
 
 }

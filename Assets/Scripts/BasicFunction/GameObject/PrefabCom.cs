@@ -15,7 +15,8 @@ namespace PrefabBundle
         public class PrefabCom : MonoBehaviour
         {
             public string folderPath = "Prefab";
-            public string filePath = null;
+            public string fileName;
+            public string filePath;
             public Prefab prefabInst;
 
             private void Reset()
@@ -25,7 +26,8 @@ namespace PrefabBundle
             [ContextMenu("GeneratePath")]
             public void GeneratePath()
             {
-                filePath = $"{folderPath}/{name}";
+                fileName = name;
+                filePath = $"{folderPath}/{fileName}";
             }
         }
     }
@@ -50,7 +52,8 @@ namespace PrefabBundle
 
         public static Dictionary<Prefab, string> PrintNameDic = new Dictionary<Prefab, string>()
         {
-            {PrefabI.SceneLayer,"场景图层"}
+            {PrefabI.SceneLayer,"场景图层"},
+            {PrefabI.LightManager,"光源"},
         };
 
 
@@ -139,6 +142,16 @@ namespace PrefabBundle
             GameObject re = CreateInstance(onCreate);
             re.SetParent(parent, stay);
             return re;
+        }
+
+        public GameObject GetInstance()
+        {
+            GameObject gameObject = Find();
+            if (gameObject == null)
+            {
+                gameObject = CreateInstance();
+            }
+            return gameObject;
         }
 
 

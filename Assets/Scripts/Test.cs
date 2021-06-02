@@ -24,17 +24,29 @@ public class Test : MonoBehaviour
 
 
     [ContextMenu("Test")]
-    void DoSomething()
+    void Test1()
     {
 
-        EditableBundle.Func.SaveAllDate.Save();
+        EditableBundle.Func.SaveAndLOad.Save();
+    }
+    [ContextMenu("Test2")]
+    void Test2()
+    {
+
+        EditableBundle.Func.SaveAndLOad.Load();
+    }
+    [ContextMenu("Test3")]
+    void Test3()
+    {
+
+        FileBundle.LocalFile.GetLocalPath(str).Log();
     }
 
     private void Awake()
     {
         testKey.performed += (d) =>
         {
-            DoSomething();
+            Test1();
         };
         testKey.Enable();
     }

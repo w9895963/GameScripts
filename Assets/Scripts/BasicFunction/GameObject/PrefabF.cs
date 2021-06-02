@@ -15,13 +15,18 @@ public static class PrefabI
     public static Prefab UI_EditorItem_ClickTitle = new Prefab("UI_EditorItem_ClickTitle");
     public static Prefab UI_EditorItem_TitleTexture = new Prefab("UI_EditorItem_TitleTexture");
     public static Prefab UI_EditorItem_Selection = new Prefab("UI_EditorItem_Selection");
+    public static Prefab UI_EditorItem_Toggle = new Prefab("UI_EditorItem_Toggle");
+    public static Prefab UI_EditorItem_ToolTip = new Prefab("UI_EditorItem_ToolTip");
     public static Prefab UI_Editor = new Prefab("UI_Editor");
+
+
+    public static Prefab UI_Controller_Position = new Prefab("UI_Controller_Position");
 
     public static Prefab BackgroundUI = new Prefab("BackgroundUI");
 
 
     public static Prefab SceneLayer = new Prefab("SceneLayer");
-    public static Prefab DefaultLight = new Prefab("DefaultLight");
+    public static Prefab LightManager = new Prefab("LightManager");
 
 
 
@@ -34,6 +39,18 @@ public static class PrefabF
     {
         return gameObject.GetComponent<PrefabCom>().filePath;
     }
+
+    public static Prefab GetPrefab(GameObject gameObject)
+    {
+        PrefabCom com = gameObject.GetComponent<PrefabCom>();
+
+        Prefab prefab = new Prefab();
+        prefab.fileName = com.fileName;
+        prefab.folderPath = com.folderPath;
+
+        return prefab;
+    }
+
 
     public static GameObject FindOrCretePrefab(Prefab prefab)
     {

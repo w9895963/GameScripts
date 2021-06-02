@@ -27,9 +27,11 @@ namespace EditableBundle
             new Editable_Position(),
             new Editable_Scale(),
             new Editable_SortLayer(),
-            new Editable_Sprite(),
-
+            new SpriteTexture(),
             new Light_LayerAndType(),
+            new Light_Intensity(),
         };
+
+      
     }
 }

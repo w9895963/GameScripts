@@ -24,7 +24,9 @@ namespace UIBundle
             private void onDrag(OnPointerDrag.DragDate d)
             {
                 Vector2 s = trans.sizeDelta;
-                trans.sizeDelta = new Vector2(d.screenDelta.x + s.x, s.y);
+                Vector2 del = d.screenPosition - d.beginScreenPosition;
+                float x = del.x / trans.lossyScale.x + originWidth;
+                trans.sizeDelta = new Vector2(x.ClampMin(0), s.y);
 
             }
 

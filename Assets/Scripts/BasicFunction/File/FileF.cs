@@ -11,6 +11,10 @@ public static class FileF
     {
         return FileBundle.TextureLoader.LoadTexture(path, filterMode);
     }
+    public static Texture2D LoadTextureFromDateFolder(string localpath, FilterMode filterMode = FilterMode.Point)
+    {
+        return FileBundle.TextureLoader.LoadTexture(FileF.GetFullPathFromDataFolder(localpath), filterMode);
+    }
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 20)
     {
         return FileBundle.TextureLoader.LoadSprite(path, pixelsPerUnit);
@@ -25,6 +29,11 @@ public static class FileF
     public static string GetFullPathFromDataFolder(string localPath, bool autoCreateMissFolder = false)
     {
         return FileBundle.LocalFile.TryGet(localPath, autoCreateMissFolder)?.FullPath;
+    }
+    public static string GetLocalPathFromDataFolder(string fullPath)
+    {
+      
+        return FileBundle.LocalFile.GetLocalPath(fullPath);
     }
 
     public static bool AreSamePath(string path1, string path2)

@@ -25,7 +25,17 @@ namespace EditableBundle
                     bool IsTestFall = !x.TestObject();
                     return IsTestFall;
                 });
-                return allDate.ToArray();
+                EditDate[] editDates = allDate.ToArray();
+                gameObject.GetComponent<Comp.CompEditableObject>(true).EditDates = editDates;
+                return editDates;
+
+            }
+            public static EditDate[] GetOrCreate(GameObject gameObject)
+            {
+                EditDate[] re = gameObject.GetComponent<Comp.CompEditableObject>(true).EditDates;
+                if (re != null) return re;
+                re = Create(gameObject);
+                return re;
 
             }
         }
@@ -40,6 +50,8 @@ namespace EditableBundle
 
         public abstract System.Object[] GetDate();
         public abstract void ApplayDate(System.Object[] date);
+        public Action OnDateUpdate;
+        public abstract System.Type[] DateTypes { get; }
 
         public virtual bool TestObject()
         {
@@ -79,6 +91,30 @@ namespace EditableBundle
                 });
                 return enumerable.ToArray();
             }
+        }
+        public virtual System.Object[] StringDateParse(string[] stringDates)
+        {
+            List<object> re = new List<System.Object>();
+            stringDates.ForEach((date, i) =>
+            {
+                if (DateTypes[i] == typeof(int))
+                {
+                    re.Add(int.Parse(date));
+                    return;
+                }
+                if (DateTypes[i] == typeof(float))
+                {
+                    re.Add(float.Parse(date));
+                    return;
+                }
+                if (DateTypes[i] == typeof(string))
+                {
+                    re.Add(date);
+                    return;
+                }
+
+            });
+            return re.ToArray();
         }
     }
 

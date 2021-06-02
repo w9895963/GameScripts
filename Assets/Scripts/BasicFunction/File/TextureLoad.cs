@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 
@@ -10,11 +11,11 @@ namespace FileBundle
 {
     public static class TextureLoader
     {
-        public static Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
+        public static Dictionary<string, Texture2D> PathTextureDict = new Dictionary<string, Texture2D>();
         public static Texture2D LoadTexture(string path, FilterMode filterMode = FilterMode.Point)
         {
             Texture2D texture = null;
-            textureDict.TryGetValue(path, out texture);
+            PathTextureDict.TryGetValue(path, out texture);
             if (texture == null)
             {
                 if (File.Exists(path))
@@ -26,6 +27,7 @@ namespace FileBundle
                     if (loadSuccess)
                     {
                         texture.name = Path.GetFileName(path);
+                        PathTextureDict.Add(path, texture);
                     }
                 }
             }
@@ -40,6 +42,14 @@ namespace FileBundle
             Sprite sprite = Sprite.Create(tex, rect, pivot, pixelsPerUnit);
             return sprite;
 
+        }
+        public static string GetPath(Texture2D tex)
+        {
+            string key = null;
+            List<KeyValuePair<string, Texture2D>> list = PathTextureDict.ToList();
+            KeyValuePair<string, Texture2D> pair = list.Find((x) => x.Value == tex);
+            key = pair.Key;
+            return key;
         }
 
 

@@ -20,6 +20,19 @@ namespace EditableBundle
             {
                 Func.Editor_CreatePrefab.ShowCreateList();
             }
+            public static void EditorEnable(bool enabled)
+            {
+                if (enabled)
+                {
+                    Func.Editor_Enable.EnableEditor();
+                }
+                else
+                {
+                    Func.Editor_Enable.DisableEditor();
+                }
+
+            }
+
         }
     }
 

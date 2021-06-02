@@ -24,7 +24,7 @@ public static class ExtensionMethod
         }
         source[index] = newMember;
     }
-    public static T Add<T>(this List<T> source, Action<T> beforeAction) where T : new()
+    public static T Add<T>(this List<T> source, Action<T> beforeAction) where T : class, new()
     {
         T t = new T();
         beforeAction(t);
@@ -77,6 +77,18 @@ public static class ExtensionMethod
         }
         return new List<T>(source);
     }
+    public static Dictionary<K, T> ToDictionary<K, T>(this List<T> source, System.Func<T, K> selector)
+    {
+
+        Dictionary<K, T> re = new Dictionary<K, T>();
+        source.ForEach((x) =>
+        {
+            re.Add(selector(x), x);
+        });
+        return re;
+    }
+
+
 
 
     public static T GetPrevious<T>(this List<T> list, System.Predicate<T> predicate) where T : class
@@ -308,7 +320,14 @@ public static class ExtensionMethod
 
 
 
-
+    public static Sprite ToSprite(this Texture tex, float pixelsPerUnit = 20)
+    {
+        Texture2D tex2d = (Texture2D)tex;
+        Rect rect = new Rect(0, 0, tex2d.width, tex2d.height);
+        Vector2 pivot = new Vector2(0.5f, 0.5f);
+        Sprite sprite = Sprite.Create(tex2d, rect, pivot, pixelsPerUnit);
+        return sprite;
+    }
 
 
 

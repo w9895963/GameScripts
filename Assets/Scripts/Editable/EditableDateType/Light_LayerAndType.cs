@@ -53,38 +53,33 @@ namespace EditableBundle
             };
 
 
-            
 
 
 
+            public override Type[] DateTypes => new[] { typeof(int), typeof(int) };
             public override System.Object[] GetDate()
             {
-                var com = gameObject.GetComponent<Comp.CompLight>();
+                var com = gameObject.GetComponent<Comp.LightManager>();
                 if (com == null) return null;
-                System.Object[] re = new System.Object[] { com.lightType, com.lightLayer };
+                System.Object[] re = new System.Object[] { (int)com.LightType, (int)com.LightLayer };
                 return re;
             }
 
             public override void ApplayDate(System.Object[] dates)
             {
-                var com = gameObject.GetComponent<Comp.CompLight>();
+                var com = gameObject.GetComponent<Comp.LightManager>();
 
                 int? typeInt = dates[0] as int?;
                 if (typeInt != null)
                 {
-                    com.lightType = (ShareDate.EditableLightType)typeInt;
+                    com.LightType = (ShareDate.EditableLightType)typeInt;
                 }
 
                 int? layerInt = dates[1] as int?;
                 if (layerInt != null)
                 {
-                    com.lightLayer = layerInt.Value;
+                    com.LightLayer = layerInt.Value;
                 }
-
-
-                GameObject newObj = com.CreateLightAndDestroySelf();
-                EditableF.ShowObjectEditor(newObj);
-
             }
 
 

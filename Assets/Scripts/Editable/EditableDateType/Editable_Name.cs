@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using EditableBundle.DateType;
+using System;
 
 namespace EditableBundle
 {
-    
+
 
     namespace DateType
     {
@@ -17,6 +18,7 @@ namespace EditableBundle
                 paramNames = new[] { "名字" },
             };
 
+            public override Type[] DateTypes => new[] { typeof(string) };
 
             public override System.Object[] GetDate()
             {

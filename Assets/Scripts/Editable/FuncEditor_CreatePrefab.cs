@@ -19,7 +19,7 @@ namespace EditableBundle
             static Prefab titlePrefab = PrefabI.UI_EditorItem_GroupTitle;
             static List<Prefab> allPrefabs = new List<Prefab>()  {
                 PrefabI.SceneLayer,
-                PrefabI.DefaultLight,
+                PrefabI.LightManager,
             };
             static string toolName = "创建物体";
 
@@ -44,6 +44,7 @@ namespace EditableBundle
                         com.AddClickAction(() =>
                         {
                             GameObject gameObject = pref.CreateInstance();
+                            gameObject.name = pref.PrintName;
                             gameObject.GetComponent<Comp.CompEditableObject>(true);
                             EditableF.ShowObjectEditor(gameObject);
                         });

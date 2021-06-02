@@ -6,16 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace BasicEvent
 {
-    namespace Component
-    {
-        public class OnPointerDragComp : MonoBehaviour
-        {
-            public OnPointerDrag.DragDate dragDate;
-            private void OnTriggerEnter2D(Collider2D other)
-            {
-            }
-        }
-    }
+  
 
     public class OnPointerDrag
     {

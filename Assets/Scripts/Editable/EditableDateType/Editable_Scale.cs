@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using EditableBundle.DateType;
+using System;
 
 namespace EditableBundle
 {
-  
+
 
     namespace DateType
     {
@@ -17,7 +18,7 @@ namespace EditableBundle
                 paramNames = new[] { "X", "Y" },
             };
 
-
+            public override Type[] DateTypes => new[] { typeof(float), typeof(float) };
             public override System.Object[] GetDate()
             {
                 Vector2 p = gameObject.GetScale2dLo();

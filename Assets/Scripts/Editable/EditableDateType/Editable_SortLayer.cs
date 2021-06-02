@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using EditableBundle.DateType;
+using System;
 
 namespace EditableBundle
 {
-   
+
 
     namespace DateType
     {
@@ -26,7 +27,7 @@ namespace EditableBundle
                 paramNames = new[] { "图层", "层内顺序" },
             };
 
-
+            public override Type[] DateTypes => new[] { typeof(int), typeof(int) };
             public override System.Object[] GetDate()
             {
                 var com = gameObject.GetComponent<Renderer>();

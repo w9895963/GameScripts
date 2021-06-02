@@ -10,6 +10,7 @@ namespace EditableBundle
     {
         public class CompEditableObject : MonoBehaviour
         {
+            public EditDate[] EditDates;
         }
     }
 }

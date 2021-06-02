@@ -12,7 +12,7 @@ using UnityEngine.UI;
 namespace EditableBundle
 {
 
-   
+
 
     namespace Func
     {
@@ -26,7 +26,7 @@ namespace EditableBundle
 
             public static void ShowFolderTexture(UnityAction<string> onClick)
             {
-                contentHolder.DestroyChildren();
+                EditableF.EmptyEditTable();
                 GameObject gameObject = titlePrefab.CreateInstance(contentHolder);
                 gameObject.GetComponent<CompGroupTitle>().titleText = toolName;
 
