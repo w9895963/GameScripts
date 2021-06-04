@@ -17,7 +17,7 @@ namespace EditableBundle
 
             static Prefab clickableTitlePrefab = PrefabI.UI_EditorItem_ClickTitle;
             static Prefab titlePrefab = PrefabI.UI_EditorItem_GroupTitle;
-            static List<Prefab> allPrefabs = new List<Prefab>()  {
+            static List<Prefab> CreatePrefabs = new List<Prefab>()  {
                 PrefabI.SceneLayer,
                 PrefabI.LightManager,
             };
@@ -35,7 +35,7 @@ namespace EditableBundle
                 });
 
 
-                allPrefabs.ForEach((pref) =>
+                CreatePrefabs.ForEach((pref) =>
                 {
                     clickableTitlePrefab.CreateInstance(contentHolder, (obj) =>
                     {

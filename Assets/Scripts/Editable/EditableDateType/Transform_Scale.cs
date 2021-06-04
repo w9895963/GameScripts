@@ -10,7 +10,7 @@ namespace EditableBundle
 
     namespace DateType
     {
-        public class Editable_Scale : EditDate
+        public class Transform_Scale : EditDate
         {
             public override BuildUiConfig UiConfig => new BuildUiConfig()
             {

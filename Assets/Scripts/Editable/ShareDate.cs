@@ -24,14 +24,20 @@ namespace EditableBundle
         public static List<EditDate> AllEditDate => new List<EditDate>()
         {
             new Editable_Name(),
-            new Editable_Position(),
-            new Editable_Scale(),
+            new Transform_Position(),
+            new Transform_Rotate(),
+            new Transform_Scale(),
             new Editable_SortLayer(),
+            new MoveWithCamera(),
+
+            new EditableSetting(),
+
             new SpriteTexture(),
+
             new Light_LayerAndType(),
             new Light_Intensity(),
         };
 
-      
+
     }
 }

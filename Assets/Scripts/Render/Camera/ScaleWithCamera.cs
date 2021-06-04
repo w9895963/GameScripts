@@ -8,10 +8,17 @@ public class ScaleWithCamera : MonoBehaviour
     void Start()
     {
         gameObject.SetScale(Camera.main.orthographicSize / scaleFactor);
-        DateF.AddAction<Date.Camera.Size, float>(Camera.main, (d) =>
-        {
-            gameObject.SetScale(d / scaleFactor);
-        });
+        DateF.AddAction<Date.Camera.Size, float>(Camera.main, Act);
+    }
+
+    private void Act(float d)
+    {
+        gameObject.SetScale(d / scaleFactor);
+    }
+
+    private void OnDisable()
+    {
+        DateF.RemoveAction<Date.Camera.Size, float>(Camera.main, Act);
     }
 
 

@@ -315,8 +315,23 @@ public static class ObjectExtention
     }
 
 
-
-
+    public static void SetRotateLo(this GameObject gameObject, float angle)
+    {
+        Quaternion rotation = gameObject.transform.localRotation;
+        Vector3 angle3 = rotation.eulerAngles;
+        angle3.z = angle;
+        rotation.eulerAngles = angle3;
+        gameObject.transform.localRotation = rotation;
+    }
+    public static void SetRotateLo(this GameObject gameObject, float? angle)
+    {
+        if (angle == null) return;
+        Quaternion rotation = gameObject.transform.localRotation;
+        Vector3 angle3 = rotation.eulerAngles;
+        angle3.z = angle.Value;
+        rotation.eulerAngles = angle3;
+        gameObject.transform.localRotation = rotation;
+    }
     public static void SetRotate(this GameObject gameObject, float angle)
     {
         Quaternion rotation = gameObject.transform.rotation;

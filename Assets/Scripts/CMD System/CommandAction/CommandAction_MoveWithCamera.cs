@@ -14,7 +14,7 @@ namespace CMDBundle
             public override void Action(CommandLine cl)
             {
                 GameObject obj = cl.GameObject;
-                MoveWithCamera com = obj.AddComponent<MoveWithCamera>();
+                Utility.MoveWithCamera com = obj.AddComponent<Utility.MoveWithCamera>();
 
                 float[] ps = cl.ReadParams<float>();
                 if (ps.Length > 0)

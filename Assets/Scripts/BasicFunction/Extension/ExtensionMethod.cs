@@ -41,9 +41,13 @@ public static class ExtensionMethod
         }
 
     }
-    public static void Sort<T>(this List<T> source, System.Func<T, float> selector)
+
+
+    public static void SortBy<T>(this List<T> source, IEnumerable<int> index)
     {
-        source.Sort((x, y) => selector(x).CompareTo(selector(y)));
+        var i = index.ToArray();
+        var indexDic = source.ToDictionary((x, i) => (x, i));
+        source.Sort((x, y) => i[indexDic[x]].CompareTo(i[indexDic[y]]));
     }
 
 
@@ -77,7 +81,30 @@ public static class ExtensionMethod
         }
         return new List<T>(source);
     }
-    public static Dictionary<K, T> ToDictionary<K, T>(this List<T> source, System.Func<T, K> selector)
+
+    public static Dictionary<K, V> ToDictionary<T, K, V>(this IEnumerable<T> source, System.Func<T, int, (K, V)> selector)
+    {
+
+        Dictionary<K, V> re = new Dictionary<K, V>();
+        source.ForEach((x, i) =>
+        {
+            (K, V) p = selector(x, i);
+            re.Add(p.Item1, p.Item2);
+        });
+        return re;
+    }
+    public static Dictionary<K, V> ToDictionary<T, K, V>(this IEnumerable<T> source, System.Func<T, (K, V)> selector)
+    {
+
+        Dictionary<K, V> re = new Dictionary<K, V>();
+        source.ForEach((x) =>
+        {
+            (K, V) p = selector(x);
+            re.Add(p.Item1, p.Item2);
+        });
+        return re;
+    }
+    public static Dictionary<K, T> ToDictionary<K, T>(this IEnumerable<T> source, System.Func<T, K> selector)
     {
 
         Dictionary<K, T> re = new Dictionary<K, T>();

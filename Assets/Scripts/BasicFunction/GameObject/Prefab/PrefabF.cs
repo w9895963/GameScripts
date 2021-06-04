@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using PrefabBundle;
-using PrefabBundle.Comp;
+using PrefabBundle.Compt;
 using UnityEngine;
 
 
@@ -18,6 +18,8 @@ public static class PrefabI
     public static Prefab UI_EditorItem_Toggle = new Prefab("UI_EditorItem_Toggle");
     public static Prefab UI_EditorItem_ToolTip = new Prefab("UI_EditorItem_ToolTip");
     public static Prefab UI_Editor = new Prefab("UI_Editor");
+    public static Prefab UI_ToolTip = new Prefab("UI_ToolTip");
+
 
 
     public static Prefab UI_Controller_Position = new Prefab("UI_Controller_Position");
@@ -26,7 +28,11 @@ public static class PrefabI
 
 
     public static Prefab SceneLayer = new Prefab("SceneLayer");
+    public static Prefab SceneLayer_Back = new Prefab("SceneLayer_Back");
+    public static Prefab SceneLayer_Forward = new Prefab("SceneLayer_Forward");
     public static Prefab LightManager = new Prefab("LightManager");
+
+    public static Prefab EditableSetting = new Prefab("EditableSetting");
 
 
 
@@ -37,12 +43,12 @@ public static class PrefabF
 {
     public static string GetPath(GameObject gameObject)
     {
-        return gameObject.GetComponent<PrefabCom>().filePath;
+        return gameObject.GetComponent<PrefabInstance>().filePath;
     }
 
     public static Prefab GetPrefab(GameObject gameObject)
     {
-        PrefabCom com = gameObject.GetComponent<PrefabCom>();
+        PrefabInstance com = gameObject.GetComponent<PrefabInstance>();
 
         Prefab prefab = new Prefab();
         prefab.fileName = com.fileName;

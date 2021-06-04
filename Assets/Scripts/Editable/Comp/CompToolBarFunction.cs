@@ -32,6 +32,20 @@ namespace EditableBundle
                 }
 
             }
+            public static void Save()
+            {
+
+                Func.SaveAndLOad.Save();
+
+
+            }
+            public static void Load()
+            {
+
+                Func.SaveAndLOad.Load();
+
+
+            }
 
         }
     }

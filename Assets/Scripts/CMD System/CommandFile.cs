@@ -35,7 +35,7 @@ namespace CMDBundle
         {
 
             List<CommandLine> sortLines = commandLines.ToList();
-            sortLines.Sort((l) => l.runOrder);
+            sortLines.SortBy(sortLines.Select((x) => x.runOrder).ToArray());
             sortLines.ForEach((line) =>
             {
                 line.Execute();

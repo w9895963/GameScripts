@@ -16,4 +16,11 @@ public static class CamareF
             cam.cullingMask = LayerF.RemoveMask(cam.cullingMask, Layer.Indicator);
         }
     }
+    public static bool IsIndicatorVisible()
+    {
+        Camera cam = Camera.main;
+
+        return LayerF.IsMask(cam.cullingMask, Layer.Indicator);
+
+    }
 }

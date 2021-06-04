@@ -80,7 +80,7 @@ namespace Physic
                 Vector2 delV = targetVelocity - currentVelocity;
                 delV = singleDirection.IsNotZero() ? delV.Project(singleDirection) : delV;
                 Vector2 topForce = delV / Time.fixedDeltaTime * rigidbody.mass;
-                forceAdd = topForce.ClampMax(maxForce);
+                forceAdd = topForce.ClampDistanceMax(maxForce);
                 rigidbody.AddForce(forceAdd);
                 onAfterUpdate?.Invoke();
             }

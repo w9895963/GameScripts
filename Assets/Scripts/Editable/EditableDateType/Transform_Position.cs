@@ -10,7 +10,7 @@ namespace EditableBundle
 
     namespace DateType
     {
-        public class Editable_Position : EditDate
+        public class Transform_Position : EditDate
         {
             private const string ControllerPropertyName = "显示控制器";
 
@@ -63,7 +63,12 @@ namespace EditableBundle
 
             public override void ApplayDate(System.Object[] dates)
             {
-                gameObject.SetPositionLo((float?)dates[0], (float?)dates[1]);
+                float? x = (float?)dates[0];
+                float? y = (float?)dates[1];
+                gameObject.SetPositionLo(x, y);
+
+                DateF.AddDate<Date.GameObject.PositionLo, Vector2>(gameObject, gameObject.GetPosition2dLo());
+
             }
 
 

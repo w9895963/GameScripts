@@ -22,12 +22,21 @@ public class Test : MonoBehaviour
     System.Object o;
 
 
+    public struct TestClass
+    {
+        public string name;
+
+        public TestClass(string name)
+        {
+            this.name = name;
+        }
+    }
 
     [ContextMenu("Test")]
     void Test1()
     {
+        EditableF.ShowObjectEditor(PrefabI.EditableSetting.Find());
 
-        EditableBundle.Func.SaveAndLOad.Save();
     }
     [ContextMenu("Test2")]
     void Test2()

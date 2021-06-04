@@ -16,3 +16,4 @@ public class CameraDefaultBehaviour : MonoBehaviour
     }
 
 }
+

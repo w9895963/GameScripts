@@ -16,14 +16,13 @@ namespace SceneBundle
 
         public void Build()
         {
-
-            comandFiles.Sort((f) => f.runOrder);
+            comandFiles.SortBy(comandFiles.Select((x) => x.runOrder));
             comandFiles.ForEach((f) =>
             {
                 f.ExecuteLines();
             });
 
-           
+
 
         }
 
@@ -31,5 +30,5 @@ namespace SceneBundle
     }
 
 
-  
+
 }

@@ -8,27 +8,49 @@ using UnityEngine.SceneManagement;
 public class EditorMode : MonoBehaviour
 {
     public InputAction reloadScene = new InputAction("key", InputActionType.Button, "<Keyboard>/f5");
-    public bool reload = false;
-    public bool controlCamera = false;
+    [SerializeField]
+    private bool controlCamera = true;
+
+    public bool ControlCamera
+    {
+        get => controlCamera;
+        set
+        {
+            if (controlCamera == value) return;
+            controlCamera = value;
+            if (controlCamera == true)
+            {
+                Control();
+            }
+
+
+        }
+    }
+
+    private static void Control()
+    {
+        Camera.main.gameObject.AddComponent<CameraMouseDrag>();
+        Camera.main.gameObject.AddComponent<CameraMouseZoom>();
+        Camera.main.gameObject.GetComponent<CameraDefaultBehaviour>().Destroy();
+        Camera.main.gameObject.GetComponent<BasicEvent.Component.OnFixedUpdateComponent>().Destroy();
+    }
+
     private void Awake()
     {
-        if (reload)
+        reloadScene.performed += Reload;
+        reloadScene.Enable();
+        BasicEvent.OnDestroyEvent.Add(gameObject, () =>
         {
-            reloadScene.performed += Reload;
-            reloadScene.Enable();
-            BasicEvent.OnDestroyEvent.Add(gameObject, () =>
-            {
-                reloadScene.performed -= Reload;
-            });
-        }
+            reloadScene.Disable();
+            reloadScene.performed -= Reload;
+        });
 
         if (controlCamera)
         {
-            Camera.main.gameObject.AddComponent<CameraMouseDrag>();
-            Camera.main.gameObject.AddComponent<CameraMouseZoom>();
-            Camera.main.gameObject.GetComponent<CameraDefaultBehaviour>().Destroy();
-            Camera.main.gameObject.GetComponent<BasicEvent.Component.OnFixedUpdateComponent>().Destroy();
+            Control();
         }
+
+
     }
 
     private void Reload(InputAction.CallbackContext d)

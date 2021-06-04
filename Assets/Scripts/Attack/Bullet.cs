@@ -65,7 +65,7 @@ public class Bullet : MonoBehaviour
         private ParticleSystem.ColliderData colliderData;
         private ParticleSystem particleSystem;
         private Dictionary<Component, List<ParticleSystem.Particle>> colliderHitDic =
-                new Dictionary<Component, List<ParticleSystem.Particle>>();
+                new  Dictionary<Component, List<ParticleSystem.Particle>>();
         private bool particleModified = false;
 
 
@@ -149,7 +149,7 @@ public class Bullet : MonoBehaviour
         public bool IsParticleModified => particleModified;
         public ParticleSystem ParticleSystem => particleSystem;
         public List<ParticleSystem.Particle> Particles => particleList;
-        public List<Component> GetColiders()
+        public List<Component> GetColliders()
         {
             return colliderHitDic.Keys.ToList();
         }

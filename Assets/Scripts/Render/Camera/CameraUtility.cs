@@ -16,10 +16,6 @@ namespace Global
                 GameObject camObj = Camera.main.gameObject;
                 BasicEvent.OnFixedUpdate.Add(camObj, () =>
                 {
-
-                    // Rigidbody2D self = camObj.GetComponent<Rigidbody2D>();
-                    // Rigidbody2D target = targetObj.GetComponent<Rigidbody2D>();
-
                     Vector2 position = targetObj.GetPosition2d();
                     Vector2 vt = position - camObj.GetPosition2d();
                     float dist = vt.magnitude;
@@ -27,11 +23,7 @@ namespace Global
 
                     Vector2 vW = vt;
                     Vector2 v = vW * r1 * 8;
-                    // self.velocity = v;
-                    // Vector2 p = camObj.GetPosition2d();
-                    // camObj.SetPosition(p + v * Time.fixedDeltaTime);
                     camObj.AddPosition(v * Time.fixedDeltaTime);
-                    // ObjectDate.UpdateData(camObj, ObjectDateType.Position2D, camObj.GetPosition2d());
                 });
 
 

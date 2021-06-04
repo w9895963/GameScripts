@@ -88,13 +88,18 @@ public static class VectorExtension
 
 
 
-   
 
 
 
 
 
-    public static Vector2 ClampMax(this Vector2 vector, float max)
+
+    public static Vector2 Clamp(this Vector2 v, Vector2 min, Vector2 max)
+    {
+        return new Vector2(v.x.Clamp(min.x, max.x), v.y.Clamp(min.y, max.y));
+    }
+
+    public static Vector2 ClampDistanceMax(this Vector2 vector, float max)
     {
         if (vector.magnitude >= max)
         {

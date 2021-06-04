@@ -58,7 +58,7 @@ namespace EditableBundle
                 {
                     List<EditDate> ds = editDates.ToList();
                     List<string> titleCollection = new List<string>();
-                    ds.Sort((x) =>
+                    var list = ds.Select((x) =>
                     {
                         string tit = x.UiConfig.title;
                         bool hasTitle = titleCollection.Contains(tit);
@@ -68,7 +68,9 @@ namespace EditableBundle
                         }
                         return titleCollection.Count;
                     });
+                    ds.SortBy(list);
                     editDates = ds.ToArray();
+
                     return editDates;
                 }
 
@@ -156,6 +158,20 @@ namespace EditableBundle
                             {
                                 dat[i] = st;
                             }
+                            editDate.ApplayDate(dat);
+                        });
+                    }
+                    else if (date.IsType<bool>())
+                    {
+                        re = PrefabI.UI_EditorItem_Toggle.CreateInstance();
+                        var com = re.GetComponent<ItemToggle>();
+                        string st;
+                        bool v1 = ns.TryGet(i, out st);
+                        if (v1) com.Title = st;
+                        com.AddToggleAction((b) =>
+                        {
+                            System.Object[] dat = new System.Object[count];
+                            dat[i] = b;
                             editDate.ApplayDate(dat);
                         });
                     }

@@ -53,7 +53,7 @@ namespace Physic
             Vector2 wantDel = -error * s.deltaRate;
             Vector2 valueAdd = (wantDel - delta) * s.changedRate;
             integrate += -valueAdd;
-            if (optional.enableMax) integrate = integrate.ClampMax(optional.maximum);
+            if (optional.enableMax) integrate = integrate.ClampDistanceMax(optional.maximum);
 
             lastError = error;
             output = integrate;

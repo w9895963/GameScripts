@@ -15,6 +15,12 @@ public static class LayerF
         int v = 1 << (int)layer;
         return currMask ^ v;
     }
+    public static bool IsMask(int currMask, Layer layer)
+    {
+        int v = 1 << (int)layer;
+
+        return (currMask & v) != 0;
+    }
 }
 
 public enum Layer
