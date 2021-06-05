@@ -7,12 +7,11 @@ using UnityEngine.InputSystem;
 public class CameraMouseDrag : MonoBehaviour
 {
     public float moveFacter = 0.004f;
-
-
+    private OnPointerDrag.DragDate dragDate;
 
     private void Start()
     {
-        BasicEvent.OnPointerDrag.EmptyDrag(onDrag, onEnd, onStart);
+        dragDate = BasicEvent.OnPointerDrag.EmptyDrag(onDrag, onEnd, onStart);
     }
 
     private void onStart(OnPointerDrag.DragDate d)
@@ -22,6 +21,10 @@ public class CameraMouseDrag : MonoBehaviour
     private void onEnd(OnPointerDrag.DragDate d)
     {
 
+    }
+    private void OnDisable()
+    {
+        BasicEvent.OnPointerDrag.EmptyDragRemove(dragDate);
     }
 
     private void onDrag(OnPointerDrag.DragDate d)

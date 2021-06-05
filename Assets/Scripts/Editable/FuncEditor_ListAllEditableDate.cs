@@ -6,9 +6,7 @@ using EditableBundle.Comp;
 using PrefabBundle;
 using UIBundle;
 using UnityEngine;
-
-
-
+using UnityEngine.Events;
 
 namespace EditableBundle
 {
@@ -107,8 +105,9 @@ namespace EditableBundle
             }
             public static GameObject DefaultUiMemberBuildMethod(EditDate editDate, int i)
             {
-                string[] ns = editDate.UiConfig.paramNames;
-                string parmName = editDate.UiConfig.paramNames[i];
+                string[] paramNames = editDate.UiConfig.paramNames;
+                string[] names = paramNames;
+                string parmName = paramNames[i];
                 object[] allDate = editDate.GetDate();
                 BuildUiConfig.ParamConfig UiConfig = editDate.UiConfig.ParamConfigs?[i];
                 var date = allDate[i];
@@ -135,7 +134,7 @@ namespace EditableBundle
                         re = EditLinePrefab.CreateInstance();
                         var com = re.GetComponent<CompItemStringEditor>();
                         string st;
-                        bool v1 = ns.TryGet(i, out st);
+                        bool v1 = names.TryGet(i, out st);
                         if (v1) com.title.text = st;
 
                         com.content.text = editDate.GetDate()[i].ToString();
@@ -163,17 +162,19 @@ namespace EditableBundle
                     }
                     else if (date.IsType<bool>())
                     {
-                        re = PrefabI.UI_EditorItem_Toggle.CreateInstance();
-                        var com = re.GetComponent<ItemToggle>();
-                        string st;
-                        bool v1 = ns.TryGet(i, out st);
-                        if (v1) com.Title = st;
-                        com.AddToggleAction((b) =>
+                        string title = paramNames.TryGet(i);
+                        object content = editDate.GetDate()[i];
+                        UnityAction<bool> toggleAction = (b) =>
                         {
                             System.Object[] dat = new System.Object[count];
                             dat[i] = b;
                             editDate.ApplayDate(dat);
-                        });
+                        };
+
+                        re = PrefabI.UI_EditorItem_Toggle.CreateInstance();
+
+                        re.SetParams(title, content, toggleAction);
+
                     }
 
                     return re;

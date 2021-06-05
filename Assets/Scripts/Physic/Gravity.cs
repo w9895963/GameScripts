@@ -58,11 +58,11 @@ public class Gravity : MonoBehaviour
 
             List<Type> exist = new List<Type>();
             List<Type> except = new List<Type>() {
-                typeof(State.OnGround)
+                typeof(StateBundle.OnGround)
             };
-            StateF.AddStateCondition<State.Fall>(gameObject, exist, except);
-            StateF.AddStateAction<State.Fall>(gameObject, () => AddForce(), () => StopForce());
-            StateF.SetState<State.Fall>(gameObject, true);
+            StateF.AddStateCondition<StateBundle.Fall>(gameObject, exist, except);
+            StateF.AddStateAction<StateBundle.Fall>(gameObject, () => AddForce(), () => StopForce());
+            StateF.SetState<StateBundle.Fall>(gameObject, true);
         }
 
         private void FixedUpdateAction()

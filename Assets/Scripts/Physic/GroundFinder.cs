@@ -77,7 +77,7 @@ public class GroundFinder : MonoBehaviour
 
         private void StateUpdate()
         {
-            StateF.SetState<global::State.OnGround>(gameObject, isOnGround);
+            StateF.SetState<global::StateBundle.OnGround>(gameObject, isOnGround);
 
         }
 

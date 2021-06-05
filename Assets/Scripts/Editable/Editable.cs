@@ -112,6 +112,11 @@ namespace EditableBundle
                     re.Add(date);
                     return;
                 }
+                if (DateTypes[i] == typeof(bool))
+                {
+                    re.Add(bool.Parse(date));
+                    return;
+                }
 
             });
             return re.ToArray();

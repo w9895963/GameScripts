@@ -10,25 +10,27 @@ namespace Global
     {
         public static class CameraUtility
         {
+            private static GameObject CameraTarget;
+
             public static void Follow(GameObject targetObj)
             {
-                if (targetObj == null) { return; }
+                CameraTarget = targetObj;
                 GameObject camObj = Camera.main.gameObject;
-                BasicEvent.OnFixedUpdate.Add(camObj, () =>
-                {
-                    Vector2 position = targetObj.GetPosition2d();
-                    Vector2 vt = position - camObj.GetPosition2d();
-                    float dist = vt.magnitude;
-                    float r1 = Curve.Evaluate(dist, 0.4f, 1f, 0, 1);
-
-                    Vector2 vW = vt;
-                    Vector2 v = vW * r1 * 8;
-                    camObj.AddPosition(v * Time.fixedDeltaTime);
-                });
-
-
+                BasicEvent.OnFixedUpdate.Add(camObj, FixedUpdateFollow);
             }
 
+            private static void FixedUpdateFollow()
+            {
+                GameObject camObj = Camera.main.gameObject;
+                Vector2 position = CameraTarget.GetPosition2d();
+                Vector2 vt = position - camObj.GetPosition2d();
+                float dist = vt.magnitude;
+                float r1 = Curve.Evaluate(dist, 0.4f, 1f, 0, 1);
+
+                Vector2 vW = vt;
+                Vector2 v = vW * r1 * 8;
+                camObj.AddPosition(v * Time.fixedDeltaTime);
+            }
         }
 
     }

@@ -152,6 +152,30 @@ public static class ExtensionMethod
     }
 
 
+    public static R TryGet<T, R>(this T[] array, int ind) where R : class
+    {
+        R re = null;
+        if (array != null)
+        {
+            if (array.Length > ind)
+            {
+                re = array[ind] as R;
+            }
+        }
+        return re;
+    }
+    public static T TryGet<T>(this T[] array, int ind) where T : class
+    {
+        T re = null;
+        if (array != null)
+        {
+            if (array.Length > ind)
+            {
+                re = array[ind];
+            }
+        }
+        return re;
+    }
     public static bool TryGet<T>(this T[] array, int ind, out T t)
     {
         bool re = false;
@@ -165,6 +189,43 @@ public static class ExtensionMethod
             }
         }
         t = tOUt;
+        return re;
+    }
+    public static bool TryGet<T>(this T[] array, int ind, Action<T> onGet)
+    {
+        bool re = false;
+        if (array != null)
+        {
+            if (array.Length > ind)
+            {
+                var tOUt = array[ind];
+                if (tOUt != null)
+                {
+                    onGet.Invoke(tOUt);
+                    re = true;
+                }
+            }
+        }
+        return re;
+    }
+    public static bool TryGet<T>(this System.Object[] array, int ind, Action<T> onGet)
+    {
+        bool re = false;
+        if (array != null)
+        {
+            if (array.Length > ind)
+            {
+                var tOUt = array[ind];
+                if (tOUt != null)
+                {
+                    Type type = tOUt.GetType();
+                    Type type1 = typeof(T);
+                    T v = (T)tOUt;
+                    onGet.Invoke(v);
+                    re = true;
+                }
+            }
+        }
         return re;
     }
 
@@ -342,6 +403,19 @@ public static class ExtensionMethod
     {
         return obj.GetType() == typeof(T);
     }
+    public static bool ToType<T>(this System.Object obj, Action<T> dateAction)
+    {
+        bool isType = obj.GetType() == typeof(T);
+        if (isType)
+        {
+            dateAction((T)obj);
+        }
+        return isType;
+    }
+
+
+
+
     #endregion
 
 

@@ -195,6 +195,24 @@ public static class ObjectExtention
         }
         return com;
     }
+    public static void RemoveComponent<T>(this GameObject gameObject) where T : Component
+    {
+        T com = gameObject.GetComponent<T>();
+
+        if (com != null)
+        {
+            GameObject.Destroy(com);
+        }
+    }
+    public static void RemoveComponentAll<T>(this GameObject gameObject) where T : Component
+    {
+        T[] com = gameObject.GetComponents<T>();
+
+        if (com.Length > 0)
+        {
+            com.Destroy();
+        }
+    }
 
 
     public static bool HasComponent<T>(this GameObject gameObject)
@@ -203,6 +221,20 @@ public static class ObjectExtention
         bool v = gameObject.TryGetComponent<T>(out tr);
         return v;
     }
+
+
+
+    public static bool SetParams(this GameObject gameObject, params System.Object[] paramArray)
+    {
+        IParams iCom = gameObject.GetComponent<IParams>();
+        if (iCom == null) return false;
+        iCom.Parameters = paramArray;
+        return true;
+    }
+
+
+
+
     #endregion
     // * Region Component End---------------------------------- 
 

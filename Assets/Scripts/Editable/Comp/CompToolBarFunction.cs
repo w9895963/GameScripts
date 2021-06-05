@@ -1,9 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
-
+using UnityEngine.SceneManagement;
 
 namespace EditableBundle
 {
@@ -41,8 +39,15 @@ namespace EditableBundle
             }
             public static void Load()
             {
+                SceneManager.LoadScene(0);
 
                 Func.SaveAndLOad.Load();
+
+
+            }
+            public static void Setting()
+            {
+                Func.Editor_ShowSetting.Show();
 
 
             }

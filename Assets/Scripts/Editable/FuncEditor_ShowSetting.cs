@@ -21,15 +21,14 @@ namespace EditableBundle
 
             static string toolName = "编辑物体";
 
-            public static void SHow()
+            public static void Show()
             {
-                
-               
+                EditableF.ShowObjectEditor(PrefabI.EditableSetting.Find());
             }
 
 
 
-           
+
 
 
         }

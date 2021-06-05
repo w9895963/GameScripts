@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace BasicEvent
 {
-  
+
 
     public class OnPointerDrag
     {
@@ -29,7 +29,7 @@ namespace BasicEvent
 
 
 
-        public static void Add(GameObject gameObject, Action<DragDate> onDrag = null, Action<DragDate> onEnd = null, Action<DragDate> onStart = null)
+        public static DragDate Add(GameObject gameObject, Action<DragDate> onDrag = null, Action<DragDate> onEnd = null, Action<DragDate> onStart = null)
         {
             Collider2D com = gameObject.GetComponent<Collider2D>();
             if (com == null) { gameObject.AddComponent<PolygonCollider2D>(); }
@@ -89,19 +89,31 @@ namespace BasicEvent
             et.triggers.Add(upTrigger);
             date.onEnd = upTrigger;
 
+            return date;
+
         }
-        public static void EmptyDrag(Action<DragDate> onDrag = null, Action<DragDate> onEnd = null, Action<DragDate> onStart = null)
+        public static DragDate EmptyDrag(Action<DragDate> onDrag = null, Action<DragDate> onEnd = null, Action<DragDate> onStart = null)
         {
 
             var gameObject = PrefabF.FindOrCretePrefab(backGroundPrefab);
 
             gameObject.GetComponentInParent<Canvas>().worldCamera = Camera.main;
 
-            Add(gameObject, onDrag, onEnd, onStart);
+            DragDate dragDate = Add(gameObject, onDrag, onEnd, onStart);
+            return dragDate;
         }
-        public static void Remove(GameObject gameObject, Action<Collider2D> action)
+        public static void EmptyDragRemove(DragDate dragDate)
         {
-
+            var gameObject = backGroundPrefab.Find();
+            if (gameObject == null) return;
+            Remove(gameObject, dragDate);
+        }
+        public static void Remove(GameObject gameObject, DragDate dragDate)
+        {
+            EventTrigger et = gameObject.GetComponent<EventTrigger>();
+            et.triggers.Remove(dragDate.onDrag);
+            et.triggers.Remove(dragDate.onEnd);
+            et.triggers.Remove(dragDate.onStart);
         }
 
     }

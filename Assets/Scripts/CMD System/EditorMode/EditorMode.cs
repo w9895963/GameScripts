@@ -11,6 +11,7 @@ public class EditorMode : MonoBehaviour
     [SerializeField]
     private bool controlCamera = true;
 
+
     public bool ControlCamera
     {
         get => controlCamera;
@@ -20,7 +21,11 @@ public class EditorMode : MonoBehaviour
             controlCamera = value;
             if (controlCamera == true)
             {
-                Control();
+                CamareF.TakeControl();
+            }
+            else
+            {
+                CamareF.FollowPlayer();
             }
 
 
@@ -45,12 +50,14 @@ public class EditorMode : MonoBehaviour
             reloadScene.performed -= Reload;
         });
 
-        if (controlCamera)
-        {
-            Control();
-        }
 
 
+
+    }
+
+    private void Start()
+    {
+        controlCamera = StateF.GetState<CameraState.CameraControl>(Camera.main.gameObject);
     }
 
     private void Reload(InputAction.CallbackContext d)

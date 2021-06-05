@@ -23,4 +23,17 @@ public static class CamareF
         return LayerF.IsMask(cam.cullingMask, Layer.Indicator);
 
     }
+
+    public static void FollowPlayer()
+    {
+        GameObject cam = Camera.main.gameObject;
+        StateF.SetState<CameraState.CameraFollow>(cam, true);
+    }
+    public static void TakeControl()
+    {
+        GameObject cam = Camera.main.gameObject;
+        StateF.SetState<CameraState.CameraControl>(cam, true);
+    }
+
+
 }

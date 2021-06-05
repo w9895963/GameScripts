@@ -19,6 +19,7 @@ namespace PrefabBundle
 
         public static List<PrefabInstance> AllPrefabComponents
         {
+            set => allPrefabCom = value;
             get
             {
                 if (allPrefabCom == null)
@@ -105,9 +106,11 @@ namespace PrefabBundle
         public GameObject[] FindAll()
         {
             List<GameObject> re;
+
             List<PrefabInstance> allPrefabCom = ShareDate.AllPrefabComponents;
             List<PrefabInstance> prefabCom = allPrefabCom.FindAll((x) => x.filePath == filePath);
             re = prefabCom.Select((x) => x.gameObject).ToList();
+            
             return re.ToArray();
         }
 
@@ -130,6 +133,14 @@ namespace PrefabBundle
             }
             ShareDate.AllPrefabComponents.Add(cm);
             onCreate?.Invoke(re);
+            return re;
+        }
+        public GameObject CreateInstance(params System.Object[] paramArray)
+        {
+            GameObject re = CreateInstance();
+
+            IParams iCom = re.GetComponent<IParams>();
+            iCom.Parameters = paramArray;
             return re;
         }
         public GameObject CreateInstance(GameObject parent, Action<GameObject> onCreate = null, bool stay = false)

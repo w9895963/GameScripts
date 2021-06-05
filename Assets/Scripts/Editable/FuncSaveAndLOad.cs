@@ -56,7 +56,8 @@ namespace EditableBundle
                 EditableF.EmptyEditTable();
 
 
-                GameObject.FindObjectsOfType<Comp.CompEditableObject>().ForEach((x) => x.gameObject.Destroy());
+                CompEditableObject[] allObjectOnScene = GameObject.FindObjectsOfType<Comp.CompEditableObject>();
+                allObjectOnScene.ForEach((x) => x.gameObject.DestroyImmediate());
                 string v = File.ReadAllText(filePath);
                 List<StringDateListHolder> allObjectDate = JsonUtility.FromJson<DateContainer>(v).list;
 

@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static State.GlobalDate;
+using static StateBundle.GlobalDate;
 
-namespace State
+namespace StateBundle
 {
 
 
@@ -19,14 +19,14 @@ namespace State
 
     public class StateDate
     {
-        public Dictionary<System.Type, State> StateDic = new Dictionary<Type, State>();
-        public Dictionary<System.Type, List<State>> CheckStateList = new Dictionary<Type, List<State>>();
-        public List<State> AllStates => StateDic.Values.ToList();
-        public List<State> AllEnableStates => StateDic.Values.Where((st) => st.Enabled).ToList();
+        public Dictionary<System.Type, StateInst> StateDic = new Dictionary<Type, StateInst>();
+        public Dictionary<System.Type, List<StateInst>> CheckStateList = new Dictionary<Type, List<StateInst>>();
+        public List<StateInst> AllStates => StateDic.Values.ToList();
+        public List<StateInst> AllEnableStates => StateDic.Values.Where((st) => st.Enabled).ToList();
 
     }
 
-    public class State
+    public class StateInst
     {
         public GameObject gameObject;
         public List<System.Type> activeCondition_Exist = new List<Type>();
@@ -36,8 +36,8 @@ namespace State
         bool enabled;
         public bool Enabled => enabled;
 
-        List<State> AllStates => stateDateDic[gameObject].AllStates;
-        List<State> CheckStateList => stateDateDic[gameObject].CheckStateList.TryGetValue(this.GetType());
+        List<StateInst> AllStates => stateDateDic[gameObject].AllStates;
+        List<StateInst> CheckStateList => stateDateDic[gameObject].CheckStateList.TryGetValue(this.GetType());
         List<System.Type> AllActiveStates => stateDateDic[gameObject].AllEnableStates.Select((x) => x.GetType()).ToList();
 
 
@@ -45,7 +45,7 @@ namespace State
 
 
 
-        private void UpdateStates(List<State> states)
+        private void UpdateStates(List<StateInst> states)
         {
             states?.ForEach((st) =>
             {
@@ -106,20 +106,28 @@ namespace State
         }
 
 
-        public static State GetState<T>(GameObject gameObject) where T : State, new()
+        public static StateInst GetStateInst<T>(GameObject gameObject) where T : StateInst, new()
         {
             StateDate stateDate = GlobalDate.stateDateDic.GetOrCreate(gameObject);
-            State state = stateDate.StateDic.GetOrCreate(typeof(T), new T());
+            StateInst state = stateDate.StateDic.GetOrCreate(typeof(T), new T());
             state.gameObject = gameObject;
 
             BasicEvent.OnDestroyEvent.Add(gameObject, state.OnObjectDestroyAction);
 
             return state;
         }
-
-        public static void SetState<T>(GameObject gameObject, bool enabled) where T : State, new()
+        public static bool GetState<T>(GameObject gameObject) where T : StateInst, new()
         {
-            State state = GetState<T>(gameObject);
+            StateDate stateDate = GlobalDate.stateDateDic.TryGetValue(gameObject);
+            if (stateDate == null) return false;
+            StateInst state = stateDate.StateDic.TryGetValue(typeof(T));
+            if (state == null) return false;
+            return state.Enabled;
+        }
+
+        public static void SetState<T>(GameObject gameObject, bool enabled) where T : StateInst, new()
+        {
+            StateInst state = GetStateInst<T>(gameObject);
             if (enabled)
             {
                 state.Enable();
@@ -130,31 +138,31 @@ namespace State
             }
 
         }
-        public static void SetStateCondition<T>(GameObject gameObject, List<System.Type> exist, List<System.Type> except) where T : State, new()
+        public static void SetStateCondition<T>(GameObject gameObject, List<System.Type> exist, List<System.Type> except) where T : StateInst, new()
         {
-            State state = GetState<T>(gameObject);
+            StateInst state = GetStateInst<T>(gameObject);
             state.activeCondition_Exist = exist;
             state.activeCondition_Except = except;
 
-            Dictionary<Type, List<State>> checkList = stateDateDic[gameObject].CheckStateList;
+            Dictionary<Type, List<StateInst>> checkList = stateDateDic[gameObject].CheckStateList;
             exist.ForEach((stateType) =>
             {
-                List<State> states = checkList.GetOrCreate(stateType);
+                List<StateInst> states = checkList.GetOrCreate(stateType);
                 states.AddNotHas(state);
             });
 
 
-            Dictionary<Type, List<State>> onDisableCheck = stateDateDic[gameObject].CheckStateList;
+            Dictionary<Type, List<StateInst>> onDisableCheck = stateDateDic[gameObject].CheckStateList;
             except.ForEach((stateType) =>
             {
-                List<State> states = onDisableCheck.GetOrCreate(stateType);
+                List<StateInst> states = onDisableCheck.GetOrCreate(stateType);
                 states.AddNotHas(state);
             });
         }
 
-        public static void SetStateAction<T>(GameObject gameObject, Action onEnable = null, Action onDisable = null) where T : State, new()
+        public static void SetStateAction<T>(GameObject gameObject, Action onEnable = null, Action onDisable = null) where T : StateInst, new()
         {
-            State state = GetState<T>(gameObject);
+            StateInst state = GetStateInst<T>(gameObject);
             state.OnEnable += onEnable;
             state.OnDisable += onDisable;
         }
@@ -165,11 +173,11 @@ namespace State
 
 
 
-    public class Fall : State
+    public class Fall : StateInst
     {
 
     }
-    public class OnGround : State
+    public class OnGround : StateInst
     {
 
     }
@@ -180,20 +188,26 @@ namespace State
 
 public static class StateF
 {
-    public static void AddStateCondition<T>(GameObject gameObject, List<System.Type> exist, List<System.Type> except) where T : State.State, new()
+    public static void AddStateCondition<T>(GameObject gameObject, List<System.Type> exist, List<System.Type> except) where T : StateBundle.StateInst, new()
     {
-        State.State.SetStateCondition<T>(gameObject, exist, except);
+        StateBundle.StateInst.SetStateCondition<T>(gameObject, exist, except);
     }
 
-    public static void SetState<T>(GameObject gameObject, bool enabled) where T : State.State, new()
+    public static void SetState<T>(GameObject gameObject, bool enabled) where T : StateBundle.StateInst, new()
     {
-        State.State.SetState<T>(gameObject, enabled);
+        StateBundle.StateInst.SetState<T>(gameObject, enabled);
 
     }
 
 
-    public static void AddStateAction<T>(GameObject gameObject, Action onEnable = null, Action onDisable = null) where T : State.State, new()
+    public static void AddStateAction<T>(GameObject gameObject, Action onEnable = null, Action onDisable = null) where T : StateBundle.StateInst, new()
     {
-        State.State.SetStateAction<T>(gameObject, onEnable, onDisable);
+        StateBundle.StateInst.SetStateAction<T>(gameObject, onEnable, onDisable);
+    }
+
+
+    public static bool GetState<T>(GameObject gameObject) where T : StateBundle.StateInst, new()
+    {
+        return StateBundle.StateInst.GetState<T>(gameObject);
     }
 }

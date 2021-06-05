@@ -19,6 +19,8 @@ namespace EditableBundle
             static Prefab titlePrefab = PrefabI.UI_EditorItem_GroupTitle;
             static List<Prefab> CreatePrefabs = new List<Prefab>()  {
                 PrefabI.SceneLayer,
+                PrefabI.SceneLayer_Back,
+                PrefabI.SceneLayer_Forward,
                 PrefabI.LightManager,
             };
             static string toolName = "创建物体";

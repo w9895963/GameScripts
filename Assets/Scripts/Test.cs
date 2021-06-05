@@ -35,7 +35,8 @@ public class Test : MonoBehaviour
     [ContextMenu("Test")]
     void Test1()
     {
-        EditableF.ShowObjectEditor(PrefabI.EditableSetting.Find());
+        string v1 = JsonUtility.ToJson(new TestStore());
+        File.WriteAllText("1.123.txt", v1);
 
     }
     [ContextMenu("Test2")]
@@ -53,11 +54,6 @@ public class Test : MonoBehaviour
 
     private void Awake()
     {
-        testKey.performed += (d) =>
-        {
-            Test1();
-        };
-        testKey.Enable();
     }
     private void Reset()
     {
@@ -89,8 +85,13 @@ public class Test : MonoBehaviour
 
 
 
-
-
+    [System.Serializable]
+    public class TestStore
+    {
+        public List<System.Type> types = new List<Type>(){
+            typeof(GameObject),typeof(MonoBehaviour)
+        };
+    }
 
 
 
